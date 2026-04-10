@@ -42,3 +42,22 @@ export interface CompatInfo {
 }
 
 export type DimensionLevel = 'L' | 'M' | 'H'
+
+export interface RankedType extends NormalType, PersonalityType {
+  distance: number
+  exact: number
+  similarity: number
+}
+
+export interface TestResult {
+  rawScores: Record<string, number>
+  levels: Record<string, DimensionLevel>
+  ranked: RankedType[]
+  bestNormal: RankedType
+  finalType: PersonalityType & { similarity?: number }
+  modeKicker: string
+  badge: string
+  sub: string
+  special: boolean
+  secondaryType: RankedType | null
+}
