@@ -1506,21 +1506,12 @@ window._inviteRenderId = 0;
             var posterImg = imgs[0];
             var qrImg = imgs[1];
 
-            // Calculate canvas height dynamically
-            var y = 0;
-            y += 8;  // accent bar
-            y += 60; // brand + padding
-            y += 220; // hero section (poster + type info)
-            
-            
-            y += 20; // intro line
+            // Pre-calculate height
             var introText = mode === 'invite'
                 ? '\u6211\u662F' + (type.cn || type.code) + '\uFF0C\u4F60\u662F\u4EC0\u4E48\uFF1F\u6765\u6D4B\u6D4B\u770B\uFF01'
                 : (type.intro || '');
-            y += Math.ceil(introText.length / 20) * 22 + 20; // wrapped intro
-            y += 120; // footer (qr + cta)
-            y += 30; // bottom padding
-            var H = Math.max(500, y);
+            var estLines = Math.ceil(introText.length / 28) + 1;
+            var H = 60 + 240 + 20 + estLines * 30 + 30 + 120 + 30 + 110 + 40;
 
             var canvas = document.createElement('canvas');
             canvas.width = W;
@@ -1528,138 +1519,138 @@ window._inviteRenderId = 0;
             var ctx = canvas.getContext('2d');
 
             // Background
-            ctx.fillStyle = '#f5f0e8';
+            ctx.fillStyle = '#faf6f0';
             ctx.fillRect(0, 0, W, H);
 
-            // Accent bar
-            var grad = ctx.createLinearGradient(0, 0, W, 0);
-            grad.addColorStop(0, '#ff3366');
-            grad.addColorStop(0.5, '#ff6633');
-            grad.addColorStop(1, '#ffcc00');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, W, 8);
+            var curY = 0;
+            var pad = 40;
 
-            var curY = 28;
+            // ===== Top brand =====
+            curY += 36;
+            ctx.font = 'bold 14px -apple-system, sans-serif';
+            ctx.fillStyle = '#ccc';
+            ctx.textAlign = 'center';
+            ctx.fillText('SBTI PERSONALITY', W / 2, curY);
+            curY += 28;
 
-            // Brand
-            ctx.font = 'bold 15px -apple-system, sans-serif';
-            ctx.fillStyle = '#bbb';
-            ctx.textAlign = 'left';
-            ctx.fillText('SBTI PERSONALITY', 32, curY);
-            curY += 30;
-
-            // Hero section: left poster + right type info (horizontal layout)
+            // ===== Hero: left poster + right info =====
             var heroH = 200;
             var posterSize = heroH;
-            var textX = 32 + posterSize + 24; // poster left + poster width + gap
+            var posterX = pad;
+            var posterBgColor = '#f8d7da'; // soft pink like reference
 
-            // Poster image (left side, square with rounded corners)
+            // Poster background (rounded square)
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(posterX, curY, posterSize, posterSize, 16);
+            ctx.clip();
+            ctx.fillStyle = posterBgColor;
+            ctx.fillRect(posterX, curY, posterSize, posterSize);
             if (posterImg) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.roundRect(32, curY, posterSize, posterSize, 14);
-                ctx.clip();
-                ctx.fillStyle = '#faf5ed';
-                ctx.fillRect(32, curY, posterSize, posterSize);
-                // Draw image centered in square
                 var ratio = posterImg.width / posterImg.height;
-                var drawW, drawH, dx, dy;
+                var dw, dh, ddx, ddy;
                 if (ratio > 1) {
-                    drawH = posterSize;
-                    drawW = posterSize * ratio;
-                    dx = 32 + (posterSize - drawW) / 2;
-                    dy = curY;
+                    dh = posterSize * 0.85;
+                    dw = dh * ratio;
                 } else {
-                    drawW = posterSize;
-                    drawH = posterSize / ratio;
-                    dx = 32;
-                    dy = curY + (posterSize - drawH) / 2;
+                    dw = posterSize * 0.85;
+                    dh = dw / ratio;
                 }
-                ctx.drawImage(posterImg, dx, dy, drawW, drawH);
-                ctx.restore();
+                ddx = posterX + (posterSize - dw) / 2;
+                ddy = curY + (posterSize - dh) / 2;
+                ctx.drawImage(posterImg, ddx, ddy, dw, dh);
             }
+            ctx.restore();
 
-            // Type info (right side)
-            var infoY = curY + 20;
+            // Small label above poster
+            ctx.font = '12px -apple-system, sans-serif';
+            ctx.fillStyle = '#999';
+            ctx.textAlign = 'left';
+            ctx.fillText('\u4f60\u7684\u4eba\u683c\u7c7b\u578b\u662f', posterX + 10, curY + 20);
 
-            // Type code
-            ctx.font = 'bold 52px -apple-system, sans-serif';
+            // Right side info
+            var infoX = posterX + posterSize + 32;
+            var infoY = curY + 24;
+
+            // Type code (large)
+            ctx.font = 'bold 56px -apple-system, sans-serif';
             ctx.fillStyle = '#1a1a1a';
             ctx.textAlign = 'left';
-            ctx.fillText(type.code, textX, infoY + 42);
-            infoY += 56;
+            ctx.fillText(type.code, infoX, infoY + 50);
+            infoY += 64;
 
             // CN name
-            ctx.font = '20px -apple-system, sans-serif';
-            ctx.fillStyle = '#888';
-            ctx.fillText(type.cn || '', textX, infoY + 16);
-            infoY += 32;
+            ctx.font = '24px -apple-system, sans-serif';
+            ctx.fillStyle = '#666';
+            ctx.fillText(type.cn || '', infoX, infoY + 20);
+            infoY += 40;
 
             // Match badge
-            var simPct = type.similarity || result.bestNormal && result.bestNormal.similarity || 100;
+            var simPct = type.similarity || (result.bestNormal && result.bestNormal.similarity) || 100;
             ctx.font = 'bold 16px -apple-system, sans-serif';
             var badgeText = simPct + '% MATCH';
             var tw = ctx.measureText(badgeText).width;
             ctx.fillStyle = '#edf6ef';
             ctx.beginPath();
-            ctx.roundRect(textX, infoY, tw + 28, 34, 17);
+            ctx.roundRect(infoX, infoY, tw + 28, 34, 17);
             ctx.fill();
             ctx.fillStyle = '#4d6a53';
-            ctx.fillText(badgeText, textX + 14, infoY + 23);
+            ctx.fillText(badgeText, infoX + 14, infoY + 23);
 
-            curY += heroH + 20;
+            curY += heroH + 24;
 
-            // Intro text
+            // ===== Intro text =====
             ctx.font = '17px -apple-system, sans-serif';
-            ctx.fillStyle = '#555';
+            ctx.fillStyle = '#e67e22';
             ctx.textAlign = 'left';
-            curY = wrapText(ctx, introText, 32, curY + 20, W - 64, 30);
-            curY += 16;
+            curY = wrapText(ctx, introText, pad, curY + 16, W - pad * 2, 28);
+            curY += 20;
 
-            // Dims tags
+            // ===== Dims tags =====
             if (result && result.levels) {
                 var levelCn = { L: '\u4f4e', M: '\u4e2d', H: '\u9ad8' };
                 ctx.font = '14px -apple-system, sans-serif';
-                var tagX = 32;
+                var tagX = pad;
                 var tagY = curY;
                 dimensionOrder.forEach(function (dim) {
                     var name = dimensionMeta[dim].name.replace(/^[A-Za-z0-9]+\s*/, '');
-                    var tag = name + ' ' + (levelCn[result.levels[dim]] || result.levels[dim]);
-                    var tagW = ctx.measureText(tag).width + 16;
-                    if (tagX + tagW > W - 32) { tagX = 32; tagY += 28; }
-                    ctx.fillStyle = '#e8e3db';
+                    var level = levelCn[result.levels[dim]] || result.levels[dim];
+                    var tag = name + ' ' + level;
+                    var tagW = ctx.measureText(tag).width + 20;
+                    if (tagX + tagW > W - pad) { tagX = pad; tagY += 30; }
+                    ctx.fillStyle = '#f0ebe3';
                     ctx.beginPath();
-                    ctx.roundRect(tagX, tagY, tagW, 22, 11);
+                    ctx.roundRect(tagX, tagY, tagW, 26, 13);
                     ctx.fill();
-                    ctx.fillStyle = '#666';
-                    ctx.fillText(tag, tagX + 8, tagY + 15);
-                    tagX += tagW + 6;
+                    ctx.fillStyle = '#888';
+                    ctx.fillText(tag, tagX + 10, tagY + 18);
+                    tagX += tagW + 8;
                 });
-                curY = tagY + 40;
+                curY = tagY + 44;
             }
 
-            // Separator line
-            ctx.strokeStyle = '#e0dbd3';
+            // ===== Separator =====
+            ctx.strokeStyle = '#e8e3db';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(32, curY);
-            ctx.lineTo(W - 32, curY);
+            ctx.moveTo(pad, curY);
+            ctx.lineTo(W - pad, curY);
             ctx.stroke();
-            curY += 16;
+            curY += 20;
 
-            // Footer: CTA + QR
-            ctx.font = '15px -apple-system, sans-serif';
-            ctx.fillStyle = '#999';
+            // ===== Footer: CTA + QR =====
+            ctx.font = '13px -apple-system, sans-serif';
+            ctx.fillStyle = '#bbb';
             ctx.textAlign = 'left';
-            ctx.fillText('\u626b\u7801\u6765\u6d4b', 32, curY + 24);
-            ctx.fillText('\u4f60\u662f\u4ec0\u4e48\u4eba\u683c', 32, curY + 44);
+            ctx.fillText('\u626b\u7801\u6765\u6d4b', pad, curY + 24);
+            ctx.fillText('\u4f60\u662f\u4ec0\u4e48\u4eba\u683c', pad, curY + 44);
 
             if (qrImg) {
-                ctx.drawImage(qrImg, W - 32 - 88, curY, 88, 88);
+                ctx.drawImage(qrImg, W - pad - 88, curY, 88, 88);
             }
             curY += 104;
 
-            // Resize canvas to actual content height
+            // Trim canvas to actual content
             if (curY < H) {
                 var trimmed = document.createElement('canvas');
                 trimmed.width = W;
