@@ -1504,6 +1504,61 @@ button:disabled {
 .egg-bounce { animation: scaleBounce 0.4s ease; }
 .egg-badge-pop { animation: badgePop 0.5s ease 0.3s both; }
 
+/* ===== 翻页模式 ===== */
+.question-paged {
+    min-height: 200px;
+}
+.question-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    gap: 12px;
+}
+.question-nav-btn {
+    min-width: 80px;
+}
+.question-nav-dots {
+    font-size: 13px;
+    color: var(--muted);
+}
+.option-selected {
+    border-color: var(--accent-strong) !important;
+    background: var(--soft) !important;
+}
+
+/* ===== 本地测试记录 ===== */
+.local-history-list { display: grid; gap: 10px; }
+.local-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    gap: 12px;
+}
+.local-history-type { display: flex; align-items: baseline; gap: 8px; }
+.local-history-type strong { font-size: 16px; color: var(--accent-strong); }
+.local-history-cn { font-size: 13px; color: var(--muted); }
+.local-history-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.local-history-rarity {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    background: var(--soft); border: 1px solid var(--line);
+    padding: 2px 8px; border-radius: 999px;
+}
+.local-history-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+/* ===== 调试工具栏 ===== */
+.test-toolbar { background: #1a1a2e; color: #fff; padding: 14px 18px; border-radius: 14px; margin-bottom: 16px; }
+.test-toolbar-title { font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.test-toolbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.test-toolbar-btn { background: #2d2d44; color: #fff; border: 1px solid #3d3d5c; padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+.test-toolbar-btn:hover { background: #3d3d5c; transform: none; }
+.test-toolbar-pick { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.test-toolbar-select { background: #2d2d44; color: #fff; border: 1px solid #3d3d5c; padding: 8px 12px; border-radius: 10px; font-size: 13px; flex: 1; min-width: 0; }
+
 /* ===== Monetag Ad Containers ===== */
 .ad-banner-container {
   width: 100%;

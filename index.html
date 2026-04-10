@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="./main.css">
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
+  <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js" defer></script>
   <!-- Monetag Ads -->
-  <script src="https://alwingulla.com/88/tag.min.js" data-zone="MONETAG_SITE_ID" async></script>
+  <script src="https://alwingulla.com/88/tag.min.js" data-zone="10859525" async></script>
 </head>
 <body>
   <!-- 顶部导航 -->
@@ -16,7 +17,9 @@
     <div class="top-nav-inner">
       <div class="top-nav-brand">SBTI</div>
       <div class="top-nav-tabs">
-        <button class="top-nav-tab active" data-tab="tab-profiles">人物介绍</button>
+        <button class="top-nav-tab active" data-tab="tab-home">首页</button>
+        <button class="top-nav-tab" data-tab="tab-profiles">人格介绍</button>
+        <button class="top-nav-tab" data-tab="tab-compat">人格相性</button>
         <button class="top-nav-tab" data-tab="tab-ranking">全站排行</button>
       </div>
       <button id="navStartBtn" class="btn-primary nav-start-btn">开始测试</button>
@@ -24,8 +27,8 @@
   </nav>
 
   <div class="shell">
-    <!-- Tab 1: 人物介绍 -->
-    <div id="tab-profiles" class="tab-panel active">
+    <!-- Tab: 首页 -->
+    <div id="tab-home" class="tab-panel active">
       <div class="hero card hero-minimal">
         <h1>MBTI已经过时，SBTI来了。</h1>
         <div class="hero-actions hero-actions-single">
@@ -51,7 +54,31 @@
       </div>
     </div>
 
-    <!-- Tab 2: 全站排行 -->
+    <!-- Tab: 人格介绍 -->
+    <div id="tab-profiles" class="tab-panel">
+      <div class="types-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">全部人格一览</h2>
+        <div class="rarity-switch">
+          <span class="rarity-switch-label rarity-switch-label-sub">理论稀有度</span>
+          <label class="switch">
+            <input type="checkbox" class="rarityToggleSub" />
+            <span class="switch-slider"></span>
+          </label>
+          <span class="rarity-switch-hint rarity-switch-hint-sub">切换到真实数据</span>
+        </div>
+        <div id="typesGridSub" class="types-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: 人格相性 -->
+    <div id="tab-compat" class="tab-panel">
+      <div class="compat-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">人格相性表</h2>
+        <div id="compatGridSub" class="compat-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: 全站排行 -->
     <div id="tab-ranking" class="tab-panel">
       <div class="card" style="margin-top:22px; padding:22px;">
         <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:6px; text-align:center;">全站人格排行榜</h2>
@@ -74,6 +101,25 @@
           </div>
           <div id="rankingList" class="ranking-list"></div>
           <div id="adBannerRanking" class="ad-banner-container" style="margin-top:16px;"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px; padding:22px;" id="localHistoryCard">
+        <h2 style="font-size:clamp(18px,3vw,24px); margin-bottom:14px; text-align:center;">我的测试记录</h2>
+        <p style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:16px;">数据保存在你的浏览器中</p>
+        <div id="localHistoryEmpty" style="text-align:center; color:var(--muted); padding:20px 0;">还没有测试记录</div>
+        <div id="localHistoryContent" style="display:none;">
+          <div class="ranking-stats">
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="localTestCount">0</div>
+              <div class="ranking-stat-label">我的测试次数</div>
+            </div>
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="localUniqueTypes">0</div>
+              <div class="ranking-stat-label">我解锁的人格</div>
+            </div>
+          </div>
+          <div id="localHistoryList" class="local-history-list"></div>
         </div>
       </div>
     </div>
@@ -103,6 +149,20 @@
 
       <section id="result" class="screen">
         <div class="result-wrap card">
+          <div id="testToolbar" class="test-toolbar" style="display:none;">
+            <div class="test-toolbar-title">DEBUG TOOLBAR (test domain only)</div>
+            <div class="test-toolbar-btns">
+              <button id="testReroll" class="test-toolbar-btn">🎲 换一个人格</button>
+              <button id="testShareImg" class="test-toolbar-btn">🖼️ 测试分享图</button>
+              <button id="testInviteImg" class="test-toolbar-btn">📨 测试邀请图</button>
+            </div>
+            <div class="test-toolbar-pick">
+              <select id="testTypePicker" class="test-toolbar-select">
+                <option value="">🎯 选择指定人格…</option>
+              </select>
+              <button id="testPickBtn" class="test-toolbar-btn">生成该人格</button>
+            </div>
+          </div>
           <div class="result-layout">
             <div class="result-top">
               <div class="poster-box" id="posterBox">
@@ -251,11 +311,14 @@
       </div>
       <div class="share-modal-actions">
         <button id="shareDownloadBtn" class="btn-primary">保存图片</button>
+        <button id="shareCopyLinkBtn" class="btn-secondary">复制链接</button>
         <button id="shareNativeBtn" class="btn-secondary">分享给好友</button>
       </div>
     </div>
   </div>
 
   <script src="./main.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

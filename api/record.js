@@ -21,8 +21,20 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid type' });
   }
 
-  await redis.zincrby('sbti:ranking', 1, type);
-  const total = await redis.incr('sbti:total');
+  // Device fingerprint: IP + UA prefix
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  const ua = req.headers['user-agent'] || '';
+  const deviceId = Buffer.from(ip + '|' + ua.substring(0, 50)).toString('base64').substring(0, 32);
 
-  res.status(200).json({ ok: true, total });
+  const pipeline = redis.pipeline();
+  pipeline.zincrby('sbti:ranking', 1, type);
+  pipeline.incr('sbti:total');
+  pipeline.sadd('sbti:devices', deviceId);
+  pipeline.hset('sbti:device_results', {
+    [deviceId]: JSON.stringify({ type, time: Date.now() })
+  });
+
+  const results = await pipeline.exec();
+
+  res.status(200).json({ ok: true, total: results[1] });
 }
