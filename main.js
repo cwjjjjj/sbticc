@@ -1537,15 +1537,14 @@ window._inviteRenderId = 0;
             var heroH = 200;
             var posterSize = heroH;
             var posterX = pad;
-            var posterBgColor = '#f8d7da'; // soft pink like reference
+            
 
             // Poster background (rounded square)
             ctx.save();
             ctx.beginPath();
             ctx.roundRect(posterX, curY, posterSize, posterSize, 16);
             ctx.clip();
-            ctx.fillStyle = posterBgColor;
-            ctx.fillRect(posterX, curY, posterSize, posterSize);
+            
             if (posterImg) {
                 var ratio = posterImg.width / posterImg.height;
                 var dw, dh, ddx, ddy;
@@ -1562,11 +1561,7 @@ window._inviteRenderId = 0;
             }
             ctx.restore();
 
-            // Small label above poster
-            ctx.font = '12px -apple-system, sans-serif';
-            ctx.fillStyle = '#999';
-            ctx.textAlign = 'left';
-            ctx.fillText('\u4f60\u7684\u4eba\u683c\u7c7b\u578b\u662f', posterX + 10, curY + 20);
+
 
             // Right side info
             var infoX = posterX + posterSize + 32;
