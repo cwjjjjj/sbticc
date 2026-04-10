@@ -1444,7 +1444,7 @@ var SHARE_IMAGES = {
     "IMFW": "./images/IMFW.jpg", "Dior-s": "./images/Dior-s.jpg", "JOKE-R": "./images/JOKE-R.jpg"
 };
 
-var PROD_BASE_URL = 'https://sbticc.vercel.app';
+var PROD_BASE_URL = 'https://sbti.jiligulu.xyz';
 
 window._shareRenderId = 0;
 window._inviteRenderId = 0;
