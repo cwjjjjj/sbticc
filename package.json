@@ -6,5 +6,8 @@
     "dev:weapp": "cd packages/taro-app && pnpm dev:weapp",
     "build:h5": "cd packages/taro-app && pnpm build:h5",
     "build:weapp": "cd packages/taro-app && pnpm build:weapp"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.37.0"
   }
 }

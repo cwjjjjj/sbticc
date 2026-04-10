@@ -1444,12 +1444,13 @@ function renderLocalHistory() {
                     shareBtn.disabled = false;
                     shareBtn.textContent = '生成分享图';
                 }, 'image/png');
-            }).catch(function () {
+            }).catch(function (err) {
+                console.error('html2canvas error:', err);
                 card.style.left = '-9999px';
                 card.style.position = 'fixed';
                 shareBtn.disabled = false;
                 shareBtn.textContent = '生成分享图';
-                alert('生成失败，请重试');
+                alert('生成失败: ' + (err && err.message ? err.message : '未知错误'));
             });
         }
 
@@ -1799,7 +1800,8 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
                 btn.disabled = false;
                 btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
             }, 'image/png');
-        }).catch(function () {
+        }).catch(function (err) {
+            console.error('html2canvas invite error:', err);
             card.style.left = '-9999px';
             card.style.position = 'fixed';
             btn.disabled = false;
