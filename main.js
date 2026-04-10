@@ -1204,10 +1204,10 @@ function showInterstitialThenResult() {
     var overlay = document.createElement('div');
     overlay.className = 'ad-interstitial-overlay';
     overlay.innerHTML =
-        '<div style="font-size:22px;font-weight:600;margin-bottom:12px;">Loading result...</div>' +
+        '<div style="font-size:22px;font-weight:600;margin-bottom:12px;">\u7ED3\u679C\u751F\u6210\u4E2D...</div>' +
         '<div id="adInterstitialSlot" style="width:300px;height:250px;background:#222;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#666;">AD</div>' +
         '<div class="ad-countdown" id="adCountdown">5s</div>' +
-        '<button class="ad-skip-btn" id="adSkipBtn">show result</button>';
+        '<button class="ad-skip-btn" id="adSkipBtn" style="display:none;">\u67E5\u770B\u7ED3\u679C</button>';
     document.body.appendChild(overlay);
 
     var seconds = 5;
@@ -1219,7 +1219,7 @@ function showInterstitialThenResult() {
         countdownEl.textContent = seconds + 's';
         if (seconds <= 0) {
             clearInterval(timer);
-            skipBtn.style.display = '';
+            skipBtn.style.display = 'inline-block';
         }
     }, 1000);
 
