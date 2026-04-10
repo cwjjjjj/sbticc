@@ -1381,6 +1381,56 @@ function renderLocalHistory() {
     try { renderResult(); } catch (e) { console.error('debug renderResult error:', e); }
 })();
 
+/* ===== iOS 兼容工具函数（全局） ===== */
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+function imgToDataURL(imgEl, callback) {
+    console.log('[Share] imgToDataURL called, src:', imgEl && imgEl.src ? imgEl.src.substring(0, 80) : 'none');
+    if (!imgEl || !imgEl.src || imgEl.src.indexOf('data:') === 0) {
+        callback();
+        return;
+    }
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function () {
+        try {
+            var cvs = document.createElement('canvas');
+            cvs.width = img.naturalWidth;
+            cvs.height = img.naturalHeight;
+            cvs.getContext('2d').drawImage(img, 0, 0);
+            imgEl.src = cvs.toDataURL('image/png');
+            console.log('[Share] imgToDataURL converted to dataURL, size:', imgEl.src.length);
+        } catch (e) { console.warn('imgToDataURL failed:', e); }
+        callback();
+    };
+    img.onerror = function () { callback(); };
+    img.src = imgEl.src;
+}
+
+function canvasToBlob(canvas, callback) {
+    if (canvas.toBlob) {
+        canvas.toBlob(function (blob) {
+            if (blob) { callback(blob); return; }
+            fallback();
+        }, 'image/png');
+    } else {
+        fallback();
+    }
+    function fallback() {
+        try {
+            var dataUrl = canvas.toDataURL('image/png');
+            var parts = dataUrl.split(',');
+            var byteStr = atob(parts[1]);
+            var arr = new Uint8Array(byteStr.length);
+            for (var i = 0; i < byteStr.length; i++) arr[i] = byteStr.charCodeAt(i);
+            callback(new Blob([arr], { type: 'image/png' }));
+        } catch (e) {
+            console.error('canvasToBlob fallback failed:', e);
+            callback(null);
+        }
+    }
+}
+
 /* ===== 分享图功能 ===== */
 (function () {
     var shareBtn = document.getElementById('shareBtn');
@@ -1399,57 +1449,6 @@ function renderLocalHistory() {
         return qr.createDataURL(4, 0);
     }
 
-
-    // iOS compatibility helpers
-    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    function imgToDataURL(imgEl, callback) {
-        console.log('[Share] imgToDataURL called, src:', imgEl && imgEl.src ? imgEl.src.substring(0, 80) : 'none');
-        if (!imgEl || !imgEl.src || imgEl.src.indexOf('data:') === 0) {
-            callback();
-            return;
-        }
-        var img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = function () {
-            try {
-                var cvs = document.createElement('canvas');
-                cvs.width = img.naturalWidth;
-                cvs.height = img.naturalHeight;
-                cvs.getContext('2d').drawImage(img, 0, 0);
-                imgEl.src = cvs.toDataURL('image/png');
-                console.log('[Share] imgToDataURL converted to dataURL, size:', imgEl.src.length);
-            } catch (e) { console.warn('imgToDataURL failed:', e); }
-            callback();
-        };
-        img.onerror = function () { callback(); };
-        img.src = imgEl.src;
-    }
-
-    function canvasToBlob(canvas, callback) {
-        if (canvas.toBlob) {
-            canvas.toBlob(function (blob) {
-                if (blob) { callback(blob); return; }
-                // toBlob returned null, fallback
-                fallback();
-            }, 'image/png');
-        } else {
-            fallback();
-        }
-        function fallback() {
-            try {
-                var dataUrl = canvas.toDataURL('image/png');
-                var parts = dataUrl.split(',');
-                var byteStr = atob(parts[1]);
-                var arr = new Uint8Array(byteStr.length);
-                for (var i = 0; i < byteStr.length; i++) arr[i] = byteStr.charCodeAt(i);
-                callback(new Blob([arr], { type: 'image/png' }));
-            } catch (e) {
-                console.error('canvasToBlob fallback failed:', e);
-                callback(null);
-            }
-        }
-    }
 
     function populateShareCard() {
         console.log('[Share] populateShareCard called');
