@@ -708,6 +708,8 @@ const testHint = document.getElementById('testHint');
 
 var testOverlay = document.getElementById('testOverlay');
 
+var eggState = { firstShake: false, lastSubmitDisabled: true };
+
 function showScreen(name) {
     // 打开测试/结果/对比页时显示覆盖层
     if (name === 'test' || name === 'result' || name === 'compare') {
@@ -1393,6 +1395,7 @@ function renderLocalHistory() {
     }
 
     function renderShareImage() {
+        window._lastCompareUrl = null;
         shareBtn.disabled = true;
         shareBtn.textContent = '生成中...';
 
@@ -1470,6 +1473,20 @@ function renderLocalHistory() {
     shareDownloadBtn.addEventListener('click', downloadImage);
     shareNativeBtn.addEventListener('click', nativeShare);
     shareModalClose.addEventListener('click', closeModal);
+
+    // Copy link button
+    var shareCopyLinkBtn = document.getElementById('shareCopyLinkBtn');
+    shareCopyLinkBtn.addEventListener('click', function () {
+        var url = window._lastCompareUrl || window.location.href.split('?')[0].split('#')[0];
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function () {
+                shareCopyLinkBtn.textContent = '已复制！';
+                setTimeout(function () { shareCopyLinkBtn.textContent = '复制链接'; }, 1500);
+            });
+        } else {
+            prompt('复制链接：', url);
+        }
+    });
     shareModal.addEventListener('click', function (e) {
         if (e.target === shareModal) closeModal();
     });
@@ -1684,20 +1701,89 @@ function renderCompare(personA, personB) {
     showScreen('compare');
 }
 
-// 邀请按钮
+// 邀请按钮 - 生成邀请分享图
 document.getElementById('compareInviteBtn').addEventListener('click', function () {
     var result = computeResult();
     var type = result.finalType;
     var encoded = CompareUtil.encode(type.code, result.levels, type.similarity || 100);
     var baseUrl = window.location.href.split('?')[0].split('#')[0];
     var compareUrl = baseUrl + '?compare=' + encoded;
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(compareUrl).then(function () {
-            alert('对比链接已复制！发给好友即可');
+    window._lastCompareUrl = compareUrl;
+
+    // Populate share card with invite style
+    var lib = TYPE_LIBRARY[type.code] || {};
+    document.getElementById('shareCardCode').textContent = type.code;
+    document.getElementById('shareCardCn').textContent = lib.cn || '';
+    document.getElementById('shareCardMatch').textContent = (type.similarity || 100) + '% MATCH';
+    document.getElementById('shareCardIntro').textContent = '\u6211\u662F' + (lib.cn || type.code) + '\uFF0C\u4F60\u662F\u4EC0\u4E48\uFF1F\u6765\u6D4B\u6D4B\u770B\uFF01';
+
+    var posterEl = document.getElementById('shareCardPoster');
+    var posterBox = posterEl.parentElement;
+    var imgSrc = TYPE_IMAGES[type.code];
+    if (imgSrc) { posterEl.src = imgSrc; posterBox.classList.remove('hidden'); }
+    else { posterEl.removeAttribute('src'); posterBox.classList.add('hidden'); }
+
+    var dimsEl = document.getElementById('shareCardDims');
+    dimsEl.innerHTML = dimensionOrder.map(function (dim) {
+        var level = result.levels[dim];
+        var name = dimensionMeta[dim].name.replace(/^[A-Za-z0-9]+\s*/, '');
+        return '<span class="share-card-dim-tag">' + name + ' ' + level + '</span>';
+    }).join('');
+
+    // QR code points to compare URL
+    var qrEl = document.getElementById('shareCardQR');
+    var qr = qrcode(0, 'M');
+    qr.addData(compareUrl);
+    qr.make();
+    qrEl.innerHTML = '<img src="' + qr.createDataURL(4, 0) + '" alt="QR" />';
+
+    // Render to image
+    var btn = document.getElementById('compareInviteBtn');
+    btn.disabled = true;
+    btn.textContent = '\u751F\u6210\u4E2D...';
+
+    var card = document.getElementById('shareCard');
+    card.style.left = '0';
+    card.style.top = '0';
+    card.style.position = 'absolute';
+    card.style.zIndex = '-1';
+    card.style.opacity = '1';
+
+    setTimeout(function () {
+        html2canvas(card, {
+            scale: 2, useCORS: true, allowTaint: true,
+            backgroundColor: '#f5f0e8', width: 420, logging: false
+        }).then(function (canvas) {
+            card.style.left = '-9999px';
+            card.style.position = 'fixed';
+            canvas.toBlob(function (blob) {
+                window._inviteBlob = blob;
+                var url = URL.createObjectURL(blob);
+                document.getElementById('sharePreview').src = url;
+                // Update modal buttons for invite mode
+                document.getElementById('shareDownloadBtn').onclick = function () {
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'sbti-invite-' + type.code + '.png';
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                };
+                document.getElementById('shareNativeBtn').style.display = navigator.share ? '' : 'none';
+                document.getElementById('shareNativeBtn').onclick = function () {
+                    if (!navigator.share) return;
+                    var file = new File([blob], 'sbti-invite.png', { type: 'image/png' });
+                    navigator.share({ title: 'SBTI \u4EBA\u683C\u6D4B\u8BD5', text: '\u6765\u6D4B\u6D4B\u4F60\u662F\u4EC0\u4E48\u4EBA\u683C\uFF01', files: [file] }).catch(function(){});
+                };
+                document.getElementById('shareModal').classList.add('active');
+                btn.disabled = false;
+                btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
+            }, 'image/png');
+        }).catch(function () {
+            card.style.left = '-9999px';
+            card.style.position = 'fixed';
+            btn.disabled = false;
+            btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
         });
-    } else {
-        prompt('复制这个链接发给好友：', compareUrl);
-    }
+    }, 100);
 });
 
 // URL 参数检测：如果有 compare 参数，存储并修改首页
@@ -1836,7 +1922,6 @@ document.getElementById('compareRestartBtn').addEventListener('click', function 
 })();
 
 /* ===== 测试彩蛋（无 MutationObserver，直接调用） ===== */
-var eggState = { firstShake: false, lastSubmitDisabled: true };
 
 function eggOnRenderQuestion() {
     // 彩蛋 1: 第一题震撼弹
