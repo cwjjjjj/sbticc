@@ -28,6 +28,7 @@
   "dependencies": {
     "@tarojs/components": "3.6.x",
     "@tarojs/plugin-framework-react": "3.6.x",
+    "@tarojs/react": "3.6.39",
     "@tarojs/runtime": "3.6.x",
     "@tarojs/shared": "3.6.39",
     "@tarojs/taro": "3.6.x",
