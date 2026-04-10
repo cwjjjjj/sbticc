@@ -1389,6 +1389,56 @@ function renderLocalHistory() {
         return qr.createDataURL(4, 0);
     }
 
+
+    // iOS compatibility helpers
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    function imgToDataURL(imgEl, callback) {
+        if (!imgEl || !imgEl.src || imgEl.src.indexOf('data:') === 0) {
+            callback();
+            return;
+        }
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function () {
+            try {
+                var cvs = document.createElement('canvas');
+                cvs.width = img.naturalWidth;
+                cvs.height = img.naturalHeight;
+                cvs.getContext('2d').drawImage(img, 0, 0);
+                imgEl.src = cvs.toDataURL('image/png');
+            } catch (e) { console.warn('imgToDataURL failed:', e); }
+            callback();
+        };
+        img.onerror = function () { callback(); };
+        img.src = imgEl.src;
+    }
+
+    function canvasToBlob(canvas, callback) {
+        if (canvas.toBlob) {
+            canvas.toBlob(function (blob) {
+                if (blob) { callback(blob); return; }
+                // toBlob returned null, fallback
+                fallback();
+            }, 'image/png');
+        } else {
+            fallback();
+        }
+        function fallback() {
+            try {
+                var dataUrl = canvas.toDataURL('image/png');
+                var parts = dataUrl.split(',');
+                var byteStr = atob(parts[1]);
+                var arr = new Uint8Array(byteStr.length);
+                for (var i = 0; i < byteStr.length; i++) arr[i] = byteStr.charCodeAt(i);
+                callback(new Blob([arr], { type: 'image/png' }));
+            } catch (e) {
+                console.error('canvasToBlob fallback failed:', e);
+                callback(null);
+            }
+        }
+    }
+
     function populateShareCard() {
         var result = computeResult();
         var type = result.finalType;
@@ -1803,8 +1853,9 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
     card.style.opacity = '1';
 
     function doInviteRender() {
+        var _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         html2canvas(card, {
-            scale: 2, useCORS: true, allowTaint: true,
+            scale: _isIOS ? 1.5 : 2, useCORS: true, allowTaint: true,
             backgroundColor: '#f5f0e8', width: 420, logging: false,
             onclone: function (doc) {
                 var cc = doc.getElementById('shareCard');
@@ -1813,11 +1864,11 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
         }).then(function (canvas) {
             card.style.left = '-9999px';
             card.style.position = 'fixed';
-            canvas.toBlob(function (blob) {
+            canvasToBlob(canvas, function (blob) {
+                if (!blob) { btn.disabled = false; btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4'; alert('生成失败'); return; }
                 window._inviteBlob = blob;
                 var url = URL.createObjectURL(blob);
                 document.getElementById('sharePreview').src = url;
-                // Update modal buttons for invite mode
                 document.getElementById('shareDownloadBtn').onclick = function () {
                     var a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
@@ -1833,23 +1884,29 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
                 document.getElementById('shareModal').classList.add('active');
                 btn.disabled = false;
                 btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
-            }, 'image/png');
+            });
         }).catch(function (err) {
             console.error('html2canvas invite error:', err);
             card.style.left = '-9999px';
             card.style.position = 'fixed';
             btn.disabled = false;
             btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
+            alert('邀请图生成失败: ' + (err && err.message ? err.message : '未知错误'));
         });
     }
 
-    var invitePoster = document.getElementById('shareCardPoster');
-    if (invitePoster && invitePoster.src && !invitePoster.complete) {
-        invitePoster.onload = function () { setTimeout(doInviteRender, 50); };
-        invitePoster.onerror = function () { setTimeout(doInviteRender, 50); };
-        setTimeout(doInviteRender, 2000);
-    } else {
-        setTimeout(doInviteRender, 100);
+    // Convert all images to data URL first (iOS fix), then render
+    var inviteImgs = card.querySelectorAll('img');
+    var invitePending = inviteImgs.length;
+    if (invitePending === 0) { setTimeout(doInviteRender, 50); }
+    else {
+        inviteImgs.forEach(function (img) {
+            imgToDataURL(img, function () {
+                invitePending--;
+                if (invitePending <= 0) setTimeout(doInviteRender, 50);
+            });
+        });
+        setTimeout(doInviteRender, 3000);
     }
 });
 
