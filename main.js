@@ -1196,6 +1196,7 @@ function startTest(preview = false) {
 
 document.getElementById('startBtn').addEventListener('click', () => startTest(false));
 document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
+/* TODO: 启用插屏广告后取消注释
 function showInterstitialThenResult() {
     if (isPaid) {
         renderResult();
@@ -1228,10 +1229,9 @@ function showInterstitialThenResult() {
         renderResult();
     });
 }
+*/
 
-document.getElementById('submitBtn').addEventListener('click', function () {
-    showInterstitialThenResult();
-});
+document.getElementById('submitBtn').addEventListener('click', renderResult);
 document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
 /* Rarity data from 1M Monte Carlo simulation */
 var TYPE_RARITY = {
