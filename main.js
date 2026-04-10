@@ -1498,7 +1498,7 @@ window._inviteRenderId = 0;
 
     function drawShareCard(type, result, qrUrl, mode) {
         console.log('[Share] drawShareCard for:', type.code, 'mode:', mode);
-        var W = 720, posterH = 340;
+        var W = 840;
         var imgSrc = SHARE_IMAGES[type.code];
         var qrSrc = generateQR(qrUrl);
 
@@ -1510,8 +1510,8 @@ window._inviteRenderId = 0;
             var y = 0;
             y += 8;  // accent bar
             y += 60; // brand + padding
-            y += posterImg ? posterH + 16 : 0; // poster
-            y += 75; // code + cn
+            y += posterImg ? 480 + 20 : 0; // poster (max estimate)
+            y += 85; // code + cn
             y += 46; // match badge
             y += 20; // intro line
             var introText = mode === 'invite'
@@ -1542,74 +1542,70 @@ window._inviteRenderId = 0;
             var curY = 28;
 
             // Brand
-            ctx.font = 'bold 14px -apple-system, sans-serif';
+            ctx.font = 'bold 15px -apple-system, sans-serif';
             ctx.fillStyle = '#bbb';
             ctx.textAlign = 'left';
             ctx.fillText('SBTI PERSONALITY', 32, curY);
             curY += 30;
 
-            // Poster image
+            // Poster image (contain mode - show full image, no cropping)
             if (posterImg) {
                 var pw = W - 64;
-                var ph = posterH;
                 var ratio = posterImg.width / posterImg.height;
-                var drawW, drawH, dx, dy;
-                if (ratio > pw / ph) {
-                    drawH = ph;
-                    drawW = ph * ratio;
-                    dx = 24 + (pw - drawW) / 2;
-                    dy = curY;
-                } else {
-                    drawW = pw;
-                    drawH = pw / ratio;
-                    dx = 24;
-                    dy = curY + (ph - drawH) / 2;
-                }
-                // Rounded clip
+                var drawW = pw;
+                var drawH = pw / ratio;
+                // Cap max height to 480px
+                if (drawH > 480) { drawH = 480; drawW = drawH * ratio; }
+                var dx = 32 + (pw - drawW) / 2;
+                var dy = curY;
+
+                // Background rounded rect
                 ctx.save();
                 ctx.beginPath();
-                ctx.roundRect(32, curY, pw, ph, 14);
+                ctx.roundRect(32, curY, pw, drawH, 14);
                 ctx.clip();
+                ctx.fillStyle = '#faf5ed';
+                ctx.fillRect(32, curY, pw, drawH);
                 ctx.drawImage(posterImg, dx, dy, drawW, drawH);
                 ctx.restore();
-                curY += ph + 16;
+                curY += drawH + 20;
             }
 
             // Type code
-            ctx.font = 'bold 48px -apple-system, sans-serif';
+            ctx.font = 'bold 56px -apple-system, sans-serif';
             ctx.fillStyle = '#1a1a1a';
             ctx.textAlign = 'left';
             ctx.fillText(type.code, 32, curY + 30);
 
             // CN name
-            ctx.font = '20px -apple-system, sans-serif';
+            ctx.font = '22px -apple-system, sans-serif';
             ctx.fillStyle = '#888';
             var codeW = ctx.measureText(type.code).width;
-            ctx.font = 'bold 48px -apple-system, sans-serif';
+            ctx.font = 'bold 56px -apple-system, sans-serif';
             codeW = ctx.measureText(type.code).width;
-            ctx.font = '20px -apple-system, sans-serif';
-            ctx.fillText(type.cn || '', 32 + codeW + 14, curY + 28);
+            ctx.font = '22px -apple-system, sans-serif';
+            ctx.fillText(type.cn || '', 32 + codeW + 16, curY + 28);
             curY += 44;
 
             // Match badge
             var simPct = type.similarity || result.bestNormal && result.bestNormal.similarity || 100;
-            ctx.font = 'bold 16px -apple-system, sans-serif';
+            ctx.font = 'bold 17px -apple-system, sans-serif';
             ctx.fillStyle = '#4d6a53';
             var badgeText = simPct + '% MATCH';
             var tw = ctx.measureText(badgeText).width;
             ctx.fillStyle = '#edf6ef';
             ctx.beginPath();
-            ctx.roundRect(32, curY, tw + 28, 36, 18);
+            ctx.roundRect(32, curY, tw + 32, 38, 19);
             ctx.fill();
             ctx.fillStyle = '#4d6a53';
-            ctx.fillText(badgeText, 46, curY + 24);
+            ctx.fillText(badgeText, 48, curY + 26);
             curY += 40;
 
             // Intro text
-            ctx.font = '16px -apple-system, sans-serif';
-            ctx.fillStyle = '#666';
+            ctx.font = '17px -apple-system, sans-serif';
+            ctx.fillStyle = '#555';
             ctx.textAlign = 'left';
-            curY = wrapText(ctx, introText, 32, curY + 18, W - 64, 28);
+            curY = wrapText(ctx, introText, 32, curY + 20, W - 64, 30);
             curY += 16;
 
             // Dims tags
@@ -1644,16 +1640,16 @@ window._inviteRenderId = 0;
             curY += 16;
 
             // Footer: CTA + QR
-            ctx.font = '14px -apple-system, sans-serif';
+            ctx.font = '15px -apple-system, sans-serif';
             ctx.fillStyle = '#999';
             ctx.textAlign = 'left';
             ctx.fillText('\u626b\u7801\u6765\u6d4b', 32, curY + 24);
             ctx.fillText('\u4f60\u662f\u4ec0\u4e48\u4eba\u683c', 32, curY + 44);
 
             if (qrImg) {
-                ctx.drawImage(qrImg, W - 32 - 80, curY, 80, 80);
+                ctx.drawImage(qrImg, W - 32 - 88, curY, 88, 88);
             }
-            curY += 96;
+            curY += 104;
 
             // Resize canvas to actual content height
             if (curY < H) {
