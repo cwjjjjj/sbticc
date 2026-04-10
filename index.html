@@ -99,6 +99,25 @@
           <div id="rankingList" class="ranking-list"></div>
         </div>
       </div>
+
+      <div class="card" style="margin-top:22px; padding:22px;" id="localHistoryCard">
+        <h2 style="font-size:clamp(18px,3vw,24px); margin-bottom:14px; text-align:center;">我的测试记录</h2>
+        <p style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:16px;">数据保存在你的浏览器中</p>
+        <div id="localHistoryEmpty" style="text-align:center; color:var(--muted); padding:20px 0;">还没有测试记录</div>
+        <div id="localHistoryContent" style="display:none;">
+          <div class="ranking-stats">
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="localTestCount">0</div>
+              <div class="ranking-stat-label">我的测试次数</div>
+            </div>
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="localUniqueTypes">0</div>
+              <div class="ranking-stat-label">我解锁的人格</div>
+            </div>
+          </div>
+          <div id="localHistoryList" class="local-history-list"></div>
+        </div>
+      </div>
     </div>
   </div>
 

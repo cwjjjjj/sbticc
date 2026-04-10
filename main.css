@@ -1526,3 +1526,26 @@ button:disabled {
     border-color: var(--accent-strong) !important;
     background: var(--soft) !important;
 }
+
+/* ===== 本地测试记录 ===== */
+.local-history-list { display: grid; gap: 10px; }
+.local-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    gap: 12px;
+}
+.local-history-type { display: flex; align-items: baseline; gap: 8px; }
+.local-history-type strong { font-size: 16px; color: var(--accent-strong); }
+.local-history-cn { font-size: 13px; color: var(--muted); }
+.local-history-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.local-history-rarity {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    background: var(--soft); border: 1px solid var(--line);
+    padding: 2px 8px; border-radius: 999px;
+}
+.local-history-time { font-size: 12px; color: var(--muted); white-space: nowrap; }

@@ -1187,12 +1187,42 @@ var TYPE_RARITY = {
 })();
 
 /* ===== 排行榜数据（Upstash Redis API） ===== */
+var LOCAL_HISTORY_KEY = 'sbti_history';
+var LOCAL_STATS_KEY = 'sbti_local_stats';
+
 function saveResult(typeCode) {
+    // Save to remote
     fetch('/api/record', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: typeCode })
     }).catch(function () {});
+
+    // Save to localStorage - stats
+    try {
+        var stats = JSON.parse(localStorage.getItem(LOCAL_STATS_KEY) || '{}');
+        stats[typeCode] = (stats[typeCode] || 0) + 1;
+        localStorage.setItem(LOCAL_STATS_KEY, JSON.stringify(stats));
+    } catch (e) {}
+
+    // Save to localStorage - history with timestamp
+    try {
+        var history = JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || '[]');
+        history.push({ code: typeCode, time: Date.now() });
+        // Keep last 100 records
+        if (history.length > 100) history = history.slice(-100);
+        localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(history));
+    } catch (e) {}
+}
+
+function getLocalStats() {
+    try { return JSON.parse(localStorage.getItem(LOCAL_STATS_KEY) || '{}'); }
+    catch (e) { return {}; }
+}
+
+function getLocalHistory() {
+    try { return JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || '[]'); }
+    catch (e) { return []; }
 }
 
 function renderRanking() {
@@ -1239,6 +1269,53 @@ function renderRanking() {
             loadingEl.style.display = 'none';
             emptyEl.style.display = '';
         });
+
+    // Render local history
+    renderLocalHistory();
+}
+
+function renderLocalHistory() {
+    var history = getLocalHistory();
+    var stats = getLocalStats();
+    var emptyEl = document.getElementById('localHistoryEmpty');
+    var contentEl = document.getElementById('localHistoryContent');
+    if (!emptyEl || !contentEl) return;
+
+    if (history.length === 0) {
+        emptyEl.style.display = '';
+        contentEl.style.display = 'none';
+        return;
+    }
+
+    emptyEl.style.display = 'none';
+    contentEl.style.display = '';
+
+    var totalCount = history.length;
+    var uniqueTypes = Object.keys(stats).length;
+    document.getElementById('localTestCount').textContent = totalCount;
+    document.getElementById('localUniqueTypes').textContent = uniqueTypes;
+
+    // Show recent history (newest first)
+    var recent = history.slice().reverse().slice(0, 20);
+    var listEl = document.getElementById('localHistoryList');
+    listEl.innerHTML = recent.map(function (item) {
+        var lib = (typeof TYPE_LIBRARY !== 'undefined' && TYPE_LIBRARY[item.code]) || {};
+        var cn = lib.cn || '';
+        var d = new Date(item.time);
+        var timeStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        var rarity = (typeof TYPE_RARITY !== 'undefined' && TYPE_RARITY[item.code]) || {};
+        var rarityLabel = rarity.label || '';
+        return '<div class="local-history-item">' +
+            '<div class="local-history-type">' +
+                '<strong>' + item.code + '</strong>' +
+                '<span class="local-history-cn">' + cn + '</span>' +
+            '</div>' +
+            '<div class="local-history-meta">' +
+                (rarityLabel ? '<span class="local-history-rarity">' + rarityLabel + '</span>' : '') +
+                '<span class="local-history-time">' + timeStr + '</span>' +
+            '</div>' +
+        '</div>';
+    }).join('');
 }
 
 /* ===== #test 调试路由：随机填充答案直接跳到结果页 ===== */
