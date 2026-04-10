@@ -77,6 +77,33 @@ body {
     background: var(--soft);
 }
 
+.nav-start-btn {
+    margin-left: auto;
+    padding: 8px 18px;
+    font-size: 13px;
+    border-radius: 10px;
+}
+
+/* 测试流程全屏覆盖层 */
+.test-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--bg);
+    overflow-y: auto;
+}
+
+.test-overlay.active {
+    display: block;
+}
+
+.test-overlay-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px 16px 56px;
+}
+
 /* Tab panels */
 .tab-panel {
     display: none;
@@ -1393,3 +1420,86 @@ button:disabled {
     background: var(--soft); font-style: italic;
 }
 @media (max-width: 600px) { .compare-avatar { width: 80px; height: 80px; } }
+
+/* ===== 稀有度开关 ===== */
+.rarity-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.rarity-switch-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.rarity-switch-hint { font-size: 12px; color: var(--muted); }
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    border-radius: 24px;
+    transition: .2s;
+}
+.switch-slider::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: .2s;
+}
+.switch input:checked + .switch-slider { background: var(--accent-strong); }
+.switch input:checked + .switch-slider::before { transform: translateX(20px); }
+
+/* ===== 测试彩蛋动画 ===== */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+}
+@keyframes dimFlash {
+    0% { opacity: 0; }
+    30% { opacity: 0.3; }
+    100% { opacity: 0; }
+}
+@keyframes wobble {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-1deg); }
+    75% { transform: rotate(1deg); }
+}
+@keyframes scaleBounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.12); }
+    70% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+@keyframes badgePop {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.egg-shake { animation: shake 0.4s ease; }
+.egg-dim-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    animation: dimFlash 0.6s ease forwards;
+}
+.egg-wobble { animation: wobble 0.5s ease 3; }
+.egg-warm-bg { transition: background 0.5s; background: #fdf6e3 !important; }
+.egg-bounce { animation: scaleBounce 0.4s ease; }
+.egg-badge-pop { animation: badgePop 0.5s ease 0.3s both; }
