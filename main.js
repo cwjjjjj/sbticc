@@ -1320,6 +1320,40 @@ function renderLocalHistory() {
     }).join('');
 }
 
+/* ===== Test 域名：结果页调试工具栏 ===== */
+(function () {
+    try {
+        if (window.location.hostname.indexOf('sbticc-test') === -1) return;
+        var toolbar = document.getElementById('testToolbar');
+        if (toolbar) toolbar.style.display = '';
+
+        var reroll = document.getElementById('testReroll');
+        if (reroll) reroll.addEventListener('click', function () {
+            app.answers = {};
+            app.currentQ = 0;
+            questions.forEach(function (q) {
+                app.answers[q.id] = q.options[Math.floor(Math.random() * q.options.length)].value;
+            });
+            specialQuestions.forEach(function (q) {
+                app.answers[q.id] = q.options[Math.floor(Math.random() * q.options.length)].value;
+            });
+            renderResult();
+        });
+
+        var shareImg = document.getElementById('testShareImg');
+        if (shareImg) shareImg.addEventListener('click', function () {
+            var btn = document.getElementById('shareBtn');
+            if (btn) btn.click();
+        });
+
+        var inviteImg = document.getElementById('testInviteImg');
+        if (inviteImg) inviteImg.addEventListener('click', function () {
+            var btn = document.getElementById('compareInviteBtn');
+            if (btn) btn.click();
+        });
+    } catch (e) { console.error('toolbar init error:', e); }
+})();
+
 /* ===== #test 调试路由：随机填充答案直接跳到结果页 ===== */
 (function () {
     var isTestDomain = window.location.hostname.indexOf('sbticc-test') !== -1;
@@ -1334,7 +1368,7 @@ function renderLocalHistory() {
         var opts = q.options;
         app.answers[q.id] = opts[Math.floor(Math.random() * opts.length)].value;
     });
-    renderResult();
+    try { renderResult(); } catch (e) { console.error('debug renderResult error:', e); }
 })();
 
 /* ===== 分享图功能 ===== */
@@ -2076,33 +2110,4 @@ document.addEventListener('change', function (e) {
 })();
 
 
-/* ===== Test 域名：结果页调试工具栏 ===== */
-(function () {
-    if (window.location.hostname.indexOf('sbticc-test') === -1) return;
 
-    // Show the toolbar (hidden by default in HTML)
-    var toolbar = document.getElementById('testToolbar');
-    if (toolbar) toolbar.style.display = '';
-
-    document.getElementById('testReroll').addEventListener('click', function () {
-        app.answers = {};
-        app.currentQ = 0;
-        questions.forEach(function (q) {
-            app.answers[q.id] = q.options[Math.floor(Math.random() * q.options.length)].value;
-        });
-        specialQuestions.forEach(function (q) {
-            app.answers[q.id] = q.options[Math.floor(Math.random() * q.options.length)].value;
-        });
-        renderResult();
-    });
-
-    document.getElementById('testShareImg').addEventListener('click', function () {
-        var shareBtn = document.getElementById('shareBtn');
-        if (shareBtn) shareBtn.click();
-    });
-
-    document.getElementById('testInviteImg').addEventListener('click', function () {
-        var inviteBtn = document.getElementById('compareInviteBtn');
-        if (inviteBtn) inviteBtn.click();
-    });
-})();
