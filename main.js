@@ -1510,9 +1510,9 @@ window._inviteRenderId = 0;
             var y = 0;
             y += 8;  // accent bar
             y += 60; // brand + padding
-            y += posterImg ? 480 + 20 : 0; // poster (max estimate)
-            y += 85; // code + cn
-            y += 46; // match badge
+            y += 220; // hero section (poster + type info)
+            
+            
             y += 20; // intro line
             var introText = mode === 'invite'
                 ? '\u6211\u662F' + (type.cn || type.code) + '\uFF0C\u4F60\u662F\u4EC0\u4E48\uFF1F\u6765\u6D4B\u6D4B\u770B\uFF01'
@@ -1548,58 +1548,66 @@ window._inviteRenderId = 0;
             ctx.fillText('SBTI PERSONALITY', 32, curY);
             curY += 30;
 
-            // Poster image (contain mode - show full image, no cropping)
-            if (posterImg) {
-                var pw = W - 64;
-                var ratio = posterImg.width / posterImg.height;
-                var drawW = pw;
-                var drawH = pw / ratio;
-                // Cap max height to 480px
-                if (drawH > 480) { drawH = 480; drawW = drawH * ratio; }
-                var dx = 32 + (pw - drawW) / 2;
-                var dy = curY;
+            // Hero section: left poster + right type info (horizontal layout)
+            var heroH = 200;
+            var posterSize = heroH;
+            var textX = 32 + posterSize + 24; // poster left + poster width + gap
 
-                // Background rounded rect
+            // Poster image (left side, square with rounded corners)
+            if (posterImg) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.roundRect(32, curY, pw, drawH, 14);
+                ctx.roundRect(32, curY, posterSize, posterSize, 14);
                 ctx.clip();
                 ctx.fillStyle = '#faf5ed';
-                ctx.fillRect(32, curY, pw, drawH);
+                ctx.fillRect(32, curY, posterSize, posterSize);
+                // Draw image centered in square
+                var ratio = posterImg.width / posterImg.height;
+                var drawW, drawH, dx, dy;
+                if (ratio > 1) {
+                    drawH = posterSize;
+                    drawW = posterSize * ratio;
+                    dx = 32 + (posterSize - drawW) / 2;
+                    dy = curY;
+                } else {
+                    drawW = posterSize;
+                    drawH = posterSize / ratio;
+                    dx = 32;
+                    dy = curY + (posterSize - drawH) / 2;
+                }
                 ctx.drawImage(posterImg, dx, dy, drawW, drawH);
                 ctx.restore();
-                curY += drawH + 20;
             }
 
+            // Type info (right side)
+            var infoY = curY + 20;
+
             // Type code
-            ctx.font = 'bold 56px -apple-system, sans-serif';
+            ctx.font = 'bold 52px -apple-system, sans-serif';
             ctx.fillStyle = '#1a1a1a';
             ctx.textAlign = 'left';
-            ctx.fillText(type.code, 32, curY + 30);
+            ctx.fillText(type.code, textX, infoY + 42);
+            infoY += 56;
 
             // CN name
-            ctx.font = '22px -apple-system, sans-serif';
+            ctx.font = '20px -apple-system, sans-serif';
             ctx.fillStyle = '#888';
-            var codeW = ctx.measureText(type.code).width;
-            ctx.font = 'bold 56px -apple-system, sans-serif';
-            codeW = ctx.measureText(type.code).width;
-            ctx.font = '22px -apple-system, sans-serif';
-            ctx.fillText(type.cn || '', 32 + codeW + 16, curY + 28);
-            curY += 44;
+            ctx.fillText(type.cn || '', textX, infoY + 16);
+            infoY += 32;
 
             // Match badge
             var simPct = type.similarity || result.bestNormal && result.bestNormal.similarity || 100;
-            ctx.font = 'bold 17px -apple-system, sans-serif';
-            ctx.fillStyle = '#4d6a53';
+            ctx.font = 'bold 16px -apple-system, sans-serif';
             var badgeText = simPct + '% MATCH';
             var tw = ctx.measureText(badgeText).width;
             ctx.fillStyle = '#edf6ef';
             ctx.beginPath();
-            ctx.roundRect(32, curY, tw + 32, 38, 19);
+            ctx.roundRect(textX, infoY, tw + 28, 34, 17);
             ctx.fill();
             ctx.fillStyle = '#4d6a53';
-            ctx.fillText(badgeText, 48, curY + 26);
-            curY += 40;
+            ctx.fillText(badgeText, textX + 14, infoY + 23);
+
+            curY += heroH + 20;
 
             // Intro text
             ctx.font = '17px -apple-system, sans-serif';
