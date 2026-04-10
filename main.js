@@ -501,7 +501,9 @@ const TYPE_IMAGES = {
     "LOVE-R": "./images/LOVE-R.png",
     "WOC!": "./images/WOC_.png",
     "DRUNK": "./images/DRUNK.png",
-    "IMFW": "./images/IMFW.png"
+    "IMFW": "./images/IMFW.png",
+    "Dior-s": "./images/Dior-s.png",
+    "JOKE-R": "./images/JOKE-R.png"
 };
 
 const NORMAL_TYPES = [
