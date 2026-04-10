@@ -1,18 +1,10 @@
 {
-  "name": "httpssbti.fancc.de5.net",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "name": "sbti",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@upstash/redis": "^1.37.0"
+    "dev:h5": "cd packages/taro-app && pnpm dev:h5",
+    "dev:weapp": "cd packages/taro-app && pnpm dev:weapp",
+    "build:h5": "cd packages/taro-app && pnpm build:h5",
+    "build:weapp": "cd packages/taro-app && pnpm build:weapp"
   }
 }

@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "packages/api/*.js": {
+      "memory": 128
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/packages/api/$1" }
+  ]
+}
