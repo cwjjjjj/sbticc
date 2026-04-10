@@ -1431,6 +1431,9 @@ function canvasToBlob(canvas, callback) {
     }
 }
 
+window._shareRenderId = 0;
+window._inviteRenderId = 0;
+
 /* ===== 分享图功能 ===== */
 (function () {
     var shareBtn = document.getElementById('shareBtn');
@@ -1508,7 +1511,9 @@ function canvasToBlob(canvas, callback) {
 
         // Wait for poster image to load before rendering
         var posterImg = card.querySelector('img');
+        var renderId = ++window._shareRenderId;
         function doRender() {
+            if (renderId !== window._shareRenderId) { console.log('[Share] stale render skipped'); return; }
             console.log('[Share] doRender called, isIOS:', isIOS);
             html2canvas(card, {
                 scale: 2,
@@ -1867,7 +1872,9 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
     card.style.zIndex = '-1';
     card.style.opacity = '1';
 
+    var inviteRenderId = ++window._inviteRenderId;
     function doInviteRender() {
+        if (inviteRenderId !== window._inviteRenderId) { console.log('[Invite] stale render skipped'); return; }
         console.log('[Invite] doInviteRender called');
         var _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         html2canvas(card, {
