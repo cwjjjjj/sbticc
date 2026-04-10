@@ -2075,32 +2075,59 @@ document.addEventListener('change', function (e) {
     });
 })();
 
-/* ===== Test 域名：测试页添加随机填充按钮 ===== */
+
+/* ===== Test 域名：结果页调试工具栏 ===== */
 (function () {
     if (window.location.hostname.indexOf('sbticc-test') === -1) return;
 
-    var actionsBottom = document.querySelector('.actions-bottom');
-    if (!actionsBottom) return;
+    var toolbar = document.createElement('div');
+    toolbar.className = 'test-toolbar';
+    toolbar.innerHTML =
+        '<div class="test-toolbar-title">调试工具栏</div>' +
+        '<div class="test-toolbar-btns">' +
+            '<button id="testReroll" class="test-toolbar-btn">🎲 换一个人格</button>' +
+            '<button id="testShareImg" class="test-toolbar-btn">🖼️ 测试分享图</button>' +
+            '<button id="testInviteImg" class="test-toolbar-btn">📨 测试邀请图</button>' +
+        '</div>';
 
-    var randomBtn = document.createElement('button');
-    randomBtn.className = 'btn-primary';
-    randomBtn.textContent = '🎲 随机填充并出结果';
-    randomBtn.style.cssText = 'background:#e74c3c; margin-top:8px; width:100%;';
+    // Insert at top of result section
+    var resultWrap = document.querySelector('#result .result-wrap');
+    if (resultWrap) {
+        resultWrap.insertBefore(toolbar, resultWrap.firstChild);
+    }
 
-    actionsBottom.appendChild(randomBtn);
-
-    randomBtn.addEventListener('click', function () {
-        var visibleQuestions = getVisibleQuestions();
-        visibleQuestions.forEach(function (q) {
-            var opts = q.options;
-            app.answers[q.id] = opts[Math.floor(Math.random() * opts.length)].value;
+    // Re-roll: random answers + re-render result
+    document.getElementById('testReroll').addEventListener('click', function () {
+        app.answers = {};
+        app.currentQ = 0;
+        questions.forEach(function (q) {
+            app.answers[q.id] = q.options[Math.floor(Math.random() * q.options.length)].value;
         });
         specialQuestions.forEach(function (q) {
-            var opts = q.options;
-            if (!app.answers[q.id]) {
-                app.answers[q.id] = opts[Math.floor(Math.random() * opts.length)].value;
-            }
+            app.answers[q.id] = q.options[Math.floor(Math.random() * q.options.length)].value;
         });
         renderResult();
     });
+
+    // Test share image: click the share button
+    document.getElementById('testShareImg').addEventListener('click', function () {
+        var shareBtn = document.getElementById('shareBtn');
+        if (shareBtn) shareBtn.click();
+    });
+
+    // Test invite image: click the invite button
+    document.getElementById('testInviteImg').addEventListener('click', function () {
+        var inviteBtn = document.getElementById('compareInviteBtn');
+        if (inviteBtn) inviteBtn.click();
+    });
+
+    // Add toolbar CSS
+    var style = document.createElement('style');
+    style.textContent =
+        '.test-toolbar { background: #1a1a2e; color: #fff; padding: 14px 18px; border-radius: 14px; margin-bottom: 16px; }' +
+        '.test-toolbar-title { font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.1em; }' +
+        '.test-toolbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }' +
+        '.test-toolbar-btn { background: #2d2d44; color: #fff; border: 1px solid #3d3d5c; padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; transition: background 0.15s; }' +
+        '.test-toolbar-btn:hover { background: #3d3d5c; }';
+    document.head.appendChild(style);
 })();
