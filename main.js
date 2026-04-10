@@ -1,3 +1,13 @@
+/* ===== vConsole for test domain ===== */
+if (window.location.hostname.indexOf('sbticc-test') !== -1) {
+    window.addEventListener('DOMContentLoaded', function () {
+        if (typeof VConsole !== 'undefined') {
+            new VConsole();
+            console.log('[SBTI Debug] vConsole initialized on test domain');
+        }
+    });
+}
+
 const dimensionMeta = {
     S1: { name: 'S1 自尊自信', model: '自我模型' },
     S2: { name: 'S2 自我清晰度', model: '自我模型' },
@@ -1394,6 +1404,7 @@ function renderLocalHistory() {
     var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
     function imgToDataURL(imgEl, callback) {
+        console.log('[Share] imgToDataURL called, src:', imgEl && imgEl.src ? imgEl.src.substring(0, 80) : 'none');
         if (!imgEl || !imgEl.src || imgEl.src.indexOf('data:') === 0) {
             callback();
             return;
@@ -1407,6 +1418,7 @@ function renderLocalHistory() {
                 cvs.height = img.naturalHeight;
                 cvs.getContext('2d').drawImage(img, 0, 0);
                 imgEl.src = cvs.toDataURL('image/png');
+                console.log('[Share] imgToDataURL converted to dataURL, size:', imgEl.src.length);
             } catch (e) { console.warn('imgToDataURL failed:', e); }
             callback();
         };
@@ -1440,6 +1452,7 @@ function renderLocalHistory() {
     }
 
     function populateShareCard() {
+        console.log('[Share] populateShareCard called');
         var result = computeResult();
         var type = result.finalType;
 
@@ -1476,9 +1489,11 @@ function renderLocalHistory() {
         qrEl.innerHTML = '<img src="' + qrDataUrl + '" alt="QR" />';
 
         currentFileName = 'sbti-' + type.code + '.png';
+        console.log('[Share] Card populated for:', type.code, 'poster src:', document.getElementById('shareCardPoster').src ? 'yes' : 'no');
     }
 
     function renderShareImage() {
+        console.log('[Share] renderShareImage called');
         window._lastCompareUrl = null;
         shareBtn.disabled = true;
         shareBtn.textContent = '生成中...';
@@ -1495,6 +1510,7 @@ function renderLocalHistory() {
         // Wait for poster image to load before rendering
         var posterImg = card.querySelector('img');
         function doRender() {
+            console.log('[Share] doRender called, isIOS:', isIOS);
             html2canvas(card, {
                 scale: 2,
                 useCORS: true,
@@ -1853,6 +1869,7 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
     card.style.opacity = '1';
 
     function doInviteRender() {
+        console.log('[Invite] doInviteRender called');
         var _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         html2canvas(card, {
             scale: _isIOS ? 1.5 : 2, useCORS: true, allowTaint: true,
@@ -1864,7 +1881,9 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
         }).then(function (canvas) {
             card.style.left = '-9999px';
             card.style.position = 'fixed';
-            canvasToBlob(canvas, function (blob) {
+            console.log('[Share] html2canvas success, canvas size:', canvas.width, 'x', canvas.height);
+                canvasToBlob(canvas, function (blob) {
+                    console.log('[Share] canvasToBlob result:', blob ? blob.size + ' bytes' : 'null');
                 if (!blob) { btn.disabled = false; btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4'; alert('生成失败'); return; }
                 window._inviteBlob = blob;
                 var url = URL.createObjectURL(blob);
