@@ -2074,3 +2074,33 @@ document.addEventListener('change', function (e) {
         });
     });
 })();
+
+/* ===== Test 域名：测试页添加随机填充按钮 ===== */
+(function () {
+    if (window.location.hostname.indexOf('sbticc-test') === -1) return;
+
+    var actionsBottom = document.querySelector('.actions-bottom');
+    if (!actionsBottom) return;
+
+    var randomBtn = document.createElement('button');
+    randomBtn.className = 'btn-primary';
+    randomBtn.textContent = '🎲 随机填充并出结果';
+    randomBtn.style.cssText = 'background:#e74c3c; margin-top:8px; width:100%;';
+
+    actionsBottom.appendChild(randomBtn);
+
+    randomBtn.addEventListener('click', function () {
+        var visibleQuestions = getVisibleQuestions();
+        visibleQuestions.forEach(function (q) {
+            var opts = q.options;
+            app.answers[q.id] = opts[Math.floor(Math.random() * opts.length)].value;
+        });
+        specialQuestions.forEach(function (q) {
+            var opts = q.options;
+            if (!app.answers[q.id]) {
+                app.answers[q.id] = opts[Math.floor(Math.random() * opts.length)].value;
+            }
+        });
+        renderResult();
+    });
+})();
