@@ -1503,3 +1503,26 @@ button:disabled {
 .egg-warm-bg { transition: background 0.5s; background: #fdf6e3 !important; }
 .egg-bounce { animation: scaleBounce 0.4s ease; }
 .egg-badge-pop { animation: badgePop 0.5s ease 0.3s both; }
+
+/* ===== 翻页模式 ===== */
+.question-paged {
+    min-height: 200px;
+}
+.question-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    gap: 12px;
+}
+.question-nav-btn {
+    min-width: 80px;
+}
+.question-nav-dots {
+    font-size: 13px;
+    color: var(--muted);
+}
+.option-selected {
+    border-color: var(--accent-strong) !important;
+    background: var(--soft) !important;
+}

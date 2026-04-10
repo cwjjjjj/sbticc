@@ -753,52 +753,105 @@ function getQuestionMetaLabel(q) {
 }
 
 function renderQuestions() {
-    const visibleQuestions = getVisibleQuestions();
+    var visibleQuestions = getVisibleQuestions();
+    if (typeof app.currentQ === 'undefined') app.currentQ = 0;
+    if (app.currentQ >= visibleQuestions.length) app.currentQ = visibleQuestions.length - 1;
+    if (app.currentQ < 0) app.currentQ = 0;
+
+    var q = visibleQuestions[app.currentQ];
+    var index = app.currentQ;
+    var total = visibleQuestions.length;
+
     questionList.innerHTML = '';
-    visibleQuestions.forEach((q, index) => {
-        const card = document.createElement('article');
-        card.className = 'question';
-        card.innerHTML = `
-          <div class="question-meta">
-            <div class="badge">第 ${index + 1} 题</div>
-            <div>${getQuestionMetaLabel(q)}</div>
-          </div>
-          <div class="question-title">${q.text}</div>
-          <div class="options">
-            ${q.options.map((opt, i) => {
-            const code = ['A', 'B', 'C', 'D'][i] || String(i + 1);
-            const checked = app.answers[q.id] === opt.value ? 'checked' : '';
-            return `
-                <label class="option">
-                  <input type="radio" name="${q.id}" value="${opt.value}" ${checked} />
-                  <div class="option-code">${code}</div>
-                  <div>${opt.label}</div>
-                </label>
-              `;
-        }).join('')}
-          </div>
-        `;
-        questionList.appendChild(card);
-    });
+    var card = document.createElement('article');
+    card.className = 'question question-paged';
+    card.innerHTML =
+        '<div class="question-meta">' +
+            '<div class="badge">第 ' + (index + 1) + ' / ' + total + ' 题</div>' +
+            '<div>' + getQuestionMetaLabel(q) + '</div>' +
+        '</div>' +
+        '<div class="question-title">' + q.text + '</div>' +
+        '<div class="options">' +
+            q.options.map(function (opt, i) {
+                var code = ['A', 'B', 'C', 'D'][i] || String(i + 1);
+                var checked = app.answers[q.id] === opt.value ? 'checked' : '';
+                return '<label class="option' + (checked ? ' option-selected' : '') + '">' +
+                    '<input type="radio" name="' + q.id + '" value="' + opt.value + '" ' + checked + ' />' +
+                    '<div class="option-code">' + code + '</div>' +
+                    '<div>' + opt.label + '</div>' +
+                '</label>';
+            }).join('') +
+        '</div>';
+    questionList.appendChild(card);
 
-    questionList.querySelectorAll('input[type="radio"]').forEach(input => {
-        input.addEventListener('change', (e) => {
-            const { name, value } = e.target;
-            app.answers[name] = Number(value);
+    // Nav buttons
+    var nav = document.createElement('div');
+    nav.className = 'question-nav';
+    var prevDisabled = index <= 0 ? ' disabled' : '';
+    nav.innerHTML =
+        '<button class="btn-secondary question-nav-btn" id="qPrev"' + prevDisabled + '>上一题</button>' +
+        '<span class="question-nav-dots">' + (index + 1) + ' / ' + total + '</span>' +
+        (index < total - 1
+            ? '<button class="btn-primary question-nav-btn" id="qNext"' + (app.answers[q.id] === undefined ? ' disabled' : '') + '>下一题</button>'
+            : '<span></span>');
+    questionList.appendChild(nav);
 
-            if (name === 'drink_gate_q1') {
-                if (Number(value) !== 3) {
+    // Bind option select -> auto next
+    card.querySelectorAll('input[type="radio"]').forEach(function (input) {
+        input.addEventListener('change', function (e) {
+            app.answers[e.target.name] = Number(e.target.value);
+
+            // Highlight selected option
+            card.querySelectorAll('.option').forEach(function (o) { o.classList.remove('option-selected'); });
+            e.target.closest('.option').classList.add('option-selected');
+
+            if (e.target.name === 'drink_gate_q1') {
+                if (Number(e.target.value) !== 3) {
                     delete app.answers['drink_gate_q2'];
                 }
-                renderQuestions();
-                return;
             }
 
             updateProgress();
+
+            // Auto advance after short delay
+            setTimeout(function () {
+                var updatedQuestions = getVisibleQuestions();
+                if (app.currentQ < updatedQuestions.length - 1) {
+                    app.currentQ++;
+                    renderQuestions();
+                } else {
+                    // Last question answered, update UI
+                    renderQuestions();
+                }
+            }, 300);
         });
     });
 
+    // Prev button
+    document.getElementById('qPrev').addEventListener('click', function () {
+        if (app.currentQ > 0) {
+            app.currentQ--;
+            renderQuestions();
+        }
+    });
+
+    // Next button
+    var nextBtn = document.getElementById('qNext');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            var updatedQuestions = getVisibleQuestions();
+            if (app.answers[q.id] !== undefined && app.currentQ < updatedQuestions.length - 1) {
+                app.currentQ++;
+                renderQuestions();
+            }
+        });
+    }
+
     updateProgress();
+
+    // Scroll to top of test area
+    var overlay = document.getElementById('testOverlay');
+    if (overlay) overlay.scrollTop = 0;
 }
 
 function updateProgress() {
@@ -988,6 +1041,7 @@ function renderResult() {
 function startTest(preview = false) {
     app.previewMode = preview;
     app.answers = {};
+    app.currentQ = 0;
     const shuffledRegular = shuffle(questions);
     const insertIndex = Math.floor(Math.random() * shuffledRegular.length) + 1;
     app.shuffledQuestions = [
