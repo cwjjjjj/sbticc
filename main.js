@@ -1,3 +1,8 @@
+/* ===== 旧域名跳转到新域名 ===== */
+if (window.location.hostname === 'sbticc.vercel.app') {
+    window.location.replace('https://sbti.jiligulu.xyz' + window.location.pathname + window.location.search + window.location.hash);
+}
+
 /* ===== vConsole for test domain ===== */
 if (window.location.hostname.indexOf('sbticc-test') !== -1) {
     window.addEventListener('DOMContentLoaded', function () {
