@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 
-const BASE_URL = process.env.TARO_APP_API_BASE || ''
+const BASE_URL = TARO_APP_API_BASE
 
 export async function request<T = any>(options: {
   url: string

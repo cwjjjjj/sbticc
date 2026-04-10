@@ -15,9 +15,13 @@ export default defineConfig(async (merge) => {
     sourceRoot: 'src',
     outputRoot: 'dist',
     plugins: [],
-    defineConstants: {},
+    defineConstants: {
+      TARO_APP_API_BASE: JSON.stringify(''),
+    },
     copy: {
-      patterns: [],
+      patterns: [
+        { from: 'src/assets/', to: 'dist/assets/' },
+      ],
       options: {},
     },
     framework: 'react',
