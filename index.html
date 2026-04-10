@@ -14,7 +14,9 @@
     <div class="top-nav-inner">
       <div class="top-nav-brand">SBTI</div>
       <div class="top-nav-tabs">
-        <button class="top-nav-tab active" data-tab="tab-profiles">人物介绍</button>
+        <button class="top-nav-tab active" data-tab="tab-home">首页</button>
+        <button class="top-nav-tab" data-tab="tab-profiles">人格介绍</button>
+        <button class="top-nav-tab" data-tab="tab-compat">人格相性</button>
         <button class="top-nav-tab" data-tab="tab-ranking">全站排行</button>
       </div>
       <button id="navStartBtn" class="btn-primary nav-start-btn">开始测试</button>
@@ -22,8 +24,8 @@
   </nav>
 
   <div class="shell">
-    <!-- Tab 1: 人物介绍 -->
-    <div id="tab-profiles" class="tab-panel active">
+    <!-- Tab: 首页 -->
+    <div id="tab-home" class="tab-panel active">
       <div class="hero card hero-minimal">
         <h1>MBTI已经过时，SBTI来了。</h1>
         <div class="hero-actions hero-actions-single">
@@ -49,7 +51,31 @@
       </div>
     </div>
 
-    <!-- Tab 2: 全站排行 -->
+    <!-- Tab: 人格介绍 -->
+    <div id="tab-profiles" class="tab-panel">
+      <div class="types-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">全部人格一览</h2>
+        <div class="rarity-switch">
+          <span class="rarity-switch-label rarity-switch-label-sub">理论稀有度</span>
+          <label class="switch">
+            <input type="checkbox" class="rarityToggleSub" />
+            <span class="switch-slider"></span>
+          </label>
+          <span class="rarity-switch-hint rarity-switch-hint-sub">切换到真实数据</span>
+        </div>
+        <div id="typesGridSub" class="types-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: 人格相性 -->
+    <div id="tab-compat" class="tab-panel">
+      <div class="compat-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">人格相性表</h2>
+        <div id="compatGridSub" class="compat-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: 全站排行 -->
     <div id="tab-ranking" class="tab-panel">
       <div class="card" style="margin-top:22px; padding:22px;">
         <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:6px; text-align:center;">全站人格排行榜</h2>
