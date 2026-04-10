@@ -1186,6 +1186,14 @@ button:disabled {
     background: rgba(255, 255, 255, 0.5);
 }
 
+.share-card-dim-legend {
+    width: 100%;
+    font-size: 9px;
+    color: #bbb;
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+}
+
 .share-card-footer {
     margin-top: 22px;
     display: flex;
@@ -1352,3 +1360,36 @@ button:disabled {
 @media (max-width: 600px) {
     .compat-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== 双人对比 ===== */
+.compare-layout { display: grid; gap: 18px; }
+.compare-vs { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.compare-person { text-align: center; }
+.compare-avatar {
+    width: 120px; height: 120px; object-fit: contain;
+    border-radius: 18px; background: rgba(255,255,255,0.75); border: 1px solid var(--line);
+}
+.compare-name { font-size: clamp(20px, 4vw, 32px); font-weight: 800; color: var(--accent-strong); margin-top: 8px; }
+.compare-cn { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.compare-vs-icon { font-size: 28px; font-weight: 900; color: var(--muted); }
+.compare-radar-box { display: flex; justify-content: center; }
+#compareRadar { max-width: 100%; height: auto; }
+.compare-similarity-box {
+    text-align: center; border: 1px solid var(--line); border-radius: 18px;
+    padding: 18px; background: linear-gradient(180deg, #ffffff, #fbfdfb);
+}
+.compare-similarity-label { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+.compare-similarity-value {
+    font-size: clamp(36px, 6vw, 56px); font-weight: 900;
+    color: var(--accent-strong); letter-spacing: -0.03em;
+}
+.compare-compat-box {
+    text-align: center; border: 1px solid var(--line); border-radius: 18px;
+    padding: 18px; background: linear-gradient(180deg, #ffffff, #fbfdfb);
+}
+.compare-comment {
+    text-align: center; font-size: 15px; color: #304034; line-height: 1.8;
+    padding: 14px; border: 1px solid var(--line); border-radius: 18px;
+    background: var(--soft); font-style: italic;
+}
+@media (max-width: 600px) { .compare-avatar { width: 80px; height: 80px; } }

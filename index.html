@@ -115,8 +115,45 @@
           <div class="result-actions">
             <div style="display:flex; gap:12px; flex-wrap:wrap;">
               <button id="shareBtn" class="btn-primary">生成分享图</button>
+              <button id="compareInviteBtn" class="btn-primary">邀请好友对比</button>
               <button id="restartBtn" class="btn-secondary">重新测试</button>
               <button id="toTopBtn" class="btn-secondary">回到首页</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="compare" class="screen">
+        <div class="result-wrap card">
+          <div class="compare-layout">
+            <h2 style="text-align:center; margin-bottom:18px;">人格对比</h2>
+            <div class="compare-vs">
+              <div class="compare-person">
+                <img id="compareImgA" class="compare-avatar" alt="" />
+                <div class="compare-name" id="compareCodeA"></div>
+                <div class="compare-cn" id="compareCnA"></div>
+              </div>
+              <div class="compare-vs-icon">VS</div>
+              <div class="compare-person">
+                <img id="compareImgB" class="compare-avatar" alt="" />
+                <div class="compare-name" id="compareCodeB"></div>
+                <div class="compare-cn" id="compareCnB"></div>
+              </div>
+            </div>
+            <div class="compare-radar-box">
+              <canvas id="compareRadar" width="400" height="400"></canvas>
+            </div>
+            <div class="compare-similarity-box">
+              <div class="compare-similarity-label">两人相似度</div>
+              <div class="compare-similarity-value" id="compareSimilarity">0%</div>
+            </div>
+            <div class="compare-compat-box" id="compareCompat"></div>
+            <div class="compare-comment" id="compareComment"></div>
+          </div>
+          <div class="result-actions" style="margin-top:22px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="compareShareBtn" class="btn-primary">生成对比分享图</button>
+              <button id="compareRestartBtn" class="btn-secondary">我也要测</button>
             </div>
           </div>
         </div>
