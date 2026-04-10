@@ -1431,12 +1431,25 @@ function canvasToBlob(canvas, callback) {
     }
 }
 
+/* Small images for share card (300px JPEG) */
+var SHARE_IMAGES = {
+    "IMSB": "./images/IMSB.jpg", "BOSS": "./images/BOSS.jpg", "MUM": "./images/MUM.jpg",
+    "FAKE": "./images/FAKE.jpg", "DEAD": "./images/DEAD.jpg", "ZZZZ": "./images/ZZZZ.jpg",
+    "GOGO": "./images/GOGO.jpg", "FUCK": "./images/FUCK.jpg", "CTRL": "./images/CTRL.jpg",
+    "HHHH": "./images/HHHH.jpg", "SEXY": "./images/SEXY.jpg", "OJBK": "./images/OJBK.jpg",
+    "POOR": "./images/POOR.jpg", "OH-NO": "./images/OH-NO.jpg", "MONK": "./images/MONK.jpg",
+    "SHIT": "./images/SHIT.jpg", "THAN-K": "./images/THAN-K.jpg", "MALO": "./images/MALO.jpg",
+    "ATM-er": "./images/ATM-er.jpg", "THIN-K": "./images/THIN-K.jpg", "SOLO": "./images/SOLO.jpg",
+    "LOVE-R": "./images/LOVE-R.jpg", "WOC!": "./images/WOC_.jpg", "DRUNK": "./images/DRUNK.jpg",
+    "IMFW": "./images/IMFW.jpg", "Dior-s": "./images/Dior-s.jpg", "JOKE-R": "./images/JOKE-R.jpg"
+};
+
 var PROD_BASE_URL = 'https://sbticc.vercel.app';
 
 window._shareRenderId = 0;
 window._inviteRenderId = 0;
 
-/* ===== 分享图功能 ===== */
+/* ===== 分享图功能（Canvas 直绘，不依赖 html2canvas） ===== */
 (function () {
     var shareBtn = document.getElementById('shareBtn');
     var shareModal = document.getElementById('shareModal');
@@ -1454,140 +1467,248 @@ window._inviteRenderId = 0;
         return qr.createDataURL(4, 0);
     }
 
-
-    function populateShareCard() {
-        console.log('[Share] populateShareCard called');
-        var result = computeResult();
-        var type = result.finalType;
-
-        document.getElementById('shareCardCode').textContent = type.code;
-        document.getElementById('shareCardCn').textContent = type.cn;
-
-        var simPct = result.finalType.similarity || 100;
-        document.getElementById('shareCardMatch').textContent = simPct + '% MATCH';
-
-        document.getElementById('shareCardIntro').textContent = type.intro;
-
-        var posterEl = document.getElementById('shareCardPoster');
-        var posterBox = posterEl.parentElement;
-        var imgSrc = TYPE_IMAGES[type.code];
-        if (imgSrc) {
-            posterEl.src = imgSrc;
-            posterBox.classList.remove('hidden');
-        } else {
-            posterEl.removeAttribute('src');
-            posterBox.classList.add('hidden');
-        }
-
-        var dimsEl = document.getElementById('shareCardDims');
-        var levelCn = { L: '低', M: '中', H: '高' };
-        dimsEl.innerHTML = dimensionOrder.map(function (dim) {
-            var level = result.levels[dim];
-            var name = dimensionMeta[dim].name.replace(/^[A-Za-z0-9]+\s*/, '');
-            return '<span class="share-card-dim-tag">' + name + ' ' + (levelCn[level] || level) + '</span>';
-        }).join('') + '<div class="share-card-dim-legend">低=较弱 / 中=一般 / 高=较强</div>';
-
-        var qrEl = document.getElementById('shareCardQR');
-        var pageUrl = PROD_BASE_URL;
-        var qrDataUrl = generateQR(pageUrl);
-        qrEl.innerHTML = '<img src="' + qrDataUrl + '" alt="QR" />';
-
-        currentFileName = 'sbti-' + type.code + '.png';
-        console.log('[Share] Card populated for:', type.code, 'poster src:', document.getElementById('shareCardPoster').src ? 'yes' : 'no');
+    function loadImage(src) {
+        return new Promise(function (resolve) {
+            if (!src) { resolve(null); return; }
+            var img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function () { resolve(img); };
+            img.onerror = function () { console.warn('[Share] image load failed:', src); resolve(null); };
+            img.src = src;
+        });
     }
 
-    function renderShareImage() {
-        console.log('[Share] renderShareImage called');
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+        var chars = text.split('');
+        var line = '';
+        var ly = y;
+        for (var i = 0; i < chars.length; i++) {
+            var test = line + chars[i];
+            if (ctx.measureText(test).width > maxWidth && line.length > 0) {
+                ctx.fillText(line, x, ly);
+                line = chars[i];
+                ly += lineHeight;
+            } else {
+                line = test;
+            }
+        }
+        ctx.fillText(line, x, ly);
+        return ly + lineHeight;
+    }
+
+    function drawShareCard(type, result, qrUrl, mode) {
+        console.log('[Share] drawShareCard for:', type.code, 'mode:', mode);
+        var W = 420, posterH = 200;
+        var imgSrc = SHARE_IMAGES[type.code];
+        var qrSrc = generateQR(qrUrl);
+
+        return Promise.all([loadImage(imgSrc), loadImage(qrSrc)]).then(function (imgs) {
+            var posterImg = imgs[0];
+            var qrImg = imgs[1];
+
+            // Calculate canvas height dynamically
+            var y = 0;
+            y += 8;  // accent bar
+            y += 50; // brand + padding
+            y += posterImg ? posterH + 16 : 0; // poster
+            y += 60; // code + cn
+            y += 30; // match badge
+            y += 20; // intro line
+            var introText = mode === 'invite'
+                ? '\u6211\u662F' + (type.cn || type.code) + '\uFF0C\u4F60\u662F\u4EC0\u4E48\uFF1F\u6765\u6D4B\u6D4B\u770B\uFF01'
+                : (type.intro || '');
+            y += Math.ceil(introText.length / 20) * 22 + 20; // wrapped intro
+            y += 80; // footer (qr + cta)
+            y += 20; // bottom padding
+            var H = Math.max(500, y);
+
+            var canvas = document.createElement('canvas');
+            canvas.width = W;
+            canvas.height = H;
+            var ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#f5f0e8';
+            ctx.fillRect(0, 0, W, H);
+
+            // Accent bar
+            var grad = ctx.createLinearGradient(0, 0, W, 0);
+            grad.addColorStop(0, '#ff3366');
+            grad.addColorStop(0.5, '#ff6633');
+            grad.addColorStop(1, '#ffcc00');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, 8);
+
+            var curY = 28;
+
+            // Brand
+            ctx.font = 'bold 11px -apple-system, sans-serif';
+            ctx.fillStyle = '#bbb';
+            ctx.textAlign = 'left';
+            ctx.fillText('SBTI PERSONALITY', 24, curY);
+            curY += 30;
+
+            // Poster image
+            if (posterImg) {
+                var pw = W - 48;
+                var ph = posterH;
+                var ratio = posterImg.width / posterImg.height;
+                var drawW, drawH, dx, dy;
+                if (ratio > pw / ph) {
+                    drawH = ph;
+                    drawW = ph * ratio;
+                    dx = 24 + (pw - drawW) / 2;
+                    dy = curY;
+                } else {
+                    drawW = pw;
+                    drawH = pw / ratio;
+                    dx = 24;
+                    dy = curY + (ph - drawH) / 2;
+                }
+                // Rounded clip
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(24, curY, pw, ph, 12);
+                ctx.clip();
+                ctx.drawImage(posterImg, dx, dy, drawW, drawH);
+                ctx.restore();
+                curY += ph + 16;
+            }
+
+            // Type code
+            ctx.font = 'bold 36px -apple-system, sans-serif';
+            ctx.fillStyle = '#1a1a1a';
+            ctx.textAlign = 'left';
+            ctx.fillText(type.code, 24, curY + 30);
+
+            // CN name
+            ctx.font = '16px -apple-system, sans-serif';
+            ctx.fillStyle = '#888';
+            var codeW = ctx.measureText(type.code).width;
+            ctx.font = 'bold 36px -apple-system, sans-serif';
+            codeW = ctx.measureText(type.code).width;
+            ctx.font = '16px -apple-system, sans-serif';
+            ctx.fillText(type.cn || '', 24 + codeW + 12, curY + 28);
+            curY += 44;
+
+            // Match badge
+            var simPct = type.similarity || result.bestNormal && result.bestNormal.similarity || 100;
+            ctx.font = 'bold 13px -apple-system, sans-serif';
+            ctx.fillStyle = '#4d6a53';
+            var badgeText = simPct + '% MATCH';
+            var tw = ctx.measureText(badgeText).width;
+            ctx.fillStyle = '#edf6ef';
+            ctx.beginPath();
+            ctx.roundRect(24, curY, tw + 20, 28, 14);
+            ctx.fill();
+            ctx.fillStyle = '#4d6a53';
+            ctx.fillText(badgeText, 34, curY + 19);
+            curY += 40;
+
+            // Intro text
+            ctx.font = '14px -apple-system, sans-serif';
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'left';
+            curY = wrapText(ctx, introText, 24, curY + 14, W - 48, 22);
+            curY += 16;
+
+            // Dims tags
+            if (result && result.levels) {
+                var levelCn = { L: '\u4f4e', M: '\u4e2d', H: '\u9ad8' };
+                ctx.font = '11px -apple-system, sans-serif';
+                var tagX = 24;
+                var tagY = curY;
+                dimensionOrder.forEach(function (dim) {
+                    var name = dimensionMeta[dim].name.replace(/^[A-Za-z0-9]+\s*/, '');
+                    var tag = name + ' ' + (levelCn[result.levels[dim]] || result.levels[dim]);
+                    var tagW = ctx.measureText(tag).width + 16;
+                    if (tagX + tagW > W - 24) { tagX = 24; tagY += 26; }
+                    ctx.fillStyle = '#e8e3db';
+                    ctx.beginPath();
+                    ctx.roundRect(tagX, tagY, tagW, 22, 11);
+                    ctx.fill();
+                    ctx.fillStyle = '#666';
+                    ctx.fillText(tag, tagX + 8, tagY + 15);
+                    tagX += tagW + 6;
+                });
+                curY = tagY + 40;
+            }
+
+            // Separator line
+            ctx.strokeStyle = '#e0dbd3';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(24, curY);
+            ctx.lineTo(W - 24, curY);
+            ctx.stroke();
+            curY += 16;
+
+            // Footer: CTA + QR
+            ctx.font = '11px -apple-system, sans-serif';
+            ctx.fillStyle = '#bbb';
+            ctx.textAlign = 'left';
+            ctx.fillText('\u626b\u7801\u6765\u6d4b', 24, curY + 20);
+            ctx.fillText('\u4f60\u662f\u4ec0\u4e48\u4eba\u683c', 24, curY + 36);
+
+            if (qrImg) {
+                ctx.drawImage(qrImg, W - 24 - 56, curY, 56, 56);
+            }
+            curY += 70;
+
+            // Resize canvas to actual content height
+            if (curY < H) {
+                var trimmed = document.createElement('canvas');
+                trimmed.width = W;
+                trimmed.height = curY;
+                trimmed.getContext('2d').drawImage(canvas, 0, 0);
+                return trimmed;
+            }
+            return canvas;
+        });
+    }
+
+    function showShareResult(canvas, resetBtn, resetText) {
+        canvasToBlob(canvas, function (blob) {
+            console.log('[Share] blob:', blob ? blob.size + 'B' : 'null');
+            if (!blob) {
+                resetBtn.disabled = false;
+                resetBtn.textContent = resetText;
+                alert('\u751f\u6210\u5931\u8d25');
+                return;
+            }
+            currentBlob = blob;
+            currentFileName = 'sbti-result.png';
+            sharePreview.src = URL.createObjectURL(blob);
+            shareNativeBtn.style.display = (navigator.share && navigator.canShare) ? '' : 'none';
+            shareModal.classList.add('active');
+            resetBtn.disabled = false;
+            resetBtn.textContent = resetText;
+        });
+    }
+
+    // Share button
+    shareBtn.addEventListener('click', function () {
+        console.log('[Share] shareBtn clicked');
         window._lastCompareUrl = null;
         shareBtn.disabled = true;
-        shareBtn.textContent = '生成中...';
+        shareBtn.textContent = '\u751f\u6210\u4e2d...';
 
-        populateShareCard();
+        var result = computeResult();
+        var type = result.finalType;
+        currentFileName = 'sbti-' + type.code + '.png';
 
-        var card = document.getElementById('shareCard');
-        card.style.left = '0';
-        card.style.top = '0';
-        card.style.position = 'absolute';
-        card.style.zIndex = '-1';
-        card.style.opacity = '1';
+        drawShareCard(type, result, PROD_BASE_URL, 'share').then(function (canvas) {
+            showShareResult(canvas, shareBtn, '\u751f\u6210\u5206\u4eab\u56fe');
+        }).catch(function (err) {
+            console.error('[Share] error:', err);
+            shareBtn.disabled = false;
+            shareBtn.textContent = '\u751f\u6210\u5206\u4eab\u56fe';
+            alert('\u751f\u6210\u5931\u8d25: ' + (err && err.message || ''));
+        });
+    });
 
-        var renderId = ++window._shareRenderId;
-        var rendered = false;
-
-        function doRender() {
-            if (rendered) { console.log('[Share] already rendered, skip'); return; }
-            if (renderId !== window._shareRenderId) { console.log('[Share] stale render skipped'); return; }
-            rendered = true;
-            console.log('[Share] doRender called, isIOS:', isIOS);
-
-            html2canvas(card, {
-                scale: isIOS ? 1.5 : 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#f5f0e8',
-                width: 420,
-                logging: false,
-                onclone: function (doc) {
-                    var clonedCard = doc.getElementById('shareCard');
-                    if (clonedCard) {
-                        clonedCard.style.left = '0';
-                        clonedCard.style.position = 'absolute';
-                    }
-                }
-            }).then(function (canvas) {
-                card.style.left = '-9999px';
-                card.style.position = 'fixed';
-                console.log('[Share] html2canvas ok, size:', canvas.width, 'x', canvas.height);
-
-                canvasToBlob(canvas, function (blob) {
-                    console.log('[Share] blob:', blob ? blob.size + 'B' : 'null');
-                    if (!blob) {
-                        shareBtn.disabled = false;
-                        shareBtn.textContent = '生成分享图';
-                        alert('生成失败：blob为空');
-                        return;
-                    }
-                    currentBlob = blob;
-                    sharePreview.src = URL.createObjectURL(blob);
-
-                    if (navigator.share && navigator.canShare) {
-                        shareNativeBtn.style.display = '';
-                    } else {
-                        shareNativeBtn.style.display = 'none';
-                    }
-
-                    shareModal.classList.add('active');
-                    shareBtn.disabled = false;
-                    shareBtn.textContent = '生成分享图';
-                });
-            }).catch(function (err) {
-                console.error('[Share] html2canvas error:', err);
-                card.style.left = '-9999px';
-                card.style.position = 'fixed';
-                shareBtn.disabled = false;
-                shareBtn.textContent = '生成分享图';
-                alert('生成失败: ' + (err && err.message ? err.message : '未知错误'));
-            });
-        }
-
-        // Convert all images to data URL first (iOS fix), then render
-        var allImgs = card.querySelectorAll('img');
-        console.log('[Share] Images to convert:', allImgs.length);
-        var pending = allImgs.length;
-        if (pending === 0) {
-            setTimeout(doRender, 50);
-        } else {
-            allImgs.forEach(function (img) {
-                imgToDataURL(img, function () {
-                    pending--;
-                    if (pending <= 0) setTimeout(doRender, 50);
-                });
-            });
-            setTimeout(doRender, 3000);
-        }
-    }
-
-    function downloadImage() {
+    // Download
+    shareDownloadBtn.addEventListener('click', function () {
         if (!currentBlob) return;
         var a = document.createElement('a');
         a.href = URL.createObjectURL(currentBlob);
@@ -1595,43 +1716,39 @@ window._inviteRenderId = 0;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-    }
+    });
 
-    function nativeShare() {
+    // Native share
+    shareNativeBtn.addEventListener('click', function () {
         if (!currentBlob || !navigator.share) return;
         var file = new File([currentBlob], currentFileName, { type: 'image/png' });
-        navigator.share({
-            title: 'SBTI 人格测试结果',
-            text: '来看看我的 SBTI 人格类型！',
-            files: [file]
-        }).catch(function () {});
-    }
+        navigator.share({ title: 'SBTI \u4eba\u683c\u6d4b\u8bd5', text: '\u6765\u770b\u770b\u6211\u7684 SBTI \u4eba\u683c\u7c7b\u578b\uff01', files: [file] }).catch(function () {});
+    });
 
-    function closeModal() {
-        shareModal.classList.remove('active');
-    }
-
-    shareBtn.addEventListener('click', renderShareImage);
-    shareDownloadBtn.addEventListener('click', downloadImage);
-    shareNativeBtn.addEventListener('click', nativeShare);
-    shareModalClose.addEventListener('click', closeModal);
-
-    // Copy link button
+    // Copy link
     var shareCopyLinkBtn = document.getElementById('shareCopyLinkBtn');
     shareCopyLinkBtn.addEventListener('click', function () {
         var url = window._lastCompareUrl || PROD_BASE_URL;
         if (navigator.clipboard) {
             navigator.clipboard.writeText(url).then(function () {
-                shareCopyLinkBtn.textContent = '已复制！';
-                setTimeout(function () { shareCopyLinkBtn.textContent = '复制链接'; }, 1500);
+                shareCopyLinkBtn.textContent = '\u5df2\u590d\u5236\uff01';
+                setTimeout(function () { shareCopyLinkBtn.textContent = '\u590d\u5236\u94fe\u63a5'; }, 1500);
             });
         } else {
-            prompt('复制链接：', url);
+            prompt('\u590d\u5236\u94fe\u63a5\uff1a', url);
         }
     });
+
+    // Close modal
+    function closeModal() { shareModal.classList.remove('active'); }
+    shareModalClose.addEventListener('click', closeModal);
     shareModal.addEventListener('click', function (e) {
         if (e.target === shareModal) closeModal();
     });
+
+    // Expose drawShareCard for invite use
+    window._drawShareCard = drawShareCard;
+    window._showShareResult = showShareResult;
 })();
 
 /* ===== 人格相性表 ===== */
@@ -1845,115 +1962,25 @@ function renderCompare(personA, personB) {
 
 // 邀请按钮 - 生成邀请分享图
 document.getElementById('compareInviteBtn').addEventListener('click', function () {
+    console.log('[Invite] compareInviteBtn clicked');
     var result = computeResult();
     var type = result.finalType;
     var encoded = CompareUtil.encode(type.code, result.levels, type.similarity || 100);
     var compareUrl = PROD_BASE_URL + '?compare=' + encoded;
     window._lastCompareUrl = compareUrl;
 
-    // Populate share card with invite style
-    var lib = TYPE_LIBRARY[type.code] || {};
-    document.getElementById('shareCardCode').textContent = type.code;
-    document.getElementById('shareCardCn').textContent = lib.cn || '';
-    document.getElementById('shareCardMatch').textContent = (type.similarity || 100) + '% MATCH';
-    document.getElementById('shareCardIntro').textContent = '\u6211\u662F' + (lib.cn || type.code) + '\uFF0C\u4F60\u662F\u4EC0\u4E48\uFF1F\u6765\u6D4B\u6D4B\u770B\uFF01';
-
-    var posterEl = document.getElementById('shareCardPoster');
-    var posterBox = posterEl.parentElement;
-    var imgSrc = TYPE_IMAGES[type.code];
-    if (imgSrc) { posterEl.src = imgSrc; posterBox.classList.remove('hidden'); }
-    else { posterEl.removeAttribute('src'); posterBox.classList.add('hidden'); }
-
-    var dimsEl = document.getElementById('shareCardDims');
-    dimsEl.innerHTML = dimensionOrder.map(function (dim) {
-        var level = result.levels[dim];
-        var name = dimensionMeta[dim].name.replace(/^[A-Za-z0-9]+\s*/, '');
-        return '<span class="share-card-dim-tag">' + name + ' ' + level + '</span>';
-    }).join('');
-
-    // QR code points to compare URL
-    var qrEl = document.getElementById('shareCardQR');
-    var qr = qrcode(0, 'M');
-    qr.addData(compareUrl);
-    qr.make();
-    qrEl.innerHTML = '<img src="' + qr.createDataURL(4, 0) + '" alt="QR" />';
-
-    // Render to image
     var btn = document.getElementById('compareInviteBtn');
     btn.disabled = true;
-    btn.textContent = '\u751F\u6210\u4E2D...';
+    btn.textContent = '\u751f\u6210\u4e2d...';
 
-    var card = document.getElementById('shareCard');
-    card.style.left = '0';
-    card.style.top = '0';
-    card.style.position = 'absolute';
-    card.style.zIndex = '-1';
-    card.style.opacity = '1';
-
-    var inviteRenderId = ++window._inviteRenderId;
-    var inviteRendered = false;
-    function doInviteRender() {
-        if (inviteRendered) { console.log('[Invite] already rendered, skip'); return; }
-        if (inviteRenderId !== window._inviteRenderId) { console.log('[Invite] stale render skipped'); return; }
-        inviteRendered = true;
-        console.log('[Invite] doInviteRender called');
-        var _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        html2canvas(card, {
-            scale: _isIOS ? 1.5 : 2, useCORS: true, allowTaint: true,
-            backgroundColor: '#f5f0e8', width: 420, logging: false,
-            onclone: function (doc) {
-                var cc = doc.getElementById('shareCard');
-                if (cc) { cc.style.left = '0'; cc.style.position = 'absolute'; }
-            }
-        }).then(function (canvas) {
-            card.style.left = '-9999px';
-            card.style.position = 'fixed';
-            console.log('[Share] html2canvas success, canvas size:', canvas.width, 'x', canvas.height);
-                canvasToBlob(canvas, function (blob) {
-                    console.log('[Share] canvasToBlob result:', blob ? blob.size + ' bytes' : 'null');
-                if (!blob) { btn.disabled = false; btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4'; alert('生成失败'); return; }
-                window._inviteBlob = blob;
-                var url = URL.createObjectURL(blob);
-                document.getElementById('sharePreview').src = url;
-                document.getElementById('shareDownloadBtn').onclick = function () {
-                    var a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = 'sbti-invite-' + type.code + '.png';
-                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                };
-                document.getElementById('shareNativeBtn').style.display = navigator.share ? '' : 'none';
-                document.getElementById('shareNativeBtn').onclick = function () {
-                    if (!navigator.share) return;
-                    var file = new File([blob], 'sbti-invite.png', { type: 'image/png' });
-                    navigator.share({ title: 'SBTI \u4EBA\u683C\u6D4B\u8BD5', text: '\u6765\u6D4B\u6D4B\u4F60\u662F\u4EC0\u4E48\u4EBA\u683C\uFF01', files: [file] }).catch(function(){});
-                };
-                document.getElementById('shareModal').classList.add('active');
-                btn.disabled = false;
-                btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
-            });
-        }).catch(function (err) {
-            console.error('html2canvas invite error:', err);
-            card.style.left = '-9999px';
-            card.style.position = 'fixed';
-            btn.disabled = false;
-            btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
-            alert('邀请图生成失败: ' + (err && err.message ? err.message : '未知错误'));
-        });
-    }
-
-    // Convert all images to data URL first (iOS fix), then render
-    var inviteImgs = card.querySelectorAll('img');
-    var invitePending = inviteImgs.length;
-    if (invitePending === 0) { setTimeout(doInviteRender, 50); }
-    else {
-        inviteImgs.forEach(function (img) {
-            imgToDataURL(img, function () {
-                invitePending--;
-                if (invitePending <= 0) setTimeout(doInviteRender, 50);
-            });
-        });
-        setTimeout(doInviteRender, 3000);
-    }
+    window._drawShareCard(type, result, compareUrl, 'invite').then(function (canvas) {
+        window._showShareResult(canvas, btn, '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4');
+    }).catch(function (err) {
+        console.error('[Invite] error:', err);
+        btn.disabled = false;
+        btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
+        alert('\u751f\u6210\u5931\u8d25: ' + (err && err.message || ''));
+    });
 });
 
 // URL 参数检测：如果有 compare 参数，存储并修改首页
