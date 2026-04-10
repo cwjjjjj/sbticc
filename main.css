@@ -1556,3 +1556,5 @@ button:disabled {
 .test-toolbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .test-toolbar-btn { background: #2d2d44; color: #fff; border: 1px solid #3d3d5c; padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; transition: background 0.15s; }
 .test-toolbar-btn:hover { background: #3d3d5c; transform: none; }
+.test-toolbar-pick { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.test-toolbar-select { background: #2d2d44; color: #fff; border: 1px solid #3d3d5c; padding: 8px 12px; border-radius: 10px; font-size: 13px; flex: 1; min-width: 0; }

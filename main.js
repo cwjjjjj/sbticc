@@ -707,7 +707,8 @@ const DRUNK_TRIGGER_QUESTION_ID = 'drink_gate_q2';
 const app = {
     shuffledQuestions: [],
     answers: {},
-    previewMode: false
+    previewMode: false,
+    debugForceType: null
 };
 
 const screens = {
@@ -950,7 +951,13 @@ function computeResult() {
     let special = false;
     let secondaryType = null;
 
-    if (drunkTriggered) {
+    if (app.debugForceType && TYPE_LIBRARY[app.debugForceType]) {
+        finalType = { ...TYPE_LIBRARY[app.debugForceType], similarity: 100, exact: 15, distance: 0 };
+        modeKicker = '调试指定人格';
+        badge = '调试模式 · 手动指定';
+        sub = '当前结果由调试工具栏手动指定，非答题匹配。';
+        special = true;
+    } else if (drunkTriggered) {
         finalType = TYPE_LIBRARY.DRUNK;
         secondaryType = bestNormal;
         modeKicker = '隐藏人格已激活';
@@ -1342,8 +1349,22 @@ function renderLocalHistory() {
         var toolbar = document.getElementById('testToolbar');
         if (toolbar) toolbar.style.display = '';
 
+        // 指定人格下拉
+        var picker = document.getElementById('testTypePicker');
+        if (picker) {
+            Object.keys(TYPE_LIBRARY).forEach(function (code) {
+                var lib = TYPE_LIBRARY[code];
+                var opt = document.createElement('option');
+                opt.value = code;
+                opt.textContent = code + '（' + (lib.cn || '') + '）';
+                picker.appendChild(opt);
+            });
+        }
+
         var reroll = document.getElementById('testReroll');
         if (reroll) reroll.addEventListener('click', function () {
+            app.debugForceType = null;
+            if (picker) picker.value = '';
             app.answers = {};
             app.currentQ = 0;
             questions.forEach(function (q) {
@@ -1365,6 +1386,14 @@ function renderLocalHistory() {
         if (inviteImg) inviteImg.addEventListener('click', function () {
             var btn = document.getElementById('compareInviteBtn');
             if (btn) btn.click();
+        });
+
+        var pickBtn = document.getElementById('testPickBtn');
+        if (pickBtn) pickBtn.addEventListener('click', function () {
+            var code = picker ? picker.value : '';
+            if (!code) return;
+            app.debugForceType = code;
+            renderResult();
         });
     } catch (e) { console.error('toolbar init error:', e); }
 })();
