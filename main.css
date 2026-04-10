@@ -1546,3 +1546,76 @@ button:disabled {
   cursor: pointer;
   display: none;
 }
+
+/* ===== Paywall Overlay ===== */
+.paywall-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paywall-overlay.unlocked {
+  display: none;
+}
+
+.paywall-blur {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(246, 250, 246, 0.6);
+  border-radius: 12px;
+}
+
+.paywall-cta {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 28px 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  max-width: 320px;
+  width: 90%;
+}
+
+.paywall-lock {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.paywall-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--fg, #1a2e1c);
+  margin-bottom: 6px;
+}
+
+.paywall-desc {
+  font-size: 14px;
+  color: var(--muted, #6a786f);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.paywall-btn {
+  width: 100%;
+  font-size: 17px;
+  padding: 12px 0;
+  margin-bottom: 10px;
+}
+
+.paywall-already-paid {
+  width: 100%;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+/* Hide ads when paid */
+.paid-mode .ad-banner-container,
+.paid-mode .ad-interstitial-overlay {
+  display: none !important;
+}

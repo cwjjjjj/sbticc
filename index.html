@@ -123,9 +123,19 @@
               <p id="resultDesc"></p>
             </div>
 
-            <div class="dim-box">
+            <div class="dim-box" style="position:relative;">
               <h3>十五维度评分</h3>
               <div id="dimList" class="dim-list"></div>
+              <div id="paywallOverlay" class="paywall-overlay">
+                <div class="paywall-blur"></div>
+                <div class="paywall-cta">
+                  <div class="paywall-lock">&#128274;</div>
+                  <div class="paywall-title" id="paywallTitle">解锁完整报告</div>
+                  <div class="paywall-desc" id="paywallDesc">15维度深度解析 + 去广告 + 高清分享图</div>
+                  <button id="paywallBtn" class="btn-primary paywall-btn">&#165;1.99 / $0.99 解锁</button>
+                  <button id="paywallAlreadyPaid" class="btn-secondary paywall-already-paid">我已支付</button>
+                </div>
+              </div>
             </div>
 
             <div class="compat-result-box" id="compatResultBox" style="display:none;">
