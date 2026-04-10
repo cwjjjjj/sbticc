@@ -704,6 +704,110 @@ const dimensionOrder = ['S1', 'S2', 'S3', 'E1', 'E2', 'E3', 'A1', 'A2', 'A3', 'A
 
 const DRUNK_TRIGGER_QUESTION_ID = 'drink_gate_q2';
 
+/* ===== Paywall State ===== */
+var isPaid = false;
+
+function unlockPaywall() {
+    isPaid = true;
+    var overlay = document.getElementById('paywallOverlay');
+    if (overlay) overlay.classList.add('unlocked');
+    document.body.classList.add('paid-mode');
+    // Hide all ad containers
+    document.querySelectorAll('.ad-banner-container').forEach(function(el) {
+        el.style.display = 'none';
+    });
+}
+
+function checkPaidFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var sessionId = params.get('session_id');
+    if (params.get('paid') === '1' && sessionId) {
+        fetch('/api/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: sessionId })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.paid) unlockPaywall();
+        })
+        .catch(function() {});
+    }
+}
+
+function isChineseUser() {
+    var lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    return lang.startsWith('zh');
+}
+
+function startPayment() {
+    if (isChineseUser()) {
+        showChinesePaymentModal();
+    } else {
+        startStripeCheckout();
+    }
+}
+
+function startStripeCheckout() {
+    var btn = document.getElementById('paywallBtn');
+    btn.disabled = true;
+    btn.textContent = 'redirecting...';
+
+    fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            btn.disabled = false;
+            btn.textContent = '\u00A51.99 / $0.99 \u89E3\u9501';
+            alert('Payment service unavailable, please try again');
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.textContent = '\u00A51.99 / $0.99 \u89E3\u9501';
+        alert('Network error, please try again');
+    });
+}
+
+function showChinesePaymentModal() {
+    var modal = document.createElement('div');
+    modal.className = 'share-modal active';
+    modal.id = 'paymentModal';
+    modal.innerHTML =
+        '<div class="share-modal-content">' +
+            '<div class="share-modal-header">' +
+                '<h3>\u626B\u7801\u652F\u4ED8 \u00A51.99</h3>' +
+                '<button class="share-modal-close" id="payModalClose">&times;</button>' +
+            '</div>' +
+            '<div class="share-modal-body" style="text-align:center;padding:24px;">' +
+                '<p style="color:var(--muted);margin-bottom:16px;">\u8BF7\u7528\u5FAE\u4FE1\u626B\u7801\u652F\u4ED8\uFF08\u9762\u5305\u591A / \u7231\u53D1\u7535\uFF09</p>' +
+                '<div id="paymentQRPlaceholder" style="width:200px;height:200px;margin:0 auto;background:#f0f4f0;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#999;font-size:14px;">payment QR code<br>(configure after registration)</div>' +
+                '<p style="margin-top:16px;font-size:13px;color:var(--muted);">\u652F\u4ED8\u540E\u70B9\u51FB\u4E0B\u65B9\u6309\u94AE</p>' +
+            '</div>' +
+            '<div class="share-modal-actions">' +
+                '<button class="btn-primary" id="payConfirmBtn">\u6211\u5DF2\u652F\u4ED8\uFF0C\u89E3\u9501\u62A5\u544A</button>' +
+            '</div>' +
+        '</div>';
+    document.body.appendChild(modal);
+
+    document.getElementById('payModalClose').addEventListener('click', function() {
+        modal.remove();
+    });
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.remove();
+    });
+    document.getElementById('payConfirmBtn').addEventListener('click', function() {
+        modal.remove();
+        unlockPaywall();
+    });
+}
+
 const app = {
     shuffledQuestions: [],
     answers: {},
@@ -1006,6 +1110,12 @@ function renderDimList(result) {
 }
 
 function renderResult() {
+    // Reset paywall for new test (unless already paid in this session)
+    if (!isPaid) {
+        var overlay = document.getElementById('paywallOverlay');
+        if (overlay) overlay.classList.remove('unlocked');
+    }
+
     const result = computeResult();
     const type = result.finalType;
 
@@ -1064,7 +1174,7 @@ function renderResult() {
     } else {
         compatBox.style.display = 'none';
     }
-    saveResult(type.code);
+    if (!app.debugForceType) saveResult(type.code);
     showScreen('result');
 }
 
@@ -1086,7 +1196,42 @@ function startTest(preview = false) {
 
 document.getElementById('startBtn').addEventListener('click', () => startTest(false));
 document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
-document.getElementById('submitBtn').addEventListener('click', renderResult);
+function showInterstitialThenResult() {
+    if (isPaid) {
+        renderResult();
+        return;
+    }
+    var overlay = document.createElement('div');
+    overlay.className = 'ad-interstitial-overlay';
+    overlay.innerHTML =
+        '<div style="font-size:22px;font-weight:600;margin-bottom:12px;">Loading result...</div>' +
+        '<div id="adInterstitialSlot" style="width:300px;height:250px;background:#222;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#666;">AD</div>' +
+        '<div class="ad-countdown" id="adCountdown">5s</div>' +
+        '<button class="ad-skip-btn" id="adSkipBtn">show result</button>';
+    document.body.appendChild(overlay);
+
+    var seconds = 5;
+    var countdownEl = overlay.querySelector('#adCountdown');
+    var skipBtn = overlay.querySelector('#adSkipBtn');
+
+    var timer = setInterval(function () {
+        seconds--;
+        countdownEl.textContent = seconds + 's';
+        if (seconds <= 0) {
+            clearInterval(timer);
+            skipBtn.style.display = '';
+        }
+    }, 1000);
+
+    skipBtn.addEventListener('click', function () {
+        overlay.remove();
+        renderResult();
+    });
+}
+
+document.getElementById('submitBtn').addEventListener('click', function () {
+    showInterstitialThenResult();
+});
 document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
 /* Rarity data from 1M Monte Carlo simulation */
 var TYPE_RARITY = {
@@ -1288,6 +1433,11 @@ function renderRanking() {
                     '<div class="ranking-count">' + item.count + ' 次</div>' +
                 '</div>';
             }).join('');
+            // Show ad banner in ranking feed
+            var adSlot = document.getElementById('adBannerRanking');
+            if (adSlot && !document.body.classList.contains('paid-mode')) {
+                adSlot.style.display = '';
+            }
         })
         .catch(function () {
             loadingEl.style.display = 'none';
@@ -1666,6 +1816,15 @@ window._inviteRenderId = 0;
             ctx.lineTo(W - pad, curY);
             ctx.stroke();
             curY += 20;
+
+            // ===== Watermark (free users only) =====
+            if (!isPaid) {
+                ctx.font = '12px -apple-system, sans-serif';
+                ctx.fillStyle = '#999';
+                ctx.textAlign = 'center';
+                ctx.fillText('SBTI\u4eba\u683c\u6d4b\u8bd5 \u2192 sbti.jiligulu.xyz', W / 2, curY + 14);
+                curY += 24;
+            }
 
             // ===== Footer: CTA + QR =====
             ctx.font = '13px -apple-system, sans-serif';
@@ -2385,5 +2544,35 @@ document.addEventListener('change', function (e) {
     });
 })();
 
+/* ===== Paywall Button Handlers ===== */
+(function () {
+    // Localize paywall text
+    if (!isChineseUser()) {
+        var titleEl = document.getElementById('paywallTitle');
+        var descEl = document.getElementById('paywallDesc');
+        var btnEl = document.getElementById('paywallBtn');
+        var alreadyEl = document.getElementById('paywallAlreadyPaid');
+        if (titleEl) titleEl.textContent = 'Unlock Full Report';
+        if (descEl) descEl.textContent = '15-dimension deep analysis + ad-free + HD share image';
+        if (btnEl) btnEl.textContent = '$0.99 Unlock';
+        if (alreadyEl) alreadyEl.textContent = 'I already paid';
+    }
+    var paywallBtn = document.getElementById('paywallBtn');
+    var alreadyPaidBtn = document.getElementById('paywallAlreadyPaid');
 
+    if (paywallBtn) {
+        paywallBtn.addEventListener('click', startPayment);
+    }
+    if (alreadyPaidBtn) {
+        alreadyPaidBtn.addEventListener('click', function () {
+            if (isChineseUser()) {
+                unlockPaywall();
+            } else {
+                checkPaidFromUrl();
+            }
+        });
+    }
 
+    // Auto-check payment on page load (for Stripe redirect back)
+    checkPaidFromUrl();
+})();

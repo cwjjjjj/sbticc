@@ -8,6 +8,8 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
   <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js" defer></script>
+  <!-- Monetag Ads -->
+  <script src="https://alwingulla.com/88/tag.min.js" data-zone="MONETAG_SITE_ID" async></script>
 </head>
 <body>
   <!-- 顶部导航 -->
@@ -98,6 +100,7 @@
             </div>
           </div>
           <div id="rankingList" class="ranking-list"></div>
+          <div id="adBannerRanking" class="ad-banner-container" style="margin-top:16px;"></div>
         </div>
       </div>
 
@@ -180,9 +183,19 @@
               <p id="resultDesc"></p>
             </div>
 
-            <div class="dim-box">
+            <div class="dim-box" style="position:relative;">
               <h3>十五维度评分</h3>
               <div id="dimList" class="dim-list"></div>
+              <div id="paywallOverlay" class="paywall-overlay">
+                <div class="paywall-blur"></div>
+                <div class="paywall-cta">
+                  <div class="paywall-lock">&#128274;</div>
+                  <div class="paywall-title" id="paywallTitle">解锁完整报告</div>
+                  <div class="paywall-desc" id="paywallDesc">15维度深度解析 + 去广告 + 高清分享图</div>
+                  <button id="paywallBtn" class="btn-primary paywall-btn">&#165;1.99 / $0.99 解锁</button>
+                  <button id="paywallAlreadyPaid" class="btn-secondary paywall-already-paid">我已支付</button>
+                </div>
+              </div>
             </div>
 
             <div class="compat-result-box" id="compatResultBox" style="display:none;">
@@ -194,6 +207,8 @@
               <h3>友情提示</h3>
               <p id="funNote">本测试仅供娱乐，别拿它当诊断、面试、相亲、分手、招魂、算命或人生判决书。</p>
             </div>
+
+            <div id="adBannerResult" class="ad-banner-container"></div>
 
             <details class="author-box">
               <summary>作者的话</summary>
@@ -276,6 +291,7 @@
 
       <div class="share-card-dims" id="shareCardDims"></div>
 
+      <div id="shareCardWatermark" class="share-card-watermark">SBTI人格测试 → sbti.jiligulu.xyz</div>
       <div class="share-card-footer">
         <div class="share-card-cta">扫码来测<br>你是什么人格</div>
         <div class="share-card-qr" id="shareCardQR"></div>
