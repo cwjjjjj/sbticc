@@ -1736,6 +1736,10 @@ window._inviteRenderId = 0;
         if (e.target === shareModal) closeModal();
     });
 
+    // Expose functions globally
+    window.generateQR = generateQR;
+    window.loadImage = loadImage;
+
     // Expose drawShareCard for invite use
     window._drawShareCard = drawShareCard;
     window._showShareResult = showShareResult;
@@ -1990,26 +1994,144 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
     startTest(false);
 })();
 
-// 覆盖 showScreen：如果跳到 result 且有对比数据，自动进入对比页
+// 覆盖 showScreen：如果有对比数据，在结果页显示"查看对比"按钮
 var _origShowScreen = showScreen;
 showScreen = function (name) {
     _origShowScreen(name);
     if (name === 'result' && window._comparePersonA) {
-        var myResult = computeResult();
-        var personB = {
-            code: myResult.finalType.code,
-            levels: myResult.levels,
-            similarity: myResult.finalType.similarity || 100
+        // Show "view compare" button in result actions
+        var viewCompareBtn = document.getElementById('viewCompareBtn');
+        if (!viewCompareBtn) {
+            viewCompareBtn = document.createElement('button');
+            viewCompareBtn.id = 'viewCompareBtn';
+            viewCompareBtn.className = 'btn-primary';
+            viewCompareBtn.textContent = '\u67e5\u770b\u4e0e\u597d\u53cb\u7684\u5bf9\u6bd4';
+            viewCompareBtn.style.background = '#e74c3c';
+            var actionsDiv = document.querySelector('#result .result-actions div');
+            if (actionsDiv) actionsDiv.insertBefore(viewCompareBtn, actionsDiv.firstChild);
+        }
+        viewCompareBtn.style.display = '';
+        var personA = window._comparePersonA;
+        viewCompareBtn.onclick = function () {
+            var myResult = computeResult();
+            var personB = {
+                code: myResult.finalType.code,
+                levels: myResult.levels,
+                similarity: myResult.finalType.similarity || 100
+            };
+            renderCompare(personA, personB);
+            viewCompareBtn.style.display = 'none';
         };
-        setTimeout(function () {
-            renderCompare(window._comparePersonA, personB);
-            window._comparePersonA = null;
-        }, 500);
+    } else {
+        var btn = document.getElementById('viewCompareBtn');
+        if (btn) btn.style.display = 'none';
     }
 };
 
 document.getElementById('compareRestartBtn').addEventListener('click', function () {
     startTest(false);
+});
+
+// Compare share button - generate share image from compare page
+document.getElementById('compareShareBtn').addEventListener('click', function () {
+    console.log('[Compare] shareBtn clicked');
+    var codeA = document.getElementById('compareCodeA').textContent;
+    var codeB = document.getElementById('compareCodeB').textContent;
+    var cnA = document.getElementById('compareCnA').textContent;
+    var cnB = document.getElementById('compareCnB').textContent;
+    var similarity = document.getElementById('compareSimilarity').textContent;
+
+    var btn = document.getElementById('compareShareBtn');
+    btn.disabled = true;
+    btn.textContent = '\u751f\u6210\u4e2d...';
+
+    // Draw a simple compare share card using Canvas
+    var W = 840, H = 600;
+    var canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#faf6f0';
+    ctx.fillRect(0, 0, W, H);
+
+    // Brand
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.fillStyle = '#ccc';
+    ctx.textAlign = 'center';
+    ctx.fillText('SBTI PERSONALITY COMPARE', W / 2, 36);
+
+    // VS layout
+    ctx.font = 'bold 48px -apple-system, sans-serif';
+    ctx.fillStyle = '#1a1a1a';
+    ctx.textAlign = 'center';
+    ctx.fillText(codeA, W * 0.25, 120);
+    ctx.fillText(codeB, W * 0.75, 120);
+
+    ctx.font = '20px -apple-system, sans-serif';
+    ctx.fillStyle = '#888';
+    ctx.fillText(cnA, W * 0.25, 150);
+    ctx.fillText(cnB, W * 0.75, 150);
+
+    ctx.font = 'bold 32px -apple-system, sans-serif';
+    ctx.fillStyle = '#ccc';
+    ctx.fillText('VS', W / 2, 130);
+
+    // Similarity
+    ctx.font = 'bold 72px -apple-system, sans-serif';
+    ctx.fillStyle = '#4d6a53';
+    ctx.fillText(similarity, W / 2, 260);
+
+    ctx.font = '18px -apple-system, sans-serif';
+    ctx.fillStyle = '#888';
+    ctx.fillText('\u4e24\u4eba\u76f8\u4f3c\u5ea6', W / 2, 290);
+
+    // Comment
+    var comment = document.getElementById('compareComment').textContent;
+    ctx.font = 'italic 16px -apple-system, sans-serif';
+    ctx.fillStyle = '#666';
+    ctx.fillText(comment, W / 2, 340);
+
+    // Compatibility
+    var compatText = document.getElementById('compareCompat').textContent;
+    ctx.font = 'bold 16px -apple-system, sans-serif';
+    ctx.fillStyle = '#e67e22';
+    ctx.fillText(compatText, W / 2, 380);
+
+    // Separator
+    ctx.strokeStyle = '#e8e3db';
+    ctx.beginPath();
+    ctx.moveTo(40, 420);
+    ctx.lineTo(W - 40, 420);
+    ctx.stroke();
+
+    // Footer QR
+    var qrSrc = generateQR(PROD_BASE_URL);
+    loadImage(qrSrc).then(function (qrImg) {
+        ctx.font = '13px -apple-system, sans-serif';
+        ctx.fillStyle = '#bbb';
+        ctx.textAlign = 'left';
+        ctx.fillText('\u626b\u7801\u6765\u6d4b', 40, 460);
+        ctx.fillText('\u4f60\u662f\u4ec0\u4e48\u4eba\u683c', 40, 480);
+        if (qrImg) ctx.drawImage(qrImg, W - 40 - 88, 440, 88, 88);
+
+        // Trim
+        var trimH = 540;
+        var trimmed = document.createElement('canvas');
+        trimmed.width = W;
+        trimmed.height = trimH;
+        trimmed.getContext('2d').drawImage(canvas, 0, 0);
+
+        canvasToBlob(trimmed, function (blob) {
+            if (!blob) { btn.disabled = false; btn.textContent = '\u751f\u6210\u5bf9\u6bd4\u5206\u4eab\u56fe'; return; }
+            document.getElementById('sharePreview').src = URL.createObjectURL(blob);
+            document.getElementById('shareNativeBtn').style.display = (navigator.share && navigator.canShare) ? '' : 'none';
+            document.getElementById('shareModal').classList.add('active');
+            btn.disabled = false;
+            btn.textContent = '\u751f\u6210\u5bf9\u6bd4\u5206\u4eab\u56fe';
+        });
+    });
 });
 
 /* ===== 稀有度开关 ===== */
