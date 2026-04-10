@@ -1511,14 +1511,17 @@ window._inviteRenderId = 0;
         card.style.zIndex = '-1';
         card.style.opacity = '1';
 
-        // Wait for poster image to load before rendering
-        var posterImg = card.querySelector('img');
         var renderId = ++window._shareRenderId;
+        var rendered = false;
+
         function doRender() {
+            if (rendered) { console.log('[Share] already rendered, skip'); return; }
             if (renderId !== window._shareRenderId) { console.log('[Share] stale render skipped'); return; }
+            rendered = true;
             console.log('[Share] doRender called, isIOS:', isIOS);
+
             html2canvas(card, {
-                scale: 2,
+                scale: isIOS ? 1.5 : 2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#f5f0e8',
@@ -1534,11 +1537,18 @@ window._inviteRenderId = 0;
             }).then(function (canvas) {
                 card.style.left = '-9999px';
                 card.style.position = 'fixed';
+                console.log('[Share] html2canvas ok, size:', canvas.width, 'x', canvas.height);
 
-                canvas.toBlob(function (blob) {
+                canvasToBlob(canvas, function (blob) {
+                    console.log('[Share] blob:', blob ? blob.size + 'B' : 'null');
+                    if (!blob) {
+                        shareBtn.disabled = false;
+                        shareBtn.textContent = '生成分享图';
+                        alert('生成失败：blob为空');
+                        return;
+                    }
                     currentBlob = blob;
-                    var url = URL.createObjectURL(blob);
-                    sharePreview.src = url;
+                    sharePreview.src = URL.createObjectURL(blob);
 
                     if (navigator.share && navigator.canShare) {
                         shareNativeBtn.style.display = '';
@@ -1549,9 +1559,9 @@ window._inviteRenderId = 0;
                     shareModal.classList.add('active');
                     shareBtn.disabled = false;
                     shareBtn.textContent = '生成分享图';
-                }, 'image/png');
+                });
             }).catch(function (err) {
-                console.error('html2canvas error:', err);
+                console.error('[Share] html2canvas error:', err);
                 card.style.left = '-9999px';
                 card.style.position = 'fixed';
                 shareBtn.disabled = false;
@@ -1560,13 +1570,20 @@ window._inviteRenderId = 0;
             });
         }
 
-        if (posterImg && posterImg.src && !posterImg.complete) {
-            posterImg.onload = function () { setTimeout(doRender, 50); };
-            posterImg.onerror = function () { setTimeout(doRender, 50); };
-            // Fallback timeout
-            setTimeout(doRender, 2000);
+        // Convert all images to data URL first (iOS fix), then render
+        var allImgs = card.querySelectorAll('img');
+        console.log('[Share] Images to convert:', allImgs.length);
+        var pending = allImgs.length;
+        if (pending === 0) {
+            setTimeout(doRender, 50);
         } else {
-            setTimeout(doRender, 100);
+            allImgs.forEach(function (img) {
+                imgToDataURL(img, function () {
+                    pending--;
+                    if (pending <= 0) setTimeout(doRender, 50);
+                });
+            });
+            setTimeout(doRender, 3000);
         }
     }
 
@@ -1874,8 +1891,11 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
     card.style.opacity = '1';
 
     var inviteRenderId = ++window._inviteRenderId;
+    var inviteRendered = false;
     function doInviteRender() {
+        if (inviteRendered) { console.log('[Invite] already rendered, skip'); return; }
         if (inviteRenderId !== window._inviteRenderId) { console.log('[Invite] stale render skipped'); return; }
+        inviteRendered = true;
         console.log('[Invite] doInviteRender called');
         var _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         html2canvas(card, {
