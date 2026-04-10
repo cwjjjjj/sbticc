@@ -1196,7 +1196,6 @@ function startTest(preview = false) {
 
 document.getElementById('startBtn').addEventListener('click', () => startTest(false));
 document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
-/* TODO: 启用插屏广告后取消注释
 function showInterstitialThenResult() {
     if (isPaid) {
         renderResult();
@@ -1205,10 +1204,11 @@ function showInterstitialThenResult() {
     var overlay = document.createElement('div');
     overlay.className = 'ad-interstitial-overlay';
     overlay.innerHTML =
-        '<div style="font-size:22px;font-weight:600;margin-bottom:12px;">\u7ED3\u679C\u751F\u6210\u4E2D...</div>' +
-        '<div id="adInterstitialSlot" style="width:300px;height:250px;background:#222;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#666;">AD</div>' +
-        '<div class="ad-countdown" id="adCountdown">5s</div>' +
-        '<button class="ad-skip-btn" id="adSkipBtn" style="display:none;">\u67E5\u770B\u7ED3\u679C</button>';
+        '<div style="font-size:28px;margin-bottom:20px;">\uD83D\uDD2E</div>' +
+        '<div style="font-size:20px;font-weight:600;margin-bottom:8px;">\u7ED3\u679C\u751F\u6210\u4E2D...</div>' +
+        '<div style="font-size:14px;color:#aaa;margin-bottom:24px;">\u4EBA\u683C\u5206\u6790\u9700\u8981\u4E00\u70B9\u65F6\u95F4</div>' +
+        '<div class="ad-countdown" id="adCountdown">5</div>' +
+        '<button class="ad-skip-btn" id="adSkipBtn" style="display:none;">\u67E5\u770B\u6211\u7684\u7ED3\u679C</button>';
     document.body.appendChild(overlay);
 
     var seconds = 5;
@@ -1217,9 +1217,10 @@ function showInterstitialThenResult() {
 
     var timer = setInterval(function () {
         seconds--;
-        countdownEl.textContent = seconds + 's';
+        countdownEl.textContent = seconds;
         if (seconds <= 0) {
             clearInterval(timer);
+            countdownEl.style.display = 'none';
             skipBtn.style.display = 'inline-block';
         }
     }, 1000);
@@ -1229,9 +1230,10 @@ function showInterstitialThenResult() {
         renderResult();
     });
 }
-*/
 
-document.getElementById('submitBtn').addEventListener('click', renderResult);
+document.getElementById('submitBtn').addEventListener('click', function () {
+    showInterstitialThenResult();
+});
 document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
 /* Rarity data from 1M Monte Carlo simulation */
 var TYPE_RARITY = {
