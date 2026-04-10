@@ -1290,3 +1290,65 @@ button:disabled {
 .share-modal-actions button {
     flex: 1;
 }
+
+/* ===== 人格相性表 ===== */
+.compat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+.compat-card {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    background: linear-gradient(180deg, #ffffff, #fbfdfb);
+}
+.compat-pair {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.compat-code {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--accent-strong);
+}
+.compat-vs {
+    color: var(--muted);
+    font-size: 14px;
+}
+.compat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+}
+.compat-say {
+    font-size: 13px;
+    color: #304034;
+    line-height: 1.7;
+}
+.compat-result-box {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px;
+    background: linear-gradient(180deg, #ffffff, #fbfdfb);
+}
+.compat-result-box h3 { font-size: 16px; margin-bottom: 12px; }
+.compat-result-list { display: grid; gap: 8px; }
+.compat-result-item {
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 10px 14px;
+    border-radius: 12px;
+}
+.compat-result-item.soulmate { background: #fce4ec; color: #c62828; }
+.compat-result-item.rival { background: #fff8e1; color: #b8860b; }
+@media (max-width: 600px) {
+    .compat-grid { grid-template-columns: 1fr; }
+}
