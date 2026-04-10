@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { View, Text, Image } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { computeResult } from '../../utils/compute'
 import { dimensionOrder, dimensionMeta, DIM_EXPLANATIONS } from '../../constants/dimensions'
 import { TYPE_IMAGES, TYPE_LIBRARY } from '../../constants/personalities'
@@ -13,6 +13,12 @@ export default function ResultPage() {
   }, [])
 
   const type = result.finalType
+
+  useShareAppMessage(() => ({
+    title: `我是${type.code}（${type.cn}），来测测你是什么人格！`,
+    path: '/pages/home/index',
+  }))
+
   const imgSrc = TYPE_IMAGES[type.code]
 
   // Find compatibility matches
@@ -104,6 +110,25 @@ export default function ResultPage() {
         >
           <Text className="text-sm text-primary">回到首页</Text>
         </View>
+        {process.env.TARO_ENV === 'weapp' ? (
+          <View className="flex-1 bg-accent text-center py-3 rounded-lg">
+            <Text className="text-sm text-white">分享给好友</Text>
+          </View>
+        ) : (
+          <View
+            className="flex-1 bg-accent text-center py-3 rounded-lg"
+            onClick={() => {
+              const url = window.location.href.split('?')[0].split('#')[0]
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                  Taro.showToast({ title: '链接已复制', icon: 'success' })
+                })
+              }
+            }}
+          >
+            <Text className="text-sm text-white">复制链接</Text>
+          </View>
+        )}
         <View
           className="flex-1 bg-primary text-center py-3 rounded-lg"
           onClick={handleRestart}
