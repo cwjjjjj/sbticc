@@ -849,6 +849,9 @@ function renderQuestions() {
 
     updateProgress();
 
+    // Easter egg hook
+    eggOnRenderQuestion();
+
     // Scroll to top of test area
     var overlay = document.getElementById('testOverlay');
     if (overlay) overlay.scrollTop = 0;
@@ -866,6 +869,9 @@ function updateProgress() {
     testHint.textContent = complete
         ? '都做完了。现在可以把你的电子魂魄交给结果页审判。'
         : '全选完才会放行。世界已经够乱了，起码把题做完整。';
+
+    // Easter egg hook
+    if (typeof eggOnProgress === 'function') eggOnProgress(done, total);
 }
 
 function sumToLevel(score) {
@@ -1042,6 +1048,7 @@ function startTest(preview = false) {
     app.previewMode = preview;
     app.answers = {};
     app.currentQ = 0;
+    if (typeof eggState !== 'undefined') eggState.firstShake = false;
     const shuffledRegular = shuffle(questions);
     const insertIndex = Math.floor(Math.random() * shuffledRegular.length) + 1;
     app.shuffledQuestions = [
@@ -1751,77 +1758,62 @@ document.getElementById('compareRestartBtn').addEventListener('click', function 
     };
 })();
 
-/* ===== 测试彩蛋 ===== */
-(function () {
+/* ===== 测试彩蛋（无 MutationObserver，直接调用） ===== */
+var eggState = { firstShake: false, lastSubmitDisabled: true };
+
+function eggOnRenderQuestion() {
     // 彩蛋 1: 第一题震撼弹
-    var firstQuestionObserved = false;
-    var qList = document.getElementById('questionList');
-    if (qList) {
-        var observer = new MutationObserver(function () {
-            if (firstQuestionObserved) return;
-            var firstQ = qList.querySelector('.question');
-            if (firstQ) {
-                firstQuestionObserved = true;
-                firstQ.classList.add('egg-shake');
-                var overlay = document.createElement('div');
-                overlay.className = 'egg-dim-overlay';
-                document.body.appendChild(overlay);
-                setTimeout(function () {
-                    overlay.remove();
-                    firstQ.classList.remove('egg-shake');
-                }, 700);
-            }
-        });
-        observer.observe(qList, { childList: true });
-    }
-
-    // 彩蛋 2: 酒鬼隐藏题触发
-    document.addEventListener('change', function (e) {
-        if (e.target.name !== 'drink_gate_q2') return;
-        if (parseInt(e.target.value) === 2) {
-            document.body.classList.add('egg-warm-bg');
-            var testWrap = document.querySelector('.test-wrap');
-            if (testWrap) {
-                testWrap.classList.add('egg-wobble');
-                setTimeout(function () { testWrap.classList.remove('egg-wobble'); }, 1600);
-            }
-            setTimeout(function () { document.body.classList.remove('egg-warm-bg'); }, 2000);
+    if (!eggState.firstShake && app.currentQ === 0) {
+        eggState.firstShake = true;
+        var firstQ = document.querySelector('.question-paged');
+        if (firstQ) {
+            firstQ.classList.add('egg-shake');
+            var overlay = document.createElement('div');
+            overlay.className = 'egg-dim-overlay';
+            document.body.appendChild(overlay);
+            setTimeout(function () {
+                overlay.remove();
+                firstQ.classList.remove('egg-shake');
+            }, 700);
         }
-    });
+    }
+}
 
-    // 彩蛋 3: 进度条文字彩蛋
-    var progressText = document.getElementById('progressText');
-    if (progressText) {
-        var progObserver = new MutationObserver(function () {
-            var text = progressText.textContent;
-            var match = text.match(/(\d+)\s*\/\s*(\d+)/);
-            if (!match) return;
-            var current = parseInt(match[1]);
-            var total = parseInt(match[2]);
-            if (current === total) {
-                progressText.textContent = '\u6700\u540E\u4E00\u51FB\uFF01 ' + current + ' / ' + total;
-            } else if (current === Math.ceil(total / 2)) {
-                progressText.textContent = '\u6491\u4F4F\uFF01' + current + ' / ' + total;
-            }
-        });
-        progObserver.observe(progressText, { childList: true, characterData: true, subtree: true });
+function eggOnProgress(done, total) {
+    // 彩蛋 3: 进度条文字
+    var pt = document.getElementById('progressText');
+    if (!pt) return;
+    if (done === total && total > 0) {
+        pt.textContent = '\u6700\u540e\u4e00\u51fb\uff01 ' + done + ' / ' + total;
+    } else if (done === Math.ceil(total / 2)) {
+        pt.textContent = '\u6491\u4f4f\uff01' + done + ' / ' + total;
     }
 
     // 彩蛋 4: 提交按钮弹动
-    var submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
-        var btnObserver = new MutationObserver(function (mutations) {
-            mutations.forEach(function (m) {
-                if (m.attributeName === 'disabled' && !submitBtn.disabled) {
-                    submitBtn.classList.add('egg-bounce');
-                    setTimeout(function () { submitBtn.classList.remove('egg-bounce'); }, 500);
-                }
-            });
-        });
-        btnObserver.observe(submitBtn, { attributes: true });
+    var sb = document.getElementById('submitBtn');
+    if (sb && eggState.lastSubmitDisabled && !sb.disabled) {
+        sb.classList.add('egg-bounce');
+        setTimeout(function () { sb.classList.remove('egg-bounce'); }, 500);
     }
+    eggState.lastSubmitDisabled = sb ? sb.disabled : true;
+}
 
-    // 彩蛋 5: 结果揭晓动效
+// 彩蛋 2: 酒鬼隐藏题触发（事件委托，安全）
+document.addEventListener('change', function (e) {
+    if (e.target.name !== 'drink_gate_q2') return;
+    if (parseInt(e.target.value) === 2) {
+        document.body.classList.add('egg-warm-bg');
+        var testWrap = document.querySelector('.test-wrap');
+        if (testWrap) {
+            testWrap.classList.add('egg-wobble');
+            setTimeout(function () { testWrap.classList.remove('egg-wobble'); }, 1600);
+        }
+        setTimeout(function () { document.body.classList.remove('egg-warm-bg'); }, 2000);
+    }
+});
+
+// 彩蛋 5: 结果揭晓动效
+(function () {
     var _origShowScreenEgg = showScreen;
     showScreen = function (name) {
         _origShowScreenEgg(name);
