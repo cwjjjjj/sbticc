@@ -10,15 +10,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const data = await redis.zrange('sbti:ranking', 0, -1, { rev: true, withScores: true });
-  const total = (await redis.get('sbti:total')) || 0;
+  const realOnly = req.query.real === '1';
 
-  // data 格式: [member, score, member, score, ...]
+  const [data, total, mockTotal, mockData] = await Promise.all([
+    redis.zrange('sbti:ranking', 0, -1, { rev: true, withScores: true }),
+    redis.get('sbti:total'),
+    redis.get('sbti:mock_total'),
+    redis.hgetall('sbti:mock'),
+  ]);
+
+  const mock = mockData || {};
+  const mockTotalNum = Number(mockTotal) || 0;
+
   const list = [];
   for (let i = 0; i < data.length; i += 2) {
-    list.push({ code: data[i], count: Number(data[i + 1]) });
+    const code = data[i];
+    const rawCount = Number(data[i + 1]);
+    const mockCount = Number(mock[code]) || 0;
+    const count = realOnly ? Math.max(0, rawCount - mockCount) : rawCount;
+    if (count > 0 || !realOnly) {
+      list.push({ code, count });
+    }
   }
 
+  // Re-sort after subtracting mock
+  if (realOnly) {
+    list.sort((a, b) => b.count - a.count);
+  }
+
+  const finalTotal = realOnly ? Math.max(0, Number(total) - mockTotalNum) : Number(total);
+
   res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
-  res.status(200).json({ total: Number(total), list });
+  res.status(200).json({ total: finalTotal, list, hasMock: mockTotalNum > 0, mockTotal: mockTotalNum });
 }
