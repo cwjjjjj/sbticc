@@ -1,0 +1,32 @@
+import type { RarityInfo } from '../types'
+
+/** Rarity data from 1M Monte Carlo simulation */
+export const TYPE_RARITY: Record<string, RarityInfo> = {
+  OJBK: { pct: 9.875, stars: 1, label: '常见' },
+  'THAN-K': { pct: 7.952, stars: 2, label: '普通' },
+  FAKE: { pct: 6.706, stars: 2, label: '普通' },
+  SEXY: { pct: 5.908, stars: 2, label: '普通' },
+  MALO: { pct: 5.892, stars: 2, label: '普通' },
+  'Dior-s': { pct: 5.250, stars: 2, label: '普通' },
+  MUM: { pct: 5.200, stars: 2, label: '普通' },
+  ZZZZ: { pct: 4.678, stars: 2, label: '普通' },
+  'LOVE-R': { pct: 4.222, stars: 2, label: '普通' },
+  IMSB: { pct: 4.202, stars: 2, label: '普通' },
+  CTRL: { pct: 3.737, stars: 3, label: '少见' },
+  SOLO: { pct: 3.647, stars: 3, label: '少见' },
+  FUCK: { pct: 3.425, stars: 3, label: '少见' },
+  GOGO: { pct: 3.087, stars: 3, label: '少见' },
+  'JOKE-R': { pct: 3.034, stars: 3, label: '少见' },
+  'OH-NO': { pct: 2.991, stars: 3, label: '少见' },
+  MONK: { pct: 2.930, stars: 3, label: '少见' },
+  SHIT: { pct: 2.560, stars: 3, label: '少见' },
+  DEAD: { pct: 2.451, stars: 3, label: '少见' },
+  'ATM-er': { pct: 2.447, stars: 3, label: '少见' },
+  'THIN-K': { pct: 2.316, stars: 3, label: '少见' },
+  'WOC!': { pct: 2.080, stars: 3, label: '少见' },
+  IMFW: { pct: 2.071, stars: 3, label: '少见' },
+  POOR: { pct: 1.714, stars: 4, label: '稀有' },
+  BOSS: { pct: 1.576, stars: 4, label: '稀有' },
+  HHHH: { pct: 0.050, stars: 5, label: '极稀有' },
+  DRUNK: { pct: 0, stars: 5, label: '隐藏' },
+}
