@@ -1431,6 +1431,8 @@ function canvasToBlob(canvas, callback) {
     }
 }
 
+var PROD_BASE_URL = 'https://sbticc.vercel.app';
+
 window._shareRenderId = 0;
 window._inviteRenderId = 0;
 
@@ -1486,7 +1488,7 @@ window._inviteRenderId = 0;
         }).join('') + '<div class="share-card-dim-legend">低=较弱 / 中=一般 / 高=较强</div>';
 
         var qrEl = document.getElementById('shareCardQR');
-        var pageUrl = window.location.href.split('?')[0].split('#')[0];
+        var pageUrl = PROD_BASE_URL;
         var qrDataUrl = generateQR(pageUrl);
         qrEl.innerHTML = '<img src="' + qrDataUrl + '" alt="QR" />';
 
@@ -1600,7 +1602,7 @@ window._inviteRenderId = 0;
     // Copy link button
     var shareCopyLinkBtn = document.getElementById('shareCopyLinkBtn');
     shareCopyLinkBtn.addEventListener('click', function () {
-        var url = window._lastCompareUrl || window.location.href.split('?')[0].split('#')[0];
+        var url = window._lastCompareUrl || PROD_BASE_URL;
         if (navigator.clipboard) {
             navigator.clipboard.writeText(url).then(function () {
                 shareCopyLinkBtn.textContent = '已复制！';
@@ -1829,8 +1831,7 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
     var result = computeResult();
     var type = result.finalType;
     var encoded = CompareUtil.encode(type.code, result.levels, type.similarity || 100);
-    var baseUrl = window.location.href.split('?')[0].split('#')[0];
-    var compareUrl = baseUrl + '?compare=' + encoded;
+    var compareUrl = PROD_BASE_URL + '?compare=' + encoded;
     window._lastCompareUrl = compareUrl;
 
     // Populate share card with invite style
