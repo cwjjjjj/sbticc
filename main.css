@@ -1549,3 +1549,10 @@ button:disabled {
     padding: 2px 8px; border-radius: 999px;
 }
 .local-history-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+/* ===== 调试工具栏 ===== */
+.test-toolbar { background: #1a1a2e; color: #fff; padding: 14px 18px; border-radius: 14px; margin-bottom: 16px; }
+.test-toolbar-title { font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.test-toolbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.test-toolbar-btn { background: #2d2d44; color: #fff; border: 1px solid #3d3d5c; padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+.test-toolbar-btn:hover { background: #3d3d5c; transform: none; }
