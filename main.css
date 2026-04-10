@@ -1619,3 +1619,16 @@ button:disabled {
 .paid-mode .ad-interstitial-overlay {
   display: none !important;
 }
+
+/* ===== Share Card Watermark ===== */
+.share-card-watermark {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  padding: 8px 0 0;
+  letter-spacing: 0.5px;
+}
+
+.share-card-watermark.hidden {
+  display: none;
+}
