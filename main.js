@@ -1408,14 +1408,23 @@ function renderLocalHistory() {
         card.style.zIndex = '-1';
         card.style.opacity = '1';
 
-        setTimeout(function () {
+        // Wait for poster image to load before rendering
+        var posterImg = card.querySelector('img');
+        function doRender() {
             html2canvas(card, {
                 scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#f5f0e8',
                 width: 420,
-                logging: false
+                logging: false,
+                onclone: function (doc) {
+                    var clonedCard = doc.getElementById('shareCard');
+                    if (clonedCard) {
+                        clonedCard.style.left = '0';
+                        clonedCard.style.position = 'absolute';
+                    }
+                }
             }).then(function (canvas) {
                 card.style.left = '-9999px';
                 card.style.position = 'fixed';
@@ -1442,7 +1451,16 @@ function renderLocalHistory() {
                 shareBtn.textContent = '生成分享图';
                 alert('生成失败，请重试');
             });
-        }, 100);
+        }
+
+        if (posterImg && posterImg.src && !posterImg.complete) {
+            posterImg.onload = function () { setTimeout(doRender, 50); };
+            posterImg.onerror = function () { setTimeout(doRender, 50); };
+            // Fallback timeout
+            setTimeout(doRender, 2000);
+        } else {
+            setTimeout(doRender, 100);
+        }
     }
 
     function downloadImage() {
@@ -1749,10 +1767,14 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
     card.style.zIndex = '-1';
     card.style.opacity = '1';
 
-    setTimeout(function () {
+    function doInviteRender() {
         html2canvas(card, {
             scale: 2, useCORS: true, allowTaint: true,
-            backgroundColor: '#f5f0e8', width: 420, logging: false
+            backgroundColor: '#f5f0e8', width: 420, logging: false,
+            onclone: function (doc) {
+                var cc = doc.getElementById('shareCard');
+                if (cc) { cc.style.left = '0'; cc.style.position = 'absolute'; }
+            }
         }).then(function (canvas) {
             card.style.left = '-9999px';
             card.style.position = 'fixed';
@@ -1783,7 +1805,16 @@ document.getElementById('compareInviteBtn').addEventListener('click', function (
             btn.disabled = false;
             btn.textContent = '\u9080\u8BF7\u597D\u53CB\u5BF9\u6BD4';
         });
-    }, 100);
+    }
+
+    var invitePoster = document.getElementById('shareCardPoster');
+    if (invitePoster && invitePoster.src && !invitePoster.complete) {
+        invitePoster.onload = function () { setTimeout(doInviteRender, 50); };
+        invitePoster.onerror = function () { setTimeout(doInviteRender, 50); };
+        setTimeout(doInviteRender, 2000);
+    } else {
+        setTimeout(doInviteRender, 100);
+    }
 });
 
 // URL 参数检测：如果有 compare 参数，存储并修改首页
