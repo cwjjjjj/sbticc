@@ -39,12 +39,12 @@ export default function PersonalityCard({ code, cn, intro, desc }: Props) {
       {expanded && (
         <Text className="text-sm text-[#6a786f] leading-relaxed block mb-2">{desc}</Text>
       )}
-      <Text
-        className="text-sm text-accent"
+      <View
+        className="inline-block py-1"
         onClick={() => setExpanded(!expanded)}
       >
-        {expanded ? '收起' : '展开全文'}
-      </Text>
+        <Text className="text-sm text-accent">{expanded ? '收起' : '展开全文'}</Text>
+      </View>
     </View>
   )
 }

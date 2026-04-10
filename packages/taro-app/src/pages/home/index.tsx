@@ -9,9 +9,9 @@ export default function Home() {
   }
 
   return (
-    <View className="min-h-screen bg-bg px-4 pb-20">
+    <View className="min-h-screen bg-bg px-4 py-4 pb-20">
       {/* Hero */}
-      <View className="bg-bg-card rounded-xl p-6 mt-4 text-center border border-[#e8e3d8]">
+      <View className="bg-bg-card rounded-xl p-6 text-center border border-[#e8e3d8]">
         <Text className="text-2xl font-bold text-primary block mb-4">
           MBTI已经过时，SBTI来了。
         </Text>
