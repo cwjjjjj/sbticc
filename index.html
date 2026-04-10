@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBTI 人格测试</title>
+  <link rel="stylesheet" href="./main.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <div class="top-nav-brand">SBTI</div>
+      <div class="top-nav-tabs">
+        <button class="top-nav-tab active" data-tab="tab-profiles">人物介绍</button>
+        <button class="top-nav-tab" data-tab="tab-test">测试页面</button>
+        <button class="top-nav-tab" data-tab="tab-ranking">全站排行</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="shell">
+    <!-- Tab 1: 人物介绍 -->
+    <div id="tab-profiles" class="tab-panel active">
+      <div class="types-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">全部人格一览</h2>
+        <div id="typesGrid" class="types-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab 2: 测试页面 -->
+    <div id="tab-test" class="tab-panel">
+      <section id="intro" class="screen active">
+        <div class="hero card hero-minimal">
+          <h1>MBTI已经过时，SBTI来了。</h1>
+          <div class="hero-actions hero-actions-single">
+            <button id="startBtn" class="btn-primary">开始测试</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="test" class="screen">
+        <div class="test-wrap card">
+          <div class="topbar">
+            <div class="progress"><span id="progressBar"></span></div>
+            <div class="progress-text" id="progressText">0 / 31</div>
+          </div>
+
+          <div id="questionList" class="question-list"></div>
+
+          <div class="actions-bottom">
+            <div class="hint" id="testHint">全选完才会放行。世界已经够乱了，起码把题做完整。</div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="backIntroBtn" class="btn-secondary">返回首页</button>
+              <button id="submitBtn" class="btn-primary" disabled>提交并查看结果</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="result" class="screen">
+        <div class="result-wrap card">
+          <div class="result-layout">
+            <div class="result-top">
+              <div class="poster-box" id="posterBox">
+                <img id="posterImage" class="poster-image" alt="人格结果图" />
+                <div id="posterCaption" class="poster-caption">怎么样，被我拿捏了吧？</div>
+              </div>
+
+              <div class="type-box">
+                <div class="type-kicker" id="resultModeKicker">你的主类型</div>
+                <div class="type-name" id="resultTypeName">CTRL（拿捏者）</div>
+                <div class="match" id="matchBadge">匹配度 92%</div>
+                <div class="type-subname" id="resultTypeSub">系统备注会显示在这里。</div>
+              </div>
+            </div>
+
+            <div class="analysis-box">
+              <h3>该人格的简单解读</h3>
+              <p id="resultDesc"></p>
+            </div>
+
+            <div class="dim-box">
+              <h3>十五维度评分</h3>
+              <div id="dimList" class="dim-list"></div>
+            </div>
+
+            <div class="note-box">
+              <h3>友情提示</h3>
+              <p id="funNote">本测试仅供娱乐，别拿它当诊断、面试、相亲、分手、招魂、算命或人生判决书。</p>
+            </div>
+
+            <details class="author-box">
+              <summary>作者的话</summary>
+              <div class="author-content">
+                <p>本测试首发于b站up主蛆肉儿串儿（UID417038183），初衷是劝诫一位爱喝酒的朋友戒酒。</p>
+                <p>由于作者的人格是SHIT愤世者，所以平等的攻击了各位，在此抱歉！！不过我是一个绝世大美女，你们一定会原谅我，有B站的朋友们也可以关注我。</p>
+                <p>关于这个测试，我没法很好的平衡娱乐和专业性，因此对于一些人格的阐释较为模糊或完全不准（如屌丝可能并非真的屌丝），如有冒犯非常抱歉！！</p>
+                <p>再鉴于时间精力有限，就随便搞了一个先这样玩玩，后续会慢慢完善修改的，总之好玩为主，还请不要用于盈利呀。</p>
+              </div>
+            </details>
+          </div>
+
+          <div class="result-actions">
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="shareBtn" class="btn-primary">生成分享图</button>
+              <button id="restartBtn" class="btn-secondary">重新测试</button>
+              <button id="toTopBtn" class="btn-secondary">回到首页</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tab 3: 全站排行 -->
+    <div id="tab-ranking" class="tab-panel">
+      <div class="card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:6px; text-align:center;">全站人格排行榜</h2>
+        <p style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:22px;">基于本设备的测试统计（数据存储在浏览器本地）</p>
+        <div id="rankingEmpty" class="ranking-empty">
+          <p>还没有测试记录，去测一次吧！</p>
+          <button id="rankingGoTest" class="btn-primary" style="margin-top:14px;">去测试</button>
+        </div>
+        <div id="rankingContent" style="display:none;">
+          <div class="ranking-stats">
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="rankTotalCount">0</div>
+              <div class="ranking-stat-label">总测试次数</div>
+            </div>
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="rankUniqueTypes">0</div>
+              <div class="ranking-stat-label">已解锁人格</div>
+            </div>
+          </div>
+          <div id="rankingList" class="ranking-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分享卡片（隐藏，用于渲染成图片） -->
+  <div id="shareCard" class="share-card" aria-hidden="true">
+    <div class="share-card-accent"></div>
+    <div class="share-card-inner">
+      <div class="share-card-brand">SBTI PERSONALITY</div>
+
+      <div class="share-card-hero">
+        <div class="share-card-poster">
+          <img id="shareCardPoster" alt="" />
+        </div>
+        <div class="share-card-type-info">
+          <div class="share-card-code" id="shareCardCode">CTRL</div>
+          <div class="share-card-cn" id="shareCardCn">拿捏者</div>
+          <div class="share-card-match" id="shareCardMatch">92% MATCH</div>
+        </div>
+      </div>
+
+      <div class="share-card-intro" id="shareCardIntro">怎么样，被我拿捏了吧？</div>
+
+      <div class="share-card-dims" id="shareCardDims"></div>
+
+      <div class="share-card-footer">
+        <div class="share-card-cta">扫码来测<br>你是什么人格</div>
+        <div class="share-card-qr" id="shareCardQR"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分享弹窗 -->
+  <div id="shareModal" class="share-modal">
+    <div class="share-modal-content">
+      <div class="share-modal-header">
+        <h3>你的分享图已生成</h3>
+        <button id="shareModalClose" class="share-modal-close">&times;</button>
+      </div>
+      <div class="share-modal-body">
+        <img id="sharePreview" class="share-preview" alt="分享图预览" />
+      </div>
+      <div class="share-modal-actions">
+        <button id="shareDownloadBtn" class="btn-primary">保存图片</button>
+        <button id="shareNativeBtn" class="btn-secondary">分享给好友</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>

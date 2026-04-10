@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBTI 测试调试页</title>
+  <script>window.location.hash = 'test';</script>
+  <script>
+    // 部署后访问 /test.html 即自动跳转到主页的 #test 调试模式
+    window.location.replace(window.location.origin + '/#test');
+  </script>
+</head>
+<body>
+  <p>正在跳转...</p>
+</body>
+</html>
