@@ -1018,7 +1018,7 @@ function renderResult() {
     var myCode = type.code;
     var soulmates = [];
     var rivals = [];
-    Object.keys(COMPATIBILITY).forEach(function (key) {
+    Object.keys(COMPATIBILITY || {}).forEach(function (key) {
         var parts = key.split('+');
         var c = COMPATIBILITY[key];
         if (parts[0] === myCode || parts[1] === myCode) {
@@ -1589,7 +1589,7 @@ function getCompatibility(codeA, codeB) {
     if (codeA === codeB) return { type: "mirror", say: "同类相遇，要么惺惺相惜，要么互相嫌弃" };
     var key1 = codeA + '+' + codeB;
     var key2 = codeB + '+' + codeA;
-    return COMPATIBILITY[key1] || COMPATIBILITY[key2] || { type: "normal", say: "普通关系，相安无事" };
+    return (COMPATIBILITY && COMPATIBILITY[key1]) || (COMPATIBILITY && COMPATIBILITY[key2]) || { type: "normal", say: "普通关系，相安无事" };
 }
 
 /* 渲染相性表到首页 */
