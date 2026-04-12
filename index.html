@@ -4,6 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SBTI 人格测试</title>
+  <script>
+  // A/B split: 50% users see new React version at /new
+  // Same user always gets the same version (stored in localStorage)
+  (function(){
+    try {
+      var key = 'sbti_ab_version';
+      var v = localStorage.getItem(key);
+      if (!v) {
+        v = Math.random() < 0.5 ? 'new' : 'old';
+        localStorage.setItem(key, v);
+      }
+      if (v === 'new' && window.location.pathname === '/') {
+        window.location.replace('/new' + window.location.search + window.location.hash);
+      }
+    } catch(e) {}
+  })();
+  </script>
   <link rel="stylesheet" href="./main.css">
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
