@@ -1,14 +1,9 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "bash build.sh",
   "outputDirectory": "dist",
-  "framework": "vite",
-  "functions": {
-    "api/*.js": {
-      "memory": 128
-    }
-  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/new", "destination": "/new/index.html" },
+    { "source": "/new/((?!assets/).*)", "destination": "/new/index.html" }
   ]
 }
