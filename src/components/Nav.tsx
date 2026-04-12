@@ -1,0 +1,63 @@
+import { css } from '@emotion/react';
+
+export type TabId = 'home' | 'profiles' | 'compat' | 'ranking';
+
+interface NavProps {
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
+  onStartTest: () => void;
+}
+
+const tabs: { id: TabId; label: string }[] = [
+  { id: 'home', label: '首页' },
+  { id: 'profiles', label: '人格介绍' },
+  { id: 'compat', label: '人格相性' },
+  { id: 'ranking', label: '全站排行' },
+];
+
+const glassmorphism = css`
+  background: rgba(8, 8, 8, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+`;
+
+export default function Nav({ activeTab, onTabChange, onStartTest }: NavProps) {
+  return (
+    <nav
+      css={glassmorphism}
+      className="fixed top-0 left-0 right-0 z-50 border-b border-border"
+    >
+      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+        {/* Brand */}
+        <div className="font-mono font-extrabold text-lg tracking-tight text-white select-none">
+          S<span className="text-accent">[B]</span>TI
+        </div>
+
+        {/* Tab buttons - hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                activeTab === tab.id
+                  ? 'text-white bg-surface-2'
+                  : 'text-muted hover:text-white hover:bg-surface'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={onStartTest}
+          className="bg-accent text-white text-sm font-bold px-4 py-1.5 rounded-lg hover:brightness-110 transition-all"
+        >
+          开始测试
+        </button>
+      </div>
+    </nav>
+  );
+}

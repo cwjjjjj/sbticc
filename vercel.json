@@ -1,7 +1,9 @@
 {
-  "functions": {
-    "api/*.js": {
-      "memory": 128
-    }
-  }
+  "buildCommand": "bash build.sh",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/new", "destination": "/new/index.html" },
+    { "source": "/new/((?!assets/).*)", "destination": "/new/index.html" }
+  ]
 }
