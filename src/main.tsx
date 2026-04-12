@@ -10,6 +10,17 @@ if (window.location.hostname === 'sbticc.vercel.app') {
   )
 }
 
+// Load vConsole on test domains for mobile debugging
+if (window.location.hostname.includes('sbticc-test')) {
+  const script = document.createElement('script')
+  script.src = 'https://unpkg.com/vconsole@latest/dist/vconsole.min.js'
+  script.onload = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    new (window as any).VConsole()
+  }
+  document.head.appendChild(script)
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

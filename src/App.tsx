@@ -18,9 +18,29 @@ import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob } from './utils/shareCard';
 import { TYPE_LIBRARY } from './data/types';
 import { PROD_BASE_URL } from './theme/tokens';
-import type { ComputeResultOutput } from './utils/matching';
+import { computeResult, type ComputeResultOutput } from './utils/matching';
+import { questions, specialQuestions } from './data/questions';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
+
+const isTestDomain = window.location.hostname.includes('sbticc-test');
+
+/*
+ * =========================================================================
+ * PAYWALL (DISABLED)
+ * =========================================================================
+ * The paywall overlay, Stripe checkout integration, and Chinese QR payment
+ * (面包多/爱发电) code exists but is currently disabled. The paywall would
+ * normally gate full result details behind a $0.99 payment.
+ *
+ * To re-enable:
+ * 1. Set isPaid state based on Stripe session verification (/api/verify)
+ * 2. Show PaywallOverlay when result is displayed and !isPaid
+ * 3. On successful payment, set isPaid = true and reveal full results
+ *
+ * Related API routes: /api/create-checkout.js, /api/verify.js
+ * =========================================================================
+ */
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('home');
@@ -32,6 +52,9 @@ export default function App() {
   const [shareModalUrl, setShareModalUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
+  // Paywall state (disabled — always false)
+  const [_isPaid] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
+
   const quiz = useQuiz();
   const ranking = useRanking();
   const localHistory = useLocalHistory();
@@ -41,20 +64,29 @@ export default function App() {
     ranking.fetchRanking();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /**
+   * Auto-fill all questions with random answers and compute result.
+   * Used for #test hash and test domain auto-fill.
+   */
+  const autoFillAndShowResult = useCallback(() => {
+    const allQs = [...questions, ...specialQuestions];
+    const answers: Record<string, number> = {};
+    allQs.forEach((q) => {
+      const maxVal = q.options[q.options.length - 1].value;
+      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+    });
+    const res = computeResult(answers, false, null);
+    setResult(res);
+    setScreen('result');
+  }, []);
+
   // Hash routing on mount
   useEffect(() => {
     const hash = window.location.hash;
 
-    if (hash === '#test') {
-      // Debug mode: auto-fill random answers, compute result
-      quiz.startQuiz(true);
-      // Fill with random answers after a tick (so questions are initialized)
-      setTimeout(() => {
-        quiz.visibleQuestions.forEach((q) => {
-          const maxVal = q.options[q.options.length - 1].value;
-          quiz.answer(q.id, Math.floor(Math.random() * maxVal) + 1);
-        });
-      }, 0);
+    if (hash === '#test' || isTestDomain) {
+      // Debug mode: auto-fill random answers, compute result, show result
+      autoFillAndShowResult();
     } else if (hash.startsWith('#compare=')) {
       const b64 = hash.slice('#compare='.length);
       const decoded = decodeCompare(b64);
@@ -153,6 +185,23 @@ export default function App() {
     }
   }, [result]);
 
+  // Debug handlers
+  const handleDebugReroll = useCallback(() => {
+    autoFillAndShowResult();
+  }, [autoFillAndShowResult]);
+
+  const handleDebugForceType = useCallback((code: string) => {
+    const allQs = [...questions, ...specialQuestions];
+    const answers: Record<string, number> = {};
+    allQs.forEach((q) => {
+      const maxVal = q.options[q.options.length - 1].value;
+      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+    });
+    const res = computeResult(answers, false, code);
+    setResult(res);
+    setScreen('result');
+  }, []);
+
   const handleShareCompare = useCallback(async () => {
     if (!result || !compareData) return;
     const typeCode = result.finalType.code;
@@ -246,6 +295,8 @@ export default function App() {
           onInviteCompare={handleInviteCompare}
           onRestart={handleRestart}
           onHome={handleBackToHome}
+          onDebugReroll={handleDebugReroll}
+          onDebugForceType={handleDebugForceType}
         />
       )}
 

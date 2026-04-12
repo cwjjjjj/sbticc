@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
 import { TYPE_IMAGES } from '../data/typeImages';
@@ -6,12 +6,16 @@ import { TYPE_LIBRARY } from '../data/types';
 import { COMPATIBILITY } from '../data/compatibility';
 import type { ComputeResultOutput } from '../utils/matching';
 
+const isTestDomain = window.location.hostname.includes('sbticc-test');
+
 interface ResultPageProps {
   result: ComputeResultOutput;
   onShare: () => void;
   onInviteCompare: () => void;
   onRestart: () => void;
   onHome: () => void;
+  onDebugReroll?: () => void;
+  onDebugForceType?: (code: string) => void;
 }
 
 const staggerItem = {
@@ -25,7 +29,10 @@ export default function ResultPage({
   onInviteCompare,
   onRestart,
   onHome,
+  onDebugReroll,
+  onDebugForceType,
 }: ResultPageProps) {
+  const [debugSelectedType, setDebugSelectedType] = useState('');
   const typeCode = result.finalType.code;
   const typeDef = TYPE_LIBRARY[typeCode] ?? result.finalType;
   const imgSrc = TYPE_IMAGES[typeCode];
@@ -67,6 +74,64 @@ export default function ResultPage({
           animate="visible"
           transition={{ staggerChildren: 0.1 }}
         >
+          {/* Debug toolbar — only visible on test domains */}
+          {isTestDomain && (
+            <motion.div
+              variants={staggerItem}
+              transition={{ duration: 0.4 }}
+              className="bg-surface-2 border border-border rounded-xl p-4 mb-6"
+            >
+              <p className="text-xs font-mono text-muted mb-3">
+                DEBUG TOOLBAR (test domain only)
+              </p>
+              <div className="flex gap-2 flex-wrap mb-3">
+                <button
+                  onClick={onDebugReroll}
+                  className="text-xs bg-surface border border-border px-3 py-1.5 rounded-lg hover:border-[#444] transition-colors cursor-pointer"
+                >
+                  {'🎲'} 换一个人格
+                </button>
+                <button
+                  onClick={onShare}
+                  className="text-xs bg-surface border border-border px-3 py-1.5 rounded-lg hover:border-[#444] transition-colors cursor-pointer"
+                >
+                  {'🖼️'} 测试分享图
+                </button>
+                <button
+                  onClick={onInviteCompare}
+                  className="text-xs bg-surface border border-border px-3 py-1.5 rounded-lg hover:border-[#444] transition-colors cursor-pointer"
+                >
+                  {'📨'} 测试邀请图
+                </button>
+              </div>
+              <div className="flex gap-2 items-center">
+                <select
+                  value={debugSelectedType}
+                  onChange={(e) => setDebugSelectedType(e.target.value)}
+                  className="text-xs bg-surface border border-border px-2 py-1.5 rounded-lg text-white cursor-pointer"
+                >
+                  <option value="">选择人格...</option>
+                  {Object.entries(TYPE_LIBRARY).map(([code, def]) => (
+                    <option key={code} value={code}>
+                      {code} — {def.cn}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => {
+                    if (debugSelectedType && onDebugForceType) {
+                      onDebugForceType(debugSelectedType);
+                    }
+                  }}
+                  disabled={!debugSelectedType}
+                  className="text-xs bg-accent/20 text-accent px-3 py-1.5 rounded-lg hover:bg-accent/30 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  生成该人格
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* 1. Result top */}
           <motion.div
             variants={staggerItem}
