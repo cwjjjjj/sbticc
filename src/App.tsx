@@ -6,6 +6,7 @@ import QuizOverlay from './components/QuizOverlay';
 import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
 import ShareModal from './components/ShareModal';
+import RankingPage from './components/RankingPage';
 import { useQuiz } from './hooks/useQuiz';
 import { useRanking } from './hooks/useRanking';
 import { useLocalHistory } from './hooks/useLocalHistory';
@@ -186,9 +187,11 @@ export default function App() {
             </div>
           )}
           {activeTab === 'ranking' && (
-            <div className="pt-20 px-4 max-w-6xl mx-auto text-center text-muted">
-              <p className="text-lg">全站排行 - 即将推出</p>
-            </div>
+            <RankingPage
+              ranking={ranking}
+              localHistory={localHistory}
+              onStartTest={handleStartTest}
+            />
           )}
         </main>
       )}
