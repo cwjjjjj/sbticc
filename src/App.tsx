@@ -5,6 +5,7 @@ import TypeCardsPreview from './components/TypeCardsPreview';
 import QuizOverlay from './components/QuizOverlay';
 import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
+import ComparePage from './components/ComparePage';
 import ShareModal from './components/ShareModal';
 import RankingPage from './components/RankingPage';
 import ProfilesGallery from './components/ProfilesGallery';
@@ -78,8 +79,13 @@ export default function App() {
   }, [quiz, localHistory]);
 
   const handleInterstitialComplete = useCallback(() => {
-    setScreen('result');
-  }, []);
+    // If we have compare data (user came from a compare link), go to compare screen
+    if (compareData) {
+      setScreen('compare');
+    } else {
+      setScreen('result');
+    }
+  }, [compareData]);
 
   const handleBackToHome = useCallback(() => {
     setScreen('home');
@@ -146,6 +152,32 @@ export default function App() {
       }
     }
   }, [result]);
+
+  const handleShareCompare = useCallback(async () => {
+    if (!result || !compareData) return;
+    const typeCode = result.finalType.code;
+    const typeDef = TYPE_LIBRARY[typeCode] ?? result.finalType;
+    const similarity = 'similarity' in result.finalType
+      ? (result.finalType as { similarity: number }).similarity
+      : 0;
+    const encoded = encodeCompare(
+      result.finalType.code,
+      result.levels,
+      similarity,
+    );
+    const compareUrl = `${PROD_BASE_URL}#compare=${encoded}`;
+    const qrDataUrl = generateQR(compareUrl);
+    try {
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
+      const blob = await canvasToBlob(canvas);
+      setShareModalBlob(blob);
+      setShareModalFileName(`sbti-compare-${typeCode}.png`);
+      setShareModalUrl(compareUrl);
+      setShowShareModal(true);
+    } catch {
+      alert('分享图生成失败');
+    }
+  }, [result, compareData]);
 
   const totalTests = ranking.data?.total ?? 0;
   const showOverlay = screen === 'quiz' || screen === 'interstitial' || screen === 'result' || screen === 'compare';
@@ -228,21 +260,46 @@ export default function App() {
       )}
 
       {/* Compare overlay */}
-      {screen === 'compare' && compareData && (
-        <div className="fixed inset-0 z-50 bg-bg flex items-center justify-center">
-          <div className="text-center px-4">
-            <p className="text-lg text-muted mb-4">对比页面 - 即将推出</p>
-            <p className="text-white font-mono font-bold text-2xl mb-2">
-              {compareData.code}
-            </p>
-            <p className="text-muted mb-6">相似度: {compareData.similarity}%</p>
-            <button
-              onClick={handleBackToHome}
-              className="text-accent underline text-sm"
-            >
-              返回首页
-            </button>
-          </div>
+      {screen === 'compare' && compareData && result && (
+        <ComparePage
+          myData={{
+            code: result.finalType.code,
+            levels: result.levels,
+            similarity: 'similarity' in result.finalType
+              ? (result.finalType as { similarity: number }).similarity
+              : 0,
+          }}
+          theirData={compareData}
+          onStartTest={handleRestart}
+          onShareCompare={handleShareCompare}
+        />
+      )}
+
+      {/* Compare overlay — no local result yet, prompt to test */}
+      {screen === 'compare' && compareData && !result && (
+        <div className="fixed inset-0 z-[200] bg-bg flex flex-col items-center justify-center px-4">
+          <p className="text-lg text-muted mb-2">对方人格：</p>
+          <p className="text-white font-mono font-bold text-3xl mb-1">
+            {compareData.code}
+          </p>
+          <p className="text-sm text-muted mb-6">
+            {TYPE_LIBRARY[compareData.code]?.cn || ''}
+          </p>
+          <p className="text-sm text-[#999] mb-6">
+            先完成测试，才能查看你们的人格对比
+          </p>
+          <button
+            onClick={handleStartTest}
+            className="bg-accent text-white font-bold py-3 px-8 rounded-xl hover:bg-red-600 transition-colors cursor-pointer"
+          >
+            开始测试
+          </button>
+          <button
+            onClick={handleBackToHome}
+            className="mt-3 text-muted underline text-sm cursor-pointer"
+          >
+            返回首页
+          </button>
         </div>
       )}
     </div>
