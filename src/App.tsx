@@ -7,6 +7,8 @@ import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
 import ShareModal from './components/ShareModal';
 import RankingPage from './components/RankingPage';
+import ProfilesGallery from './components/ProfilesGallery';
+import CompatTable from './components/CompatTable';
 import { useQuiz } from './hooks/useQuiz';
 import { useRanking } from './hooks/useRanking';
 import { useLocalHistory } from './hooks/useLocalHistory';
@@ -166,24 +168,18 @@ export default function App() {
             <>
               <Hero onStartTest={handleStartTest} totalTests={totalTests} />
               <TypeCardsPreview />
-              {/* ProfilesGallery placeholder */}
-              <div className="max-w-6xl mx-auto px-4 py-12 text-center text-muted text-sm">
-                {/* ProfilesGallery will be rendered here */}
-              </div>
-              {/* CompatTable placeholder */}
-              <div className="max-w-6xl mx-auto px-4 py-12 text-center text-muted text-sm">
-                {/* CompatTable will be rendered here */}
-              </div>
+              <ProfilesGallery rankingData={ranking.data} />
+              <CompatTable />
             </>
           )}
           {activeTab === 'profiles' && (
-            <div className="pt-20 px-4 max-w-6xl mx-auto text-center text-muted">
-              <p className="text-lg">人格介绍 - 即将推出</p>
+            <div className="pt-16">
+              <ProfilesGallery rankingData={ranking.data} />
             </div>
           )}
           {activeTab === 'compat' && (
-            <div className="pt-20 px-4 max-w-6xl mx-auto text-center text-muted">
-              <p className="text-lg">人格相性 - 即将推出</p>
+            <div className="pt-16">
+              <CompatTable />
             </div>
           )}
           {activeTab === 'ranking' && (
