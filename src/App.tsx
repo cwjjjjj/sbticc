@@ -2,13 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import Nav, { type TabId } from './components/Nav';
 import Hero from './components/Hero';
 import TypeCardsPreview from './components/TypeCardsPreview';
+import QuizOverlay from './components/QuizOverlay';
+import Interstitial from './components/Interstitial';
+import ResultPage from './components/ResultPage';
 import { useQuiz } from './hooks/useQuiz';
 import { useRanking } from './hooks/useRanking';
 import { useLocalHistory } from './hooks/useLocalHistory';
-import { decodeCompare, type DecodedCompare } from './utils/compare';
+import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compare';
 import type { ComputeResultOutput } from './utils/matching';
 
-type ScreenId = 'home' | 'quiz' | 'result' | 'compare';
+type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('home');
@@ -54,12 +57,17 @@ export default function App() {
     setScreen('quiz');
   }, [quiz]);
 
-  const handleFinishQuiz = useCallback(() => {
+  const handleQuizSubmit = useCallback(() => {
+    // Compute result immediately but show interstitial first
     const res = quiz.getResult();
     setResult(res);
     localHistory.saveResult(res.finalType.code);
-    setScreen('result');
+    setScreen('interstitial');
   }, [quiz, localHistory]);
+
+  const handleInterstitialComplete = useCallback(() => {
+    setScreen('result');
+  }, []);
 
   const handleBackToHome = useCallback(() => {
     setScreen('home');
@@ -68,8 +76,41 @@ export default function App() {
     window.location.hash = '';
   }, []);
 
+  const handleRestart = useCallback(() => {
+    quiz.startQuiz();
+    setResult(null);
+    setScreen('quiz');
+  }, [quiz]);
+
+  const handleShare = useCallback(() => {
+    // Share card generation will be implemented in Task 9
+    alert('分享功能即将推出');
+  }, []);
+
+  const handleInviteCompare = useCallback(() => {
+    if (!result) return;
+    const similarity = 'similarity' in result.finalType
+      ? (result.finalType as { similarity: number }).similarity
+      : 0;
+    const encoded = encodeCompare(
+      result.finalType.code,
+      result.levels,
+      similarity,
+    );
+    const url = `${window.location.origin}${window.location.pathname}#compare=${encoded}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        alert('对比链接已复制到剪贴板！发给好友即可对比人格。');
+      }).catch(() => {
+        prompt('复制以下链接发给好友：', url);
+      });
+    } else {
+      prompt('复制以下链接发给好友：', url);
+    }
+  }, [result]);
+
   const totalTests = ranking.data?.total ?? 0;
-  const showOverlay = screen === 'quiz' || screen === 'result' || screen === 'compare';
+  const showOverlay = screen === 'quiz' || screen === 'interstitial' || screen === 'result' || screen === 'compare';
 
   return (
     <div className="min-h-screen bg-bg text-white font-sans">
@@ -119,39 +160,27 @@ export default function App() {
 
       {/* Quiz overlay */}
       {screen === 'quiz' && (
-        <div className="fixed inset-0 z-50 bg-bg flex items-center justify-center">
-          <div className="text-center px-4">
-            <p className="text-lg text-muted mb-4">测试界面 - 即将推出</p>
-            <p className="text-sm text-muted mb-6">
-              进度: {quiz.answeredCount}/{quiz.totalQuestions}
-            </p>
-            <button
-              onClick={handleBackToHome}
-              className="text-accent underline text-sm"
-            >
-              返回首页
-            </button>
-          </div>
-        </div>
+        <QuizOverlay
+          quiz={quiz}
+          onSubmit={handleQuizSubmit}
+          onBack={handleBackToHome}
+        />
+      )}
+
+      {/* Interstitial overlay */}
+      {screen === 'interstitial' && (
+        <Interstitial onComplete={handleInterstitialComplete} />
       )}
 
       {/* Result overlay */}
       {screen === 'result' && result && (
-        <div className="fixed inset-0 z-50 bg-bg flex items-center justify-center">
-          <div className="text-center px-4">
-            <p className="text-lg text-muted mb-4">结果页面 - 即将推出</p>
-            <p className="text-white font-mono font-bold text-2xl mb-2">
-              {result.finalType.code}
-            </p>
-            <p className="text-muted mb-6">{result.finalType.cn}</p>
-            <button
-              onClick={handleBackToHome}
-              className="text-accent underline text-sm"
-            >
-              返回首页
-            </button>
-          </div>
-        </div>
+        <ResultPage
+          result={result}
+          onShare={handleShare}
+          onInviteCompare={handleInviteCompare}
+          onRestart={handleRestart}
+          onHome={handleBackToHome}
+        />
       )}
 
       {/* Compare overlay */}
