@@ -82,8 +82,18 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
   return (
     <div className="fixed inset-0 z-[200] bg-bg overflow-y-auto">
       <div className="max-w-[680px] mx-auto px-4 py-6">
-        {/* Progress */}
-        <ProgressBar current={answeredCount} total={totalQuestions} />
+        {/* Top bar: back button + progress */}
+        <div className="flex items-center gap-3 mb-2">
+          <button
+            onClick={onBack}
+            className="text-sm text-muted hover:text-white transition-colors cursor-pointer flex-shrink-0"
+          >
+            ← 返回首页
+          </button>
+          <div className="flex-1">
+            <ProgressBar current={answeredCount} total={totalQuestions} />
+          </div>
+        </div>
 
         {/* Question */}
         <div className="mt-6 min-h-[300px]">
@@ -154,13 +164,6 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
                 }`}
             >
               提交并查看结果
-            </button>
-            <br />
-            <button
-              onClick={onBack}
-              className="px-6 py-2.5 rounded-xl text-sm bg-surface-2 text-muted border border-border hover:text-white hover:border-[#444] transition-colors cursor-pointer"
-            >
-              返回首页
             </button>
           </div>
         )}
