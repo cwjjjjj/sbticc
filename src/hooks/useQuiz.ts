@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
-import { type Question, DRUNK_TRIGGER_QUESTION_ID } from '../data/questions';
+import type { Question } from '../data/testConfig';
+import { useTestConfig } from '../data/testConfig';
 import { buildShuffledQuestions, getVisibleQuestions } from '../utils/quiz';
 import { computeResult, type ComputeResultOutput } from '../utils/matching';
 
@@ -29,16 +30,27 @@ export interface UseQuizReturn {
 }
 
 export function useQuiz(): UseQuizReturn {
+  const config = useTestConfig();
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [currentQ, setCurrentQ] = useState(0);
   const [previewMode, setPreviewMode] = useState(false);
   const [debugForceType, setDebugForceType] = useState<string | null>(null);
 
+  // Love test: gate and trigger are the same question (ex_gate, value 3)
+  // SBTI: gate is drink_gate_q1 (value 3), trigger is drink_gate_q2 (value 2)
+  const hasFollowUp = config.gateQuestionId !== config.hiddenTriggerQuestionId;
+
   /* derived */
   const visibleQuestions = useMemo(
-    () => getVisibleQuestions(shuffledQuestions, answers),
-    [shuffledQuestions, answers],
+    () => getVisibleQuestions(
+      shuffledQuestions,
+      answers,
+      config.gateQuestionId,
+      config.gateAnswerValue,
+      hasFollowUp ? config.specialQuestions[1] : undefined,
+    ),
+    [shuffledQuestions, answers, config, hasFollowUp],
   );
 
   const totalQuestions = visibleQuestions.length;
@@ -47,7 +59,7 @@ export function useQuiz(): UseQuizReturn {
   const progress = totalQuestions ? (answeredCount / totalQuestions) * 100 : 0;
   const currentQuestion = visibleQuestions[currentQ];
 
-  const drunkTriggered = answers[DRUNK_TRIGGER_QUESTION_ID] === 2;
+  const hiddenTriggered = answers[config.hiddenTriggerQuestionId] === config.hiddenTriggerValue;
 
   /* actions */
   const startQuiz = useCallback((preview = false) => {
@@ -55,19 +67,21 @@ export function useQuiz(): UseQuizReturn {
     setAnswers({});
     setCurrentQ(0);
     setDebugForceType(null);
-    setShuffledQuestions(buildShuffledQuestions());
-  }, []);
+    setShuffledQuestions(
+      buildShuffledQuestions(config.questions, config.specialQuestions[0]),
+    );
+  }, [config]);
 
   const answer = useCallback((qId: string, value: number) => {
     setAnswers(prev => {
       const next = { ...prev, [qId]: value };
-      // If drink_gate_q1 is not "drinking" (3), remove drink_gate_q2 answer
-      if (qId === 'drink_gate_q1' && value !== 3) {
-        delete next['drink_gate_q2'];
+      // If gate question changed away from trigger value, remove follow-up answer
+      if (hasFollowUp && qId === config.gateQuestionId && value !== config.gateAnswerValue) {
+        delete next[config.hiddenTriggerQuestionId];
       }
       return next;
     });
-  }, []);
+  }, [config, hasFollowUp]);
 
   const goNext = useCallback(() => {
     setCurrentQ(prev => {
@@ -81,8 +95,8 @@ export function useQuiz(): UseQuizReturn {
   }, []);
 
   const getResult = useCallback(
-    (): ComputeResultOutput => computeResult(answers, drunkTriggered, debugForceType),
-    [answers, drunkTriggered, debugForceType],
+    (): ComputeResultOutput => computeResult(answers, hiddenTriggered, config, debugForceType),
+    [answers, hiddenTriggered, config, debugForceType],
   );
 
   return {
