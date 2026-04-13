@@ -16,10 +16,9 @@ import { useLocalHistory } from './hooks/useLocalHistory';
 import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compare';
 import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob } from './utils/shareCard';
-import { TYPE_LIBRARY } from './data/types';
-import { PROD_BASE_URL } from './theme/tokens';
+import { TestConfigProvider, useTestConfig } from './data/testConfig';
+import { sbtiConfig } from './data/sbti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
-import { questions, specialQuestions } from './data/questions';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
@@ -42,7 +41,8 @@ const isTestDomain = window.location.hostname.includes('sbticc-test');
  * =========================================================================
  */
 
-export default function App() {
+function AppInner() {
+  const config = useTestConfig();
   const [activeTab, setActiveTab] = useState<TabId>('home');
   const [screen, setScreen] = useState<ScreenId>('home');
   const [result, setResult] = useState<ComputeResultOutput | null>(null);
@@ -69,16 +69,16 @@ export default function App() {
    * Used for #test hash and test domain auto-fill.
    */
   const autoFillAndShowResult = useCallback(() => {
-    const allQs = [...questions, ...specialQuestions];
+    const allQs = [...config.questions, ...config.specialQuestions];
     const answers: Record<string, number> = {};
     allQs.forEach((q) => {
       const maxVal = q.options[q.options.length - 1].value;
       answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
     });
-    const res = computeResult(answers, false, null);
+    const res = computeResult(answers, false, config, null);
     setResult(res);
     setScreen('result');
-  }, []);
+  }, [config]);
 
   // Hash routing on mount
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function App() {
       autoFillAndShowResult();
     } else if (hash.startsWith('#compare=')) {
       const b64 = hash.slice('#compare='.length);
-      const decoded = decodeCompare(b64);
+      const decoded = decodeCompare(b64, config.dimensionOrder);
       if (decoded) {
         setCompareData(decoded);
         setScreen('compare');
@@ -135,25 +135,25 @@ export default function App() {
   const handleShare = useCallback(async () => {
     if (!result) return;
     const typeCode = result.finalType.code;
-    const typeDef = TYPE_LIBRARY[typeCode] ?? result.finalType;
-    const pageUrl = `${PROD_BASE_URL}`;
+    const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
+    const pageUrl = `${config.prodBaseUrl}${config.basePath}`;
     const qrDataUrl = generateQR(pageUrl);
     try {
       const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share');
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
-      setShareModalFileName(`sbti-${typeCode}.png`);
+      setShareModalFileName(`${config.id}-${typeCode}.png`);
       setShareModalUrl(pageUrl);
       setShowShareModal(true);
     } catch {
       alert('\u5206\u4eab\u56fe\u751f\u6210\u5931\u8d25');
     }
-  }, [result]);
+  }, [result, config]);
 
   const handleInviteCompare = useCallback(async () => {
     if (!result) return;
     const typeCode = result.finalType.code;
-    const typeDef = TYPE_LIBRARY[typeCode] ?? result.finalType;
+    const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     const similarity = 'similarity' in result.finalType
       ? (result.finalType as { similarity: number }).similarity
       : 0;
@@ -161,14 +161,15 @@ export default function App() {
       result.finalType.code,
       result.levels,
       similarity,
+      config.dimensionOrder,
     );
-    const compareUrl = `${PROD_BASE_URL}#compare=${encoded}`;
+    const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
       const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
-      setShareModalFileName(`sbti-invite-${typeCode}.png`);
+      setShareModalFileName(`${config.id}-invite-${typeCode}.png`);
       setShareModalUrl(compareUrl);
       setShowShareModal(true);
     } catch {
@@ -183,7 +184,7 @@ export default function App() {
         prompt('\u590d\u5236\u4ee5\u4e0b\u94fe\u63a5\u53d1\u7ed9\u597d\u53cb\uff1a', compareUrl);
       }
     }
-  }, [result]);
+  }, [result, config]);
 
   // Debug handlers
   const handleDebugReroll = useCallback(() => {
@@ -191,21 +192,21 @@ export default function App() {
   }, [autoFillAndShowResult]);
 
   const handleDebugForceType = useCallback((code: string) => {
-    const allQs = [...questions, ...specialQuestions];
+    const allQs = [...config.questions, ...config.specialQuestions];
     const answers: Record<string, number> = {};
     allQs.forEach((q) => {
       const maxVal = q.options[q.options.length - 1].value;
       answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
     });
-    const res = computeResult(answers, false, code);
+    const res = computeResult(answers, false, config, code);
     setResult(res);
     setScreen('result');
-  }, []);
+  }, [config]);
 
   const handleShareCompare = useCallback(async () => {
     if (!result || !compareData) return;
     const typeCode = result.finalType.code;
-    const typeDef = TYPE_LIBRARY[typeCode] ?? result.finalType;
+    const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     const similarity = 'similarity' in result.finalType
       ? (result.finalType as { similarity: number }).similarity
       : 0;
@@ -213,20 +214,21 @@ export default function App() {
       result.finalType.code,
       result.levels,
       similarity,
+      config.dimensionOrder,
     );
-    const compareUrl = `${PROD_BASE_URL}#compare=${encoded}`;
+    const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
       const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
-      setShareModalFileName(`sbti-compare-${typeCode}.png`);
+      setShareModalFileName(`${config.id}-compare-${typeCode}.png`);
       setShareModalUrl(compareUrl);
       setShowShareModal(true);
     } catch {
       alert('分享图生成失败');
     }
-  }, [result, compareData]);
+  }, [result, compareData, config]);
 
   const totalTests = ranking.data?.total ?? 0;
   const showOverlay = screen === 'quiz' || screen === 'interstitial' || screen === 'result' || screen === 'compare';
@@ -334,7 +336,7 @@ export default function App() {
             {compareData.code}
           </p>
           <p className="text-sm text-muted mb-6">
-            {TYPE_LIBRARY[compareData.code]?.cn || ''}
+            {config.typeLibrary[compareData.code]?.cn || ''}
           </p>
           <p className="text-sm text-[#999] mb-6">
             先完成测试，才能查看你们的人格对比
@@ -354,5 +356,13 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <TestConfigProvider config={sbtiConfig}>
+      <AppInner />
+    </TestConfigProvider>
   );
 }
