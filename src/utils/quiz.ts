@@ -1,4 +1,4 @@
-import { questions, specialQuestions, type Question } from '../data/questions';
+import type { Question } from '../data/testConfig';
 
 /** Fisher-Yates shuffle (returns new array) */
 export function shuffle<T>(array: T[]): T[] {
@@ -11,32 +11,40 @@ export function shuffle<T>(array: T[]): T[] {
 }
 
 /**
- * Shuffle regular questions and insert specialQuestions[0] at a random
+ * Shuffle regular questions and insert gateQuestion at a random
  * position (never at index 0).
  */
-export function buildShuffledQuestions(): Question[] {
-  const shuffledRegular = shuffle(questions);
+export function buildShuffledQuestions(
+  regularQuestions: Question[],
+  gateQuestion?: Question,
+): Question[] {
+  const shuffledRegular = shuffle(regularQuestions);
+  if (!gateQuestion) return shuffledRegular;
   const insertIndex = Math.floor(Math.random() * shuffledRegular.length) + 1;
   return [
     ...shuffledRegular.slice(0, insertIndex),
-    specialQuestions[0],
+    gateQuestion,
     ...shuffledRegular.slice(insertIndex),
   ];
 }
 
 /**
  * Build the list of visible questions.
- * If the user chose "drink_gate_q1" answer 3 (drinking), splice
- * specialQuestions[1] (drink_gate_q2) right after it.
+ * If the user chose the gate question with the trigger value,
+ * splice the follow-up question right after it.
  */
 export function getVisibleQuestions(
   shuffledQuestions: Question[],
   answers: Record<string, number>,
+  gateQuestionId: string,
+  gateAnswerValue: number,
+  followUpQuestion?: Question,
 ): Question[] {
   const visible = [...shuffledQuestions];
-  const gateIndex = visible.findIndex(q => q.id === 'drink_gate_q1');
-  if (gateIndex !== -1 && answers['drink_gate_q1'] === 3) {
-    visible.splice(gateIndex + 1, 0, specialQuestions[1]);
+  if (!followUpQuestion) return visible;
+  const gateIndex = visible.findIndex(q => q.id === gateQuestionId);
+  if (gateIndex !== -1 && answers[gateQuestionId] === gateAnswerValue) {
+    visible.splice(gateIndex + 1, 0, followUpQuestion);
   }
   return visible;
 }
