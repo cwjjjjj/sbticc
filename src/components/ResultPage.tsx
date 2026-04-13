@@ -1,9 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
-import { TYPE_IMAGES } from '../data/typeImages';
-import { TYPE_LIBRARY } from '../data/types';
-import { COMPATIBILITY } from '../data/compatibility';
+import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
@@ -32,24 +30,25 @@ export default function ResultPage({
   onDebugReroll,
   onDebugForceType,
 }: ResultPageProps) {
+  const config = useTestConfig();
   const [debugSelectedType, setDebugSelectedType] = useState('');
   const typeCode = result.finalType.code;
-  const typeDef = TYPE_LIBRARY[typeCode] ?? result.finalType;
-  const imgSrc = TYPE_IMAGES[typeCode];
+  const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
+  const imgSrc = config.typeImages[typeCode];
 
   // Find soulmates and rivals for this type
   const { soulmates, rivals } = useMemo(() => {
     const sm: { code: string; cn: string; say: string }[] = [];
     const rv: { code: string; cn: string; say: string }[] = [];
 
-    Object.entries(COMPATIBILITY).forEach(([key, entry]) => {
+    Object.entries(config.compatibility).forEach(([key, entry]) => {
       const [a, b] = key.split('+');
       let otherCode: string | null = null;
       if (a === typeCode) otherCode = b;
       else if (b === typeCode) otherCode = a;
       if (!otherCode) return;
 
-      const otherDef = TYPE_LIBRARY[otherCode];
+      const otherDef = config.typeLibrary[otherCode];
       if (!otherDef) return;
 
       const item = { code: otherCode, cn: otherDef.cn, say: entry.say };
@@ -58,7 +57,7 @@ export default function ResultPage({
     });
 
     return { soulmates: sm, rivals: rv };
-  }, [typeCode]);
+  }, [typeCode, config]);
 
   const hasCompat = soulmates.length > 0 || rivals.length > 0;
 
@@ -111,7 +110,7 @@ export default function ResultPage({
                   className="text-xs bg-surface border border-border px-2 py-1.5 rounded-lg text-white cursor-pointer"
                 >
                   <option value="">选择人格...</option>
-                  {Object.entries(TYPE_LIBRARY).map(([code, def]) => (
+                  {Object.entries(config.typeLibrary).map(([code, def]) => (
                     <option key={code} value={code}>
                       {code} — {def.cn}
                     </option>
@@ -191,7 +190,7 @@ export default function ResultPage({
           >
             <h3 className="flex items-center gap-2.5 text-base font-bold text-white mb-4">
               <span className="w-[3px] h-4 bg-accent rounded-sm" />
-              十五维度评分
+              {config.dimSectionTitle}
             </h3>
             <DimList levels={result.levels} rawScores={result.rawScores} />
           </motion.div>

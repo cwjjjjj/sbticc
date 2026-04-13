@@ -1,4 +1,4 @@
-import { dimensionOrder, dimensionMeta, DIM_EXPLANATIONS } from '../data/dimensions';
+import { useTestConfig } from '../data/testConfig';
 
 interface DimListProps {
   levels: Record<string, string>;
@@ -9,15 +9,22 @@ const levelWidth: Record<string, string> = {
   L: '33%',
   M: '66%',
   H: '100%',
+  A: '33%',
+  B: '100%',
 };
 
 const levelColor: Record<string, string> = {
   L: '#ff3b3b',
   M: '#ffaa00',
   H: '#44ff88',
+  A: '#ff3b3b',
+  B: '#44ff88',
 };
 
 export default function DimList({ levels, rawScores }: DimListProps) {
+  const config = useTestConfig();
+  const { dimensionOrder, dimensionMeta, dimExplanations } = config;
+
   return (
     <div>
       {dimensionOrder.map((dim, i) => {
@@ -27,7 +34,7 @@ export default function DimList({ levels, rawScores }: DimListProps) {
         const shortName = meta.name.replace(/^[A-Za-z]+\d*\s*/, '');
         const color = levelColor[level];
         const width = levelWidth[level];
-        const explanation = DIM_EXPLANATIONS[dim]?.[level as keyof typeof DIM_EXPLANATIONS[typeof dim]];
+        const explanation = dimExplanations[dim]?.[level];
 
         return (
           <div
