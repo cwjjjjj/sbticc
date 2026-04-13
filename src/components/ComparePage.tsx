@@ -1,10 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import RadarChart from './RadarChart';
-import { TYPE_IMAGES } from '../data/typeImages';
-import { TYPE_LIBRARY } from '../data/types';
-import { dimensionOrder, dimensionMeta } from '../data/dimensions';
-import { getCompatibility } from '../data/compatibility';
+import { useTestConfig } from '../data/testConfig';
 import { levelNum } from '../utils/matching';
 
 interface PersonData {
@@ -23,6 +20,7 @@ interface ComparePageProps {
 function computeCosineSimilarity(
   levelsA: Record<string, string>,
   levelsB: Record<string, string>,
+  dimensionOrder: string[],
 ): number {
   const vecA = dimensionOrder.map(d => levelNum(levelsA[d]));
   const vecB = dimensionOrder.map(d => levelNum(levelsB[d]));
@@ -65,37 +63,38 @@ export default function ComparePage({
   onStartTest,
   onShareCompare,
 }: ComparePageProps) {
-  const myType = TYPE_LIBRARY[myData.code];
-  const theirType = TYPE_LIBRARY[theirData.code];
+  const config = useTestConfig();
+  const myType = config.typeLibrary[myData.code];
+  const theirType = config.typeLibrary[theirData.code];
 
   const labelsArr = useMemo(
     () =>
-      dimensionOrder.map(d => {
-        const info = dimensionMeta[d];
+      config.dimensionOrder.map(d => {
+        const info = config.dimensionMeta[d];
         // Remove prefix like "S1 " to get short name
         return info ? info.name.replace(/^[A-Za-z]+\d+\s*/, '') : d;
       }),
-    [],
+    [config],
   );
 
   const dataA = useMemo(
-    () => dimensionOrder.map(d => levelNum(myData.levels[d])),
-    [myData.levels],
+    () => config.dimensionOrder.map(d => levelNum(myData.levels[d])),
+    [myData.levels, config],
   );
 
   const dataB = useMemo(
-    () => dimensionOrder.map(d => levelNum(theirData.levels[d])),
-    [theirData.levels],
+    () => config.dimensionOrder.map(d => levelNum(theirData.levels[d])),
+    [theirData.levels, config],
   );
 
   const similarity = useMemo(
-    () => computeCosineSimilarity(myData.levels, theirData.levels),
-    [myData.levels, theirData.levels],
+    () => computeCosineSimilarity(myData.levels, theirData.levels, config.dimensionOrder),
+    [myData.levels, theirData.levels, config],
   );
 
   const compat = useMemo(
-    () => getCompatibility(myData.code, theirData.code),
-    [myData.code, theirData.code],
+    () => config.getCompatibility(myData.code, theirData.code),
+    [myData.code, theirData.code, config],
   );
 
   const badgeStyle = BADGE_STYLES[compat.type] || BADGE_STYLES.normal;
@@ -129,9 +128,9 @@ export default function ComparePage({
               {/* Person A */}
               <div className="text-center">
                 <div className="w-[100px] h-[100px] bg-surface-2 border-2 border-border rounded-2xl overflow-hidden mx-auto">
-                  {TYPE_IMAGES[myData.code] ? (
+                  {config.typeImages[myData.code] ? (
                     <img
-                      src={TYPE_IMAGES[myData.code]}
+                      src={config.typeImages[myData.code]}
                       alt={myData.code}
                       className="w-full h-full object-cover"
                     />
@@ -157,9 +156,9 @@ export default function ComparePage({
               {/* Person B */}
               <div className="text-center">
                 <div className="w-[100px] h-[100px] bg-surface-2 border-2 border-border rounded-2xl overflow-hidden mx-auto">
-                  {TYPE_IMAGES[theirData.code] ? (
+                  {config.typeImages[theirData.code] ? (
                     <img
-                      src={TYPE_IMAGES[theirData.code]}
+                      src={config.typeImages[theirData.code]}
                       alt={theirData.code}
                       className="w-full h-full object-cover"
                     />
