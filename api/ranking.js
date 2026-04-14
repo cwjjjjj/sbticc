@@ -11,12 +11,14 @@ export default async function handler(req, res) {
   }
 
   const realOnly = req.query.real === '1';
+  const test = req.query.test || '';
+  const prefix = test ? `${test}:` : 'sbti:';
 
   const [data, total, mockTotal, mockData] = await Promise.all([
-    redis.zrange('sbti:ranking', 0, -1, { rev: true, withScores: true }),
-    redis.get('sbti:total'),
-    redis.get('sbti:mock_total'),
-    redis.hgetall('sbti:mock'),
+    redis.zrange(`${prefix}ranking`, 0, -1, { rev: true, withScores: true }),
+    redis.get(`${prefix}total`),
+    redis.get(`${prefix}mock_total`),
+    redis.hgetall(`${prefix}mock`),
   ]);
 
   const mock = mockData || {};
