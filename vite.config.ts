@@ -8,7 +8,10 @@ export default defineConfig({
   base: '/new/',
   build: {
     rollupOptions: {
-      input: 'new.html',
+      input: {
+        main: 'new.html',
+        love: 'love.html',
+      },
     },
   },
   server: {
