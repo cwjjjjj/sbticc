@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
 import OtherTests from './OtherTests';
+import AdSlot from './AdSlot';
 import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
 
@@ -183,6 +184,11 @@ export default function ResultPage({
             </p>
           </motion.div>
 
+          {/* Ad: after description */}
+          <motion.div variants={staggerItem} transition={{ duration: 0.4 }} className="mb-5">
+            <AdSlot zone="10876468" src="https://n6wxm.com/vignette.min.js" />
+          </motion.div>
+
           {/* 3. Dimensions */}
           <motion.div
             variants={staggerItem}
@@ -275,6 +281,11 @@ export default function ResultPage({
             className="mb-5"
           >
             <OtherTests />
+          </motion.div>
+
+          {/* Ad: before action buttons */}
+          <motion.div variants={staggerItem} transition={{ duration: 0.4 }} className="mb-5">
+            <AdSlot zone="10859606" src="https://nap5k.com/tag.min.js" />
           </motion.div>
 
           {/* 8. Action buttons */}
