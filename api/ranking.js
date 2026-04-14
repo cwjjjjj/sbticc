@@ -107,6 +107,8 @@ export default async function handler(req, res) {
 
   const realOnly = req.query.real === '1';
   const test = req.query.test || '';
+  const testKey = Object.prototype.hasOwnProperty.call(MOCK_TYPES_BY_TEST, test) ? test : '';
+  const validCodes = new Set(MOCK_TYPES_BY_TEST[testKey]);
   const prefix = test ? `${test}:` : 'sbti:';
 
   const [data, total, mockTotal, mockData] = await Promise.all([
@@ -124,6 +126,7 @@ export default async function handler(req, res) {
 
   for (let i = 0; i < data.length; i += 2) {
     const code = data[i];
+    if (!validCodes.has(code)) continue;
     const rawCount = Number(data[i + 1]);
     const mockCount = Number(mock[code]) || 0;
     const count = realOnly ? Math.max(0, rawCount - mockCount) : rawCount;
@@ -141,10 +144,7 @@ export default async function handler(req, res) {
     .filter((item) => item.count > 0 || !realOnly)
     .sort((a, b) => b.count - a.count);
 
-  const realTotal = Number(total) || 0;
-  const finalTotal = realOnly
-    ? Math.max(0, realTotal - mockTotalNum)
-    : realTotal + builtinMockTotal;
+  const finalTotal = list.reduce((sum, item) => sum + item.count, 0);
   const finalMockTotal = mockTotalNum + builtinMockTotal;
 
   res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');

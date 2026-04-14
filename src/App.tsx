@@ -19,6 +19,7 @@ import { drawShareCard, canvasToBlob } from './utils/shareCard';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { sbtiConfig } from './data/sbti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
+import { randomAnswerForQuestion } from './utils/quiz';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
@@ -69,15 +70,7 @@ function AppInner() {
     const allQs = [...config.questions, ...config.specialQuestions];
     const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
-      const maxVal = q.options[q.options.length - 1].value;
-      if (q.multiSelect) {
-        // Pick 1-3 random options
-        const count = Math.floor(Math.random() * 3) + 1;
-        const vals = q.options.map(o => o.value).sort(() => Math.random() - 0.5).slice(0, count);
-        answers[q.id] = vals;
-      } else {
-        answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
-      }
+      answers[q.id] = randomAnswerForQuestion(q);
     });
     const res = computeResult(answers, false, config, null);
     setResult(res);
@@ -199,8 +192,7 @@ function AppInner() {
     const allQs = [...config.questions, ...config.specialQuestions];
     const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
-      const maxVal = q.options[q.options.length - 1].value;
-      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+      answers[q.id] = randomAnswerForQuestion(q);
     });
     const res = computeResult(answers, false, config, code);
     setResult(res);

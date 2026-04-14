@@ -57,8 +57,14 @@ export function computeResult(
     if (q.dim) {
       const ans = answers[q.id];
       if (Array.isArray(ans)) {
-        // Multi-select: use average of selected values
-        const avg = ans.length > 0 ? ans.reduce((a, b) => a + b, 0) / ans.length : 0;
+        // Multi-select answers store option indexes so duplicate score values
+        // can still be selected independently.
+        const selectedValues = ans
+          .map((optionIndex) => q.options[optionIndex]?.value)
+          .filter((value): value is number => typeof value === 'number');
+        const avg = selectedValues.length > 0
+          ? selectedValues.reduce((a, b) => a + b, 0) / selectedValues.length
+          : 0;
         rawScores[q.dim] += Math.round(avg);
       } else {
         rawScores[q.dim] += Number(ans || 0);

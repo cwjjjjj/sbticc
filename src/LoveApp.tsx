@@ -17,6 +17,7 @@ import { drawShareCard, canvasToBlob } from './utils/shareCard';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { loveConfig } from './data/love/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
+import { randomAnswerForQuestion } from './utils/quiz';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
@@ -156,8 +157,7 @@ function LoveAppInner() {
     const allQs = [...config.questions, ...config.specialQuestions];
     const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
-      const maxVal = q.options[q.options.length - 1].value;
-      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+      answers[q.id] = randomAnswerForQuestion(q);
     });
     const res = computeResult(answers, false, config, null);
     setResult(res);
@@ -274,8 +274,7 @@ function LoveAppInner() {
     const allQs = [...config.questions, ...config.specialQuestions];
     const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
-      const maxVal = q.options[q.options.length - 1].value;
-      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+      answers[q.id] = randomAnswerForQuestion(q);
     });
     const res = computeResult(answers, false, config, code);
     setResult(res);

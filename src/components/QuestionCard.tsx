@@ -38,7 +38,8 @@ export default function QuestionCard({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMulti = !!question.multiSelect;
 
-  // For multi-select, selectedValue is number[]
+  // For multi-select, selectedValue stores option indexes so equal score
+  // values do not make multiple options look selected together.
   const selectedSet = new Set(
     isMulti
       ? (Array.isArray(selectedValue) ? selectedValue : [])
@@ -54,13 +55,13 @@ export default function QuestionCard({
   );
 
   const handleMultiToggle = useCallback(
-    (value: number) => {
+    (optionIndex: number) => {
       const current = Array.isArray(selectedValue) ? [...selectedValue] : [];
-      const idx = current.indexOf(value);
+      const idx = current.indexOf(optionIndex);
       if (idx >= 0) {
         current.splice(idx, 1);
       } else {
-        current.push(value);
+        current.push(optionIndex);
       }
       onAnswer(question.id, current);
     },
@@ -98,15 +99,15 @@ export default function QuestionCard({
         <div className="grid gap-2.5">
           {question.options.map((opt, i) => {
             const isSelected = isMulti
-              ? selectedSet.has(opt.value)
+              ? selectedSet.has(i)
               : selectedValue === opt.value;
 
             return (
               <button
-                key={opt.value}
+                key={`${i}-${opt.value}`}
                 onClick={() =>
                   isMulti
-                    ? handleMultiToggle(opt.value)
+                    ? handleMultiToggle(i)
                     : handleSingleSelect(opt.value)
                 }
                 className={`flex items-center gap-3.5 p-4 rounded-xl border text-left transition-colors cursor-pointer
