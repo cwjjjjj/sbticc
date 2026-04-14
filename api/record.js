@@ -15,6 +15,18 @@ const VALID_TYPES_BY_TEST = {
     'BAMR','BAMP','BADR','BADP','BWMR','BWMP','BWDR','BWDP',
     'HAMR','HAMP','HADR','HADP','HWMR','HWMP','HWDR','HWDP','EX'
   ]),
+  'work': new Set([
+    'PSRH','PSRB','PSCH','PSCB','PTRH','PTRB','PTCH','PTCB',
+    'GSRH','GSRB','GSCH','GSCB','GTRH','GTRB','GTCH','GTCB','996'
+  ]),
+  'values': new Set([
+    'ODEF','ODES','ODIF','ODIS','OTEF','OTES','OTIF','OTIS',
+    'RDEF','RDES','RDIF','RDIS','RTEF','RTES','RTIF','RTIS','MLC'
+  ]),
+  'cyber': new Set([
+    'CLDA','CLDO','CLSA','CLSO','CQDA','CQDO','CQSA','CQSO',
+    'VLDA','VLDO','VLSA','VLSO','VQDA','VQDO','VQSA','VQSO','BOT'
+  ]),
 };
 
 export default async function handler(req, res) {

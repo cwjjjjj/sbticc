@@ -16,9 +16,11 @@ mkdir -p dist/new
 cp dist-temp/new.html dist/new/index.html
 cp -r dist-temp/assets dist/new/assets
 
-# 5. Copy Love build into /new/love/
-mkdir -p dist/new/love
-cp dist-temp/love.html dist/new/love/index.html
+# 5. Copy test builds into /new/<test>/
+for test in love work values cyber; do
+  mkdir -p dist/new/$test
+  cp dist-temp/$test.html dist/new/$test/index.html
+done
 
 # 6. Copy old version to dist root
 cp index.html dist/index.html
@@ -32,4 +34,4 @@ test -f sw.js && cp sw.js dist/sw.js
 # 8. Cleanup
 rm -rf dist-temp
 
-echo "Build complete: old version at /, new version at /new/, love at /new/love/"
+echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber at /new/<test>/"
