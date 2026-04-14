@@ -1,0 +1,74 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - heading "Mandy，下午好 ☕" [level=1] [ref=e3]
+    - generic [ref=e4]:
+      - text: 在一起的第 832 天
+      - generic [ref=e5]: 💕
+    - paragraph [ref=e6]: 每一条都是专门为你准备的
+  - tablist [ref=e7]:
+    - button "🌙 文艺" [ref=e8] [cursor=pointer]
+    - button "😂 整活" [ref=e9] [cursor=pointer]
+    - button "💘 情话" [ref=e10] [cursor=pointer]
+    - button "🔥 发疯" [ref=e11] [cursor=pointer]
+    - button "🥣 毒鸡汤" [ref=e12] [cursor=pointer]
+    - button "🎵 歌单" [ref=e13] [cursor=pointer]
+    - button "🧸 小挑战" [ref=e14] [cursor=pointer]
+  - main [ref=e15]:
+    - text: ｢
+    - region [ref=e16]:
+      - paragraph [ref=e18]: 我们离花朵太近了，以至于看不到花朵了。 ——海德格尔
+      - generic [ref=e19]: 359 / 392
+  - generic [ref=e20]:
+    - button "换一条" [ref=e21] [cursor=pointer]:
+      - img [ref=e22]
+      - text: 换一条
+    - button "分享" [ref=e24] [cursor=pointer]:
+      - img [ref=e25]
+      - text: 分享
+  - generic [ref=e31]:
+    - paragraph [ref=e32]: 今天的心情是？
+    - generic [ref=e33]:
+      - button "😊" [ref=e34] [cursor=pointer]
+      - button "🥰" [ref=e35] [cursor=pointer]
+      - button "😐" [ref=e36] [cursor=pointer]
+      - button "😢" [ref=e37] [cursor=pointer]
+      - button "😤" [ref=e38] [cursor=pointer]
+      - button "😴" [ref=e39] [cursor=pointer]
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]: ·
+        - generic [ref=e43]: 周一
+      - generic [ref=e44]:
+        - generic [ref=e45]: ·
+        - generic [ref=e46]: 周二
+      - generic [ref=e47]:
+        - generic [ref=e48]: ·
+        - generic [ref=e49]: 周三
+      - generic [ref=e50]:
+        - generic [ref=e51]: ·
+        - generic [ref=e52]: 周四
+      - generic [ref=e53]:
+        - generic [ref=e54]: ·
+        - generic [ref=e55]: 周五
+      - generic [ref=e56]:
+        - generic [ref=e57]: ·
+        - generic [ref=e58]: 周六
+      - generic [ref=e59]:
+        - generic [ref=e60]: ·
+        - generic [ref=e61]: 今天
+  - contentinfo [ref=e62]:
+    - text: 用文字对抗焦虑
+    - generic [ref=e63]: ❤️
+    - text: Mandy 专属
+  - button "添加到主屏幕" [ref=e70] [cursor=pointer]:
+    - img [ref=e71]
+    - text: 添加到主屏幕
+  - generic:
+    - generic:
+      - button "保存 / 分享"
+      - button "关闭"
+    - paragraph: 长按图片可直接分享
+  - generic [ref=e64]:
+    - generic [ref=e66]: “
+    - paragraph
+    - generic [ref=e68]: MANDY · 专属治愈站

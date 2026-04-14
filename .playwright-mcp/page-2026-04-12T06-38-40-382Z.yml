@@ -1,0 +1,21 @@
+- generic [ref=e661]:
+  - generic [ref=e662]:
+    - button "← 返回首页" [ref=e663] [cursor=pointer]
+    - paragraph [ref=e667]: 0 / 31
+  - generic [ref=e669]:
+    - paragraph [ref=e670]: "# 1 · 维度已隐藏"
+    - paragraph [ref=e671]: 我和人相处主打一个电子围栏，靠太近会自动报警。
+    - generic [ref=e672]:
+      - button "A 认同" [ref=e673] [cursor=pointer]:
+        - generic [ref=e674]: A
+        - generic [ref=e675]: 认同
+      - button "B 中立" [ref=e676] [cursor=pointer]:
+        - generic [ref=e677]: B
+        - generic [ref=e678]: 中立
+      - button "C 不认同" [ref=e679] [cursor=pointer]:
+        - generic [ref=e680]: C
+        - generic [ref=e681]: 不认同
+  - generic [ref=e682]:
+    - button "上一题" [disabled] [ref=e683]
+    - generic [ref=e684]: 1 / 31
+    - button "下一题" [disabled] [ref=e685]

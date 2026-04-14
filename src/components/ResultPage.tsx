@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
+import OtherTests from './OtherTests';
 import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
 
@@ -252,22 +253,31 @@ export default function ResultPage({
               </summary>
               <div className="mt-4 text-sm text-[#888] leading-relaxed space-y-3">
                 <p>
-                  这个测试是一个 B站UP主 做着玩的，没有任何学术背景，也没有经过心理学专业训练。
+                  我们写这些测试的时候没有穿白大褂，也没有引用任何论文。这不是科学，这是一面哈哈镜——照出来的你可能变形了，但轮廓是真的。
                 </p>
                 <p>
-                  所有的人格描述都是我瞎编的（认真脸），目的是让你看完之后笑一下，或者骂一句"这什么鬼"。
+                  如果你觉得"这说的就是我"，恭喜，你对自己的了解比你以为的多。如果你觉得完全不准，也恭喜——要么你段位太高我们够不着，要么你还没准备好面对那个版本的自己。
                 </p>
                 <p>
-                  如果你觉得测试结果很准，那说明我瞎编的水平还行；如果你觉得不准，那说明你的人格太过独特，连我的想象力都追不上。
+                  人格没有高低贵贱。那些让你觉得被冒犯的描述，恰恰是最值得想一想的部分。
                 </p>
                 <p>
-                  感谢每一个认真做完 31 道题的人，你们才是这个测试最珍贵的部分。
+                  最后，感谢你花几分钟认真回答这些奇怪的问题。在一个所有人都在刷短视频的时代，愿意停下来想想自己是谁的人，本身就很酷。
                 </p>
               </div>
             </details>
           </motion.div>
 
-          {/* 7. Action buttons */}
+          {/* 7. Other tests */}
+          <motion.div
+            variants={staggerItem}
+            transition={{ duration: 0.4 }}
+            className="mb-5"
+          >
+            <OtherTests />
+          </motion.div>
+
+          {/* 8. Action buttons */}
           <motion.div
             variants={staggerItem}
             transition={{ duration: 0.4 }}

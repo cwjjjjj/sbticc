@@ -11,6 +11,9 @@ export default defineConfig({
       input: {
         main: 'new.html',
         love: 'love.html',
+        work: 'work.html',
+        values: 'values.html',
+        cyber: 'cyber.html',
       },
     },
   },
