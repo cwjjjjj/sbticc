@@ -12,20 +12,24 @@ rm -rf dist
 mkdir -p dist/new
 
 # 4. Copy React build into /new/
-# Vite outputs: dist-temp/new.html and dist-temp/assets/
+# Vite outputs: dist-temp/new.html, dist-temp/love.html, and dist-temp/assets/
 cp dist-temp/new.html dist/new/index.html
 cp -r dist-temp/assets dist/new/assets
 
-# 5. Copy old version to dist root
+# 5. Copy Love build into /new/love/
+mkdir -p dist/new/love
+cp dist-temp/love.html dist/new/love/index.html
+
+# 6. Copy old version to dist root
 cp index.html dist/index.html
 cp main.js dist/main.js
 cp main.css dist/main.css
 
-# 6. Copy shared static assets
+# 7. Copy shared static assets
 cp -r images dist/images
 test -f sw.js && cp sw.js dist/sw.js
 
-# 7. Cleanup
+# 8. Cleanup
 rm -rf dist-temp
 
-echo "Build complete: old version at /, new version at /new/"
+echo "Build complete: old version at /, new version at /new/, love at /new/love/"
