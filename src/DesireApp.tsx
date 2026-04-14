@@ -15,14 +15,14 @@ import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compa
 import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob } from './utils/shareCard';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
-import { loveConfig } from './data/love/config';
+import { desireConfig } from './data/desire/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
-/* ---------- Love-specific Hero (simple centered layout) ---------- */
+/* ---------- Desire-specific Hero (rose/pink gradient glow) ---------- */
 
 const fadeInUp = (delay: number) => ({
   initial: { opacity: 0, y: 24 },
@@ -33,12 +33,13 @@ const fadeInUp = (delay: number) => ({
 const heroGlow = css`
   background: radial-gradient(
     ellipse 60% 50% at 50% 40%,
-    rgba(255, 59, 59, 0.06) 0%,
+    rgba(255, 59, 130, 0.08) 0%,
+    rgba(180, 40, 100, 0.03) 40%,
     transparent 70%
   );
 `;
 
-function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalTests: number }) {
+function DesireHero({ onStartTest, totalTests }: { onStartTest: () => void; totalTests: number }) {
   const displayTotal = totalTests > 0 ? totalTests.toLocaleString() : '---';
 
   return (
@@ -49,9 +50,10 @@ function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
       {/* Accent subtitle */}
       <motion.p
         {...fadeInUp(0)}
-        className="text-accent font-mono font-bold text-sm tracking-widest uppercase mb-4"
+        className="font-mono font-bold text-sm tracking-widest uppercase mb-4"
+        style={{ color: '#ff3b82' }}
       >
-        LQ16 LOVE QUIZ
+        DESIRE SPECTRUM
       </motion.p>
 
       {/* Main title */}
@@ -59,7 +61,7 @@ function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
         {...fadeInUp(0.1)}
         className="font-extrabold text-white leading-tight select-none text-4xl sm:text-5xl mb-4"
       >
-        恋爱人格矩阵
+        欲望图谱
       </motion.h1>
 
       {/* Divider */}
@@ -69,7 +71,7 @@ function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
         style={{
           width: 60,
           height: 3,
-          background: 'linear-gradient(90deg, #ff3b3b, #ffaa00)',
+          background: 'linear-gradient(90deg, #ff3b82, #ff6b9d)',
         }}
       />
 
@@ -78,7 +80,7 @@ function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
         {...fadeInUp(0.2)}
         className="text-sm sm:text-base text-muted mb-8 max-w-md"
       >
-        4个维度 &times; 16种恋爱人格 — 比你自己更懂你怎么爱
+        6个维度 &times; 20种欲望人格 — 关上门之后，你是谁？
       </motion.p>
 
       {/* Total tests counter */}
@@ -87,8 +89,8 @@ function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
         className="flex items-center gap-2 mb-10 px-4 py-2 rounded-full bg-surface border border-border"
       >
         <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-500 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-pink-500" />
         </span>
         <span className="text-sm text-muted">
           已有 <span className="text-white font-mono font-bold">{displayTotal}</span> 人完成测试
@@ -99,9 +101,10 @@ function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
       <motion.button
         {...fadeInUp(0.4)}
         onClick={onStartTest}
-        whileHover={{ y: -2, boxShadow: '0 8px 30px rgba(255,255,255,0.15)' }}
+        whileHover={{ y: -2, boxShadow: '0 8px 30px rgba(255, 59, 130, 0.25)' }}
         whileTap={{ scale: 0.97 }}
-        className="bg-white text-black py-4 px-12 rounded-xl font-extrabold text-lg transition-colors cursor-pointer"
+        className="text-white py-4 px-12 rounded-xl font-extrabold text-lg transition-colors cursor-pointer"
+        style={{ background: 'linear-gradient(135deg, #ff3b82, #ff6b9d)' }}
       >
         开始测试
       </motion.button>
@@ -118,25 +121,20 @@ function LoveHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
   );
 }
 
-/* ---------- Love Nav (simpler: only home + ranking) ---------- */
+/* ---------- Desire Nav (simpler: only home + ranking) ---------- */
 
-type LoveTabId = 'home' | 'ranking';
+type DesireTabId = 'home' | 'ranking';
 
-const loveTabs: { id: LoveTabId; label: string }[] = [
-  { id: 'home', label: '首页' },
-  { id: 'ranking', label: '全站排行' },
-];
+/* ---------- DesireAppInner ---------- */
 
-/* ---------- LoveAppInner ---------- */
-
-function LoveAppInner() {
+function DesireAppInner() {
   const config = useTestConfig();
-  const [activeTab, setActiveTab] = useState<LoveTabId>('home');
+  const [activeTab, setActiveTab] = useState<DesireTabId>('home');
   const [screen, setScreen] = useState<ScreenId>('home');
   const [result, setResult] = useState<ComputeResultOutput | null>(null);
   const [compareData, setCompareData] = useState<DecodedCompare | null>(null);
   const [shareModalBlob, setShareModalBlob] = useState<Blob | null>(null);
-  const [shareModalFileName, setShareModalFileName] = useState('love-share.png');
+  const [shareModalFileName, setShareModalFileName] = useState('desire-share.png');
   const [shareModalUrl, setShareModalUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
@@ -309,10 +307,10 @@ function LoveAppInner() {
     }
   }, [result, compareData, config]);
 
-  // Adapt LoveTabId to Nav's TabId
+  // Adapt DesireTabId to Nav's TabId
   const handleTabChange = useCallback((tab: TabId) => {
     if (tab === 'home' || tab === 'ranking') {
-      setActiveTab(tab as LoveTabId);
+      setActiveTab(tab as DesireTabId);
     }
   }, []);
 
@@ -334,7 +332,7 @@ function LoveAppInner() {
       {!showOverlay && (
         <main>
           {activeTab === 'home' && (
-            <LoveHero onStartTest={handleStartTest} totalTests={totalTests} />
+            <DesireHero onStartTest={handleStartTest} totalTests={totalTests} />
           )}
           {activeTab === 'ranking' && (
             <RankingPage
@@ -410,11 +408,12 @@ function LoveAppInner() {
             {config.typeLibrary[compareData.code]?.cn || ''}
           </p>
           <p className="text-sm text-[#999] mb-6">
-            先完成测试，才能查看你们的人格对比
+            先完成测试，才能查看你们的欲望人格对比
           </p>
           <button
             onClick={handleStartTest}
-            className="bg-accent text-white font-bold py-3 px-8 rounded-xl hover:bg-red-600 transition-colors cursor-pointer"
+            className="text-white font-bold py-3 px-8 rounded-xl transition-colors cursor-pointer"
+            style={{ background: 'linear-gradient(135deg, #ff3b82, #ff6b9d)' }}
           >
             开始测试
           </button>
@@ -430,10 +429,10 @@ function LoveAppInner() {
   );
 }
 
-export default function LoveApp() {
+export default function DesireApp() {
   return (
-    <TestConfigProvider config={loveConfig}>
-      <LoveAppInner />
+    <TestConfigProvider config={desireConfig}>
+      <DesireAppInner />
     </TestConfigProvider>
   );
 }

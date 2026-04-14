@@ -52,9 +52,6 @@ function AppInner() {
   const [shareModalUrl, setShareModalUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
-  // Paywall state (disabled — always false)
-  const [_isPaid] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
-
   const quiz = useQuiz();
   const ranking = useRanking();
   const localHistory = useLocalHistory();
@@ -146,7 +143,7 @@ function AppInner() {
     const pageUrl = `${config.prodBaseUrl}${config.basePath}`;
     const qrDataUrl = generateQR(pageUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-${typeCode}.png`);
@@ -173,7 +170,7 @@ function AppInner() {
     const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-invite-${typeCode}.png`);
@@ -226,7 +223,7 @@ function AppInner() {
     const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-compare-${typeCode}.png`);

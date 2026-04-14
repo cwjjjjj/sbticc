@@ -220,7 +220,7 @@ function WorkAppInner() {
     const pageUrl = `${config.prodBaseUrl}${config.basePath}`;
     const qrDataUrl = generateQR(pageUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-${typeCode}.png`);
@@ -247,7 +247,7 @@ function WorkAppInner() {
     const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-invite-${typeCode}.png`);
@@ -298,7 +298,7 @@ function WorkAppInner() {
     const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-compare-${typeCode}.png`);
