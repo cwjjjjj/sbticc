@@ -70,10 +70,17 @@ function AppInner() {
    */
   const autoFillAndShowResult = useCallback(() => {
     const allQs = [...config.questions, ...config.specialQuestions];
-    const answers: Record<string, number> = {};
+    const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
       const maxVal = q.options[q.options.length - 1].value;
-      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+      if (q.multiSelect) {
+        // Pick 1-3 random options
+        const count = Math.floor(Math.random() * 3) + 1;
+        const vals = q.options.map(o => o.value).sort(() => Math.random() - 0.5).slice(0, count);
+        answers[q.id] = vals;
+      } else {
+        answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+      }
     });
     const res = computeResult(answers, false, config, null);
     setResult(res);
@@ -193,7 +200,7 @@ function AppInner() {
 
   const handleDebugForceType = useCallback((code: string) => {
     const allQs = [...config.questions, ...config.specialQuestions];
-    const answers: Record<string, number> = {};
+    const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
       const maxVal = q.options[q.options.length - 1].value;
       answers[q.id] = Math.floor(Math.random() * maxVal) + 1;

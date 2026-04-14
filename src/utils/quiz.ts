@@ -35,7 +35,7 @@ export function buildShuffledQuestions(
  */
 export function getVisibleQuestions(
   shuffledQuestions: Question[],
-  answers: Record<string, number>,
+  answers: Record<string, number | number[]>,
   gateQuestionId: string,
   gateAnswerValue: number,
   followUpQuestion?: Question,

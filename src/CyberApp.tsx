@@ -149,7 +149,7 @@ function CyberAppInner() {
    */
   const autoFillAndShowResult = useCallback(() => {
     const allQs = [...config.questions, ...config.specialQuestions];
-    const answers: Record<string, number> = {};
+    const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
       const maxVal = q.options[q.options.length - 1].value;
       answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
@@ -267,7 +267,7 @@ function CyberAppInner() {
 
   const handleDebugForceType = useCallback((code: string) => {
     const allQs = [...config.questions, ...config.specialQuestions];
-    const answers: Record<string, number> = {};
+    const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
       const maxVal = q.options[q.options.length - 1].value;
       answers[q.id] = Math.floor(Math.random() * maxVal) + 1;

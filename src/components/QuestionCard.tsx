@@ -1,15 +1,15 @@
 import { useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Question } from '../data/questions';
+import type { Question } from '../data/testConfig';
 
 interface QuestionCardProps {
   question: Question;
   questionIndex: number;
   totalQuestions: number;
-  selectedValue: number | undefined;
+  selectedValue: number | number[] | undefined;
   previewMode: boolean;
-  onAnswer: (questionId: string, value: number) => void;
-  direction: number; // 1 = forward (slide left), -1 = back (slide right)
+  onAnswer: (questionId: string, value: number | number[]) => void;
+  direction: number;
 }
 
 const variants = {
@@ -36,8 +36,16 @@ export default function QuestionCard({
   direction,
 }: QuestionCardProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMulti = !!question.multiSelect;
 
-  const handleSelect = useCallback(
+  // For multi-select, selectedValue is number[]
+  const selectedSet = new Set(
+    isMulti
+      ? (Array.isArray(selectedValue) ? selectedValue : [])
+      : [],
+  );
+
+  const handleSingleSelect = useCallback(
     (value: number) => {
       if (timerRef.current) clearTimeout(timerRef.current);
       onAnswer(question.id, value);
@@ -45,11 +53,25 @@ export default function QuestionCard({
     [onAnswer, question.id],
   );
 
+  const handleMultiToggle = useCallback(
+    (value: number) => {
+      const current = Array.isArray(selectedValue) ? [...selectedValue] : [];
+      const idx = current.indexOf(value);
+      if (idx >= 0) {
+        current.splice(idx, 1);
+      } else {
+        current.push(value);
+      }
+      onAnswer(question.id, current);
+    },
+    [onAnswer, question.id, selectedValue],
+  );
+
   const badgeText = previewMode
     ? `# ${questionIndex + 1} · ${question.dim ?? '特殊题'}`
-    : `# ${questionIndex + 1} · 维度已隐藏`;
+    : `# ${questionIndex + 1}`;
 
-  const optionCodes = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const optionCodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
   return (
     <AnimatePresence mode="wait" custom={direction}>
@@ -62,17 +84,31 @@ export default function QuestionCard({
         exit="exit"
         transition={{ duration: 0.25, ease: 'easeInOut' }}
       >
-        <p className="font-mono text-xs text-accent mb-3">{badgeText}</p>
+        <div className="flex items-center gap-2 mb-3">
+          <p className="font-mono text-xs text-accent">{badgeText}</p>
+          {isMulti && (
+            <span className="text-xs text-muted bg-surface-2 px-2 py-0.5 rounded-md">
+              可多选
+            </span>
+          )}
+        </div>
         <p className="text-lg font-semibold text-gray-200 leading-relaxed mb-6">
           {question.text}
         </p>
         <div className="grid gap-2.5">
           {question.options.map((opt, i) => {
-            const isSelected = selectedValue === opt.value;
+            const isSelected = isMulti
+              ? selectedSet.has(opt.value)
+              : selectedValue === opt.value;
+
             return (
               <button
                 key={opt.value}
-                onClick={() => handleSelect(opt.value)}
+                onClick={() =>
+                  isMulti
+                    ? handleMultiToggle(opt.value)
+                    : handleSingleSelect(opt.value)
+                }
                 className={`flex items-center gap-3.5 p-4 rounded-xl border text-left transition-colors cursor-pointer
                   ${
                     isSelected
@@ -84,7 +120,9 @@ export default function QuestionCard({
                   className={`font-mono text-xs font-bold w-6 h-6 flex items-center justify-center rounded-md flex-shrink-0
                     ${isSelected ? 'bg-accent/20 text-accent' : 'bg-accent/10 text-accent'}`}
                 >
-                  {optionCodes[i]}
+                  {isMulti
+                    ? (isSelected ? '✓' : optionCodes[i])
+                    : optionCodes[i]}
                 </span>
                 <span className="text-sm leading-relaxed">{opt.label}</span>
               </button>

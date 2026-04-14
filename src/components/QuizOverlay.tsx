@@ -29,18 +29,21 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
   } = quiz;
 
   const handleAnswer = useCallback(
-    (qId: string, value: number) => {
+    (qId: string, value: number | number[]) => {
       answer(qId, value);
-      // Auto-advance after 300ms, but only if not already on the last question
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-      if (currentQ < totalQuestions - 1) {
-        autoAdvanceTimer.current = setTimeout(() => {
-          setDirection(1);
-          goNext();
-        }, 300);
+      // Auto-advance after 300ms for single-select only, not on last question
+      const isMulti = currentQuestion?.multiSelect;
+      if (!isMulti) {
+        if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+        if (currentQ < totalQuestions - 1) {
+          autoAdvanceTimer.current = setTimeout(() => {
+            setDirection(1);
+            goNext();
+          }, 300);
+        }
       }
     },
-    [answer, goNext, currentQ, totalQuestions],
+    [answer, goNext, currentQ, totalQuestions, currentQuestion],
   );
 
   const handlePrev = useCallback(() => {
@@ -70,7 +73,12 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
   }, [currentQ]);
 
   const isCurrentAnswered = currentQuestion
-    ? answers[currentQuestion.id] !== undefined
+    ? (() => {
+        const a = answers[currentQuestion.id];
+        if (a === undefined) return false;
+        if (Array.isArray(a)) return a.length > 0;
+        return true;
+      })()
     : false;
   const isFirstQuestion = currentQ === 0;
   const isLastQuestion = currentQ === totalQuestions - 1;
