@@ -315,11 +315,6 @@ export default function ResultPage({
             <OtherTests />
           </motion.div>
 
-          {/* Ad: before action buttons */}
-          <motion.div variants={staggerItem} transition={{ duration: 0.4 }} className="mb-5">
-            <AdSlot zone="10859606" src="https://nap5k.com/tag.min.js" />
-          </motion.div>
-
           {/* 8. Action buttons */}
           <motion.div
             variants={staggerItem}

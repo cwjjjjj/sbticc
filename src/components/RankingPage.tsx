@@ -51,7 +51,7 @@ export default function RankingPage({
   const localUnlockedCount = Object.keys(stats).length;
 
   return (
-    <div className="pt-20 px-4 max-w-4xl mx-auto pb-16">
+    <div className="pt-28 px-4 max-w-4xl mx-auto pb-16">
       {/* Section 1: Global Ranking */}
       <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
         <h2 className="font-mono font-extrabold text-xl sm:text-2xl text-center text-white">

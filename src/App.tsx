@@ -260,12 +260,12 @@ function AppInner() {
             </>
           )}
           {activeTab === 'profiles' && (
-            <div className="pt-16">
+            <div className="pt-28">
               <ProfilesGallery rankingData={ranking.data} />
             </div>
           )}
           {activeTab === 'compat' && (
-            <div className="pt-16">
+            <div className="pt-28">
               <CompatTable />
             </div>
           )}
