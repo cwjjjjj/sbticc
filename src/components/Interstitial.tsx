@@ -9,6 +9,17 @@ export default function Interstitial({ onComplete }: InterstitialProps) {
   const [countdown, setCountdown] = useState(5);
   const [showButton, setShowButton] = useState(false);
 
+  // Trigger vignette ad on mount (natural transition point)
+  useEffect(() => {
+    try {
+      const s = document.createElement('script');
+      s.dataset.zone = '10876468';
+      s.src = 'https://n6wxm.com/vignette.min.js';
+      document.body.appendChild(s);
+      return () => { try { document.body.removeChild(s); } catch {} };
+    } catch {}
+  }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prev) => {

@@ -15,6 +15,7 @@ export interface Question {
   dim?: string;
   text: string;
   options: QuestionOption[];
+  multiSelect?: boolean;
   special?: boolean;
   kind?: string;
 }

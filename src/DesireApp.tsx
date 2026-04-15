@@ -1,15 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { css } from '@emotion/react';
 import Nav, { type TabId } from './components/Nav';
-import Hero from './components/Hero';
-import TypeCardsPreview from './components/TypeCardsPreview';
 import QuizOverlay from './components/QuizOverlay';
 import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
 import ComparePage from './components/ComparePage';
 import ShareModal from './components/ShareModal';
 import RankingPage from './components/RankingPage';
-import ProfilesGallery from './components/ProfilesGallery';
-import CompatTable from './components/CompatTable';
 import { useQuiz } from './hooks/useQuiz';
 import { useRanking } from './hooks/useRanking';
 import { useLocalHistory } from './hooks/useLocalHistory';
@@ -17,7 +15,7 @@ import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compa
 import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob } from './utils/shareCard';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
-import { sbtiConfig } from './data/sbti/config';
+import { desireConfig } from './data/desire/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
 import { randomAnswerForQuestion } from './utils/quiz';
 
@@ -25,31 +23,119 @@ type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
-/*
- * =========================================================================
- * PAYWALL (DISABLED)
- * =========================================================================
- * The paywall overlay, Stripe checkout integration, and Chinese QR payment
- * (面包多/爱发电) code exists but is currently disabled. The paywall would
- * normally gate full result details behind a $0.99 payment.
- *
- * To re-enable:
- * 1. Set isPaid state based on Stripe session verification (/api/verify)
- * 2. Show PaywallOverlay when result is displayed and !isPaid
- * 3. On successful payment, set isPaid = true and reveal full results
- *
- * Related API routes: /api/create-checkout.js, /api/verify.js
- * =========================================================================
- */
+/* ---------- Desire-specific Hero (rose/pink gradient glow) ---------- */
 
-function AppInner() {
+const fadeInUp = (delay: number) => ({
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+});
+
+const heroGlow = css`
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 40%,
+    rgba(255, 59, 130, 0.08) 0%,
+    rgba(180, 40, 100, 0.03) 40%,
+    transparent 70%
+  );
+`;
+
+function DesireHero({ onStartTest, totalTests }: { onStartTest: () => void; totalTests: number }) {
+  const displayTotal = totalTests > 0 ? totalTests.toLocaleString() : '---';
+
+  return (
+    <section
+      css={heroGlow}
+      className="relative flex flex-col items-center justify-center text-center px-4 pt-28 pb-16 min-h-[90vh]"
+    >
+      {/* Accent subtitle */}
+      <motion.p
+        {...fadeInUp(0)}
+        className="font-mono font-bold text-sm tracking-widest uppercase mb-4"
+        style={{ color: '#ff3b82' }}
+      >
+        DESIRE SPECTRUM
+      </motion.p>
+
+      {/* Main title */}
+      <motion.h1
+        {...fadeInUp(0.1)}
+        className="font-extrabold text-white leading-tight select-none text-4xl sm:text-5xl mb-4"
+      >
+        欲望图谱
+      </motion.h1>
+
+      {/* Divider */}
+      <motion.div
+        {...fadeInUp(0.15)}
+        className="mb-6 rounded-full"
+        style={{
+          width: 60,
+          height: 3,
+          background: 'linear-gradient(90deg, #ff3b82, #ff6b9d)',
+        }}
+      />
+
+      {/* Description */}
+      <motion.p
+        {...fadeInUp(0.2)}
+        className="text-sm sm:text-base text-muted mb-8 max-w-md"
+      >
+        6个维度 &times; 20种欲望人格 — 关上门之后，你是谁？
+      </motion.p>
+
+      {/* Total tests counter */}
+      <motion.div
+        {...fadeInUp(0.3)}
+        className="flex items-center gap-2 mb-10 px-4 py-2 rounded-full bg-surface border border-border"
+      >
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-500 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-pink-500" />
+        </span>
+        <span className="text-sm text-muted">
+          已有 <span className="text-white font-mono font-bold">{displayTotal}</span> 人完成测试
+        </span>
+      </motion.div>
+
+      {/* CTA */}
+      <motion.button
+        {...fadeInUp(0.4)}
+        onClick={onStartTest}
+        whileHover={{ y: -2, boxShadow: '0 8px 30px rgba(255, 59, 130, 0.25)' }}
+        whileTap={{ scale: 0.97 }}
+        className="text-white py-4 px-12 rounded-xl font-extrabold text-lg transition-colors cursor-pointer"
+        style={{ background: 'linear-gradient(135deg, #ff3b82, #ff6b9d)' }}
+      >
+        开始测试
+      </motion.button>
+
+      {/* Back link */}
+      <motion.a
+        {...fadeInUp(0.5)}
+        href="/new"
+        className="mt-6 text-sm text-muted hover:text-white transition-colors"
+      >
+        &larr; 回到 SBTI 人格测试
+      </motion.a>
+    </section>
+  );
+}
+
+/* ---------- Desire Nav (simpler: only home + ranking) ---------- */
+
+type DesireTabId = 'home' | 'ranking';
+
+/* ---------- DesireAppInner ---------- */
+
+function DesireAppInner() {
   const config = useTestConfig();
-  const [activeTab, setActiveTab] = useState<TabId>('home');
+  const [activeTab, setActiveTab] = useState<DesireTabId>('home');
   const [screen, setScreen] = useState<ScreenId>('home');
   const [result, setResult] = useState<ComputeResultOutput | null>(null);
   const [compareData, setCompareData] = useState<DecodedCompare | null>(null);
   const [shareModalBlob, setShareModalBlob] = useState<Blob | null>(null);
-  const [shareModalFileName, setShareModalFileName] = useState('sbti-share.png');
+  const [shareModalFileName, setShareModalFileName] = useState('desire-share.png');
   const [shareModalUrl, setShareModalUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
@@ -64,7 +150,6 @@ function AppInner() {
 
   /**
    * Auto-fill all questions with random answers and compute result.
-   * Used for #test hash and test domain auto-fill.
    */
   const autoFillAndShowResult = useCallback(() => {
     const allQs = [...config.questions, ...config.specialQuestions];
@@ -82,7 +167,6 @@ function AppInner() {
     const hash = window.location.hash;
 
     if (hash === '#test' || isTestDomain) {
-      // Debug mode: auto-fill random answers, compute result, show result
       autoFillAndShowResult();
     } else if (hash.startsWith('#compare=')) {
       const b64 = hash.slice('#compare='.length);
@@ -100,7 +184,6 @@ function AppInner() {
   }, [quiz]);
 
   const handleQuizSubmit = useCallback(() => {
-    // Compute result immediately but show interstitial first
     const res = quiz.getResult();
     setResult(res);
     localHistory.saveResult(res.finalType.code);
@@ -108,7 +191,6 @@ function AppInner() {
   }, [quiz, localHistory]);
 
   const handleInterstitialComplete = useCallback(() => {
-    // If we have compare data (user came from a compare link), go to compare screen
     if (compareData) {
       setScreen('compare');
     } else {
@@ -143,7 +225,7 @@ function AppInner() {
       setShareModalUrl(pageUrl);
       setShowShareModal(true);
     } catch {
-      alert('\u5206\u4eab\u56fe\u751f\u6210\u5931\u8d25');
+      alert('分享图生成失败');
     }
   }, [result, config]);
 
@@ -170,20 +252,18 @@ function AppInner() {
       setShareModalUrl(compareUrl);
       setShowShareModal(true);
     } catch {
-      // Fallback to clipboard
       if (navigator.clipboard) {
         navigator.clipboard.writeText(compareUrl).then(() => {
-          alert('\u5bf9\u6bd4\u94fe\u63a5\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f\uff01\u53d1\u7ed9\u597d\u53cb\u5373\u53ef\u5bf9\u6bd4\u4eba\u683c\u3002');
+          alert('对比链接已复制到剪贴板！发给好友即可对比人格。');
         }).catch(() => {
-          prompt('\u590d\u5236\u4ee5\u4e0b\u94fe\u63a5\u53d1\u7ed9\u597d\u53cb\uff1a', compareUrl);
+          prompt('复制以下链接发给好友：', compareUrl);
         });
       } else {
-        prompt('\u590d\u5236\u4ee5\u4e0b\u94fe\u63a5\u53d1\u7ed9\u597d\u53cb\uff1a', compareUrl);
+        prompt('复制以下链接发给好友：', compareUrl);
       }
     }
   }, [result, config]);
 
-  // Debug handlers
   const handleDebugReroll = useCallback(() => {
     autoFillAndShowResult();
   }, [autoFillAndShowResult]);
@@ -226,6 +306,13 @@ function AppInner() {
     }
   }, [result, compareData, config]);
 
+  // Adapt DesireTabId to Nav's TabId
+  const handleTabChange = useCallback((tab: TabId) => {
+    if (tab === 'home' || tab === 'ranking') {
+      setActiveTab(tab as DesireTabId);
+    }
+  }, []);
+
   const totalTests = ranking.data?.total ?? 0;
   const showOverlay = screen === 'quiz' || screen === 'interstitial' || screen === 'result' || screen === 'compare';
 
@@ -235,7 +322,7 @@ function AppInner() {
       {!showOverlay && (
         <Nav
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           onStartTest={handleStartTest}
         />
       )}
@@ -244,22 +331,7 @@ function AppInner() {
       {!showOverlay && (
         <main>
           {activeTab === 'home' && (
-            <>
-              <Hero onStartTest={handleStartTest} totalTests={totalTests} />
-              <TypeCardsPreview />
-              <ProfilesGallery rankingData={ranking.data} />
-              <CompatTable />
-            </>
-          )}
-          {activeTab === 'profiles' && (
-            <div className="pt-28">
-              <ProfilesGallery rankingData={ranking.data} />
-            </div>
-          )}
-          {activeTab === 'compat' && (
-            <div className="pt-28">
-              <CompatTable />
-            </div>
+            <DesireHero onStartTest={handleStartTest} totalTests={totalTests} />
           )}
           {activeTab === 'ranking' && (
             <RankingPage
@@ -324,7 +396,7 @@ function AppInner() {
         />
       )}
 
-      {/* Compare overlay — no local result yet, prompt to test */}
+      {/* Compare overlay - no local result yet, prompt to test */}
       {screen === 'compare' && compareData && !result && (
         <div className="fixed inset-0 z-[200] bg-bg flex flex-col items-center justify-center px-4">
           <p className="text-lg text-muted mb-2">对方人格：</p>
@@ -335,11 +407,12 @@ function AppInner() {
             {config.typeLibrary[compareData.code]?.cn || ''}
           </p>
           <p className="text-sm text-[#999] mb-6">
-            先完成测试，才能查看你们的人格对比
+            先完成测试，才能查看你们的欲望人格对比
           </p>
           <button
             onClick={handleStartTest}
-            className="bg-accent text-white font-bold py-3 px-8 rounded-xl hover:bg-red-600 transition-colors cursor-pointer"
+            className="text-white font-bold py-3 px-8 rounded-xl transition-colors cursor-pointer"
+            style={{ background: 'linear-gradient(135deg, #ff3b82, #ff6b9d)' }}
           >
             开始测试
           </button>
@@ -355,10 +428,10 @@ function AppInner() {
   );
 }
 
-export default function App() {
+export default function DesireApp() {
   return (
-    <TestConfigProvider config={sbtiConfig}>
-      <AppInner />
+    <TestConfigProvider config={desireConfig}>
+      <DesireAppInner />
     </TestConfigProvider>
   );
 }

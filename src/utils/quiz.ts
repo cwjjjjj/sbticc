@@ -35,7 +35,7 @@ export function buildShuffledQuestions(
  */
 export function getVisibleQuestions(
   shuffledQuestions: Question[],
-  answers: Record<string, number>,
+  answers: Record<string, number | number[]>,
   gateQuestionId: string,
   gateAnswerValue: number,
   followUpQuestion?: Question,
@@ -47,4 +47,17 @@ export function getVisibleQuestions(
     visible.splice(gateIndex + 1, 0, followUpQuestion);
   }
   return visible;
+}
+
+export function randomAnswerForQuestion(question: Question): number | number[] {
+  if (question.multiSelect) {
+    const maxCount = Math.min(3, question.options.length);
+    const count = Math.floor(Math.random() * maxCount) + 1;
+    return shuffle(question.options.map((_, index) => index))
+      .slice(0, count)
+      .sort((a, b) => a - b);
+  }
+
+  const maxVal = question.options[question.options.length - 1].value;
+  return Math.floor(Math.random() * maxVal) + 1;
 }

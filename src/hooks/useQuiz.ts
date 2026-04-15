@@ -7,7 +7,7 @@ import { computeResult, type ComputeResultOutput } from '../utils/matching';
 export interface UseQuizReturn {
   /* state */
   shuffledQuestions: Question[];
-  answers: Record<string, number>;
+  answers: Record<string, number | number[]>;
   currentQ: number;
   previewMode: boolean;
   debugForceType: string | null;
@@ -22,7 +22,7 @@ export interface UseQuizReturn {
 
   /* actions */
   startQuiz: (preview?: boolean) => void;
-  answer: (qId: string, value: number) => void;
+  answer: (qId: string, value: number | number[]) => void;
   goNext: () => void;
   goPrev: () => void;
   setDebugForceType: (code: string | null) => void;
@@ -32,7 +32,7 @@ export interface UseQuizReturn {
 export function useQuiz(): UseQuizReturn {
   const config = useTestConfig();
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, number | number[]>>({});
   const [currentQ, setCurrentQ] = useState(0);
   const [previewMode, setPreviewMode] = useState(false);
   const [debugForceType, setDebugForceType] = useState<string | null>(null);
@@ -54,7 +54,12 @@ export function useQuiz(): UseQuizReturn {
   );
 
   const totalQuestions = visibleQuestions.length;
-  const answeredCount = visibleQuestions.filter(q => answers[q.id] !== undefined).length;
+  const answeredCount = visibleQuestions.filter(q => {
+    const a = answers[q.id];
+    if (a === undefined) return false;
+    if (Array.isArray(a)) return a.length > 0;
+    return true;
+  }).length;
   const allAnswered = answeredCount === totalQuestions && totalQuestions > 0;
   const progress = totalQuestions ? (answeredCount / totalQuestions) * 100 : 0;
   const currentQuestion = visibleQuestions[currentQ];
@@ -72,7 +77,7 @@ export function useQuiz(): UseQuizReturn {
     );
   }, [config]);
 
-  const answer = useCallback((qId: string, value: number) => {
+  const answer = useCallback((qId: string, value: number | number[]) => {
     setAnswers(prev => {
       const next = { ...prev, [qId]: value };
       // If gate question changed away from trigger value, remove follow-up answer

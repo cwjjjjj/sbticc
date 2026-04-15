@@ -1,4 +1,6 @@
 import { css } from '@emotion/react';
+import { ALL_TESTS } from '../data/allTests';
+import { useTestConfig } from '../data/testConfig';
 
 export type TabId = 'home' | 'profiles' | 'compat' | 'ranking';
 
@@ -22,6 +24,8 @@ const glassmorphism = css`
 `;
 
 export default function Nav({ activeTab, onTabChange, onStartTest }: NavProps) {
+  const config = useTestConfig();
+
   return (
     <nav
       css={glassmorphism}
@@ -57,6 +61,27 @@ export default function Nav({ activeTab, onTabChange, onStartTest }: NavProps) {
         >
           开始测试
         </button>
+      </div>
+      <div className="border-t border-border/70">
+        <div className="max-w-6xl mx-auto px-4 h-10 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
+          {ALL_TESTS.map((test) => {
+            const isActive = test.id === config.id;
+            return (
+              <a
+                key={test.id}
+                href={test.path}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  isActive
+                    ? 'bg-accent/15 text-white border border-accent/30'
+                    : 'text-muted hover:text-white hover:bg-surface'
+                }`}
+              >
+                <span>{test.emoji}</span>
+                <span>{test.name}</span>
+              </a>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

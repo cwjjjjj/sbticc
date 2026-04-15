@@ -4,6 +4,16 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/new", "destination": "/new/index.html" },
+    { "source": "/new/love", "destination": "/new/love/index.html" },
+    { "source": "/new/love/(.*)", "destination": "/new/love/index.html" },
+    { "source": "/new/work", "destination": "/new/work/index.html" },
+    { "source": "/new/work/(.*)", "destination": "/new/work/index.html" },
+    { "source": "/new/values", "destination": "/new/values/index.html" },
+    { "source": "/new/values/(.*)", "destination": "/new/values/index.html" },
+    { "source": "/new/cyber", "destination": "/new/cyber/index.html" },
+    { "source": "/new/cyber/(.*)", "destination": "/new/cyber/index.html" },
+    { "source": "/new/desire", "destination": "/new/desire/index.html" },
+    { "source": "/new/desire/(.*)", "destination": "/new/desire/index.html" },
     { "source": "/new/((?!assets/).*)", "destination": "/new/index.html" }
   ]
 }

@@ -17,6 +17,7 @@ import { drawShareCard, canvasToBlob } from './utils/shareCard';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { loveConfig } from './data/love/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
+import { randomAnswerForQuestion } from './utils/quiz';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
@@ -154,10 +155,9 @@ function LoveAppInner() {
    */
   const autoFillAndShowResult = useCallback(() => {
     const allQs = [...config.questions, ...config.specialQuestions];
-    const answers: Record<string, number> = {};
+    const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
-      const maxVal = q.options[q.options.length - 1].value;
-      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+      answers[q.id] = randomAnswerForQuestion(q);
     });
     const res = computeResult(answers, false, config, null);
     setResult(res);
@@ -220,7 +220,7 @@ function LoveAppInner() {
     const pageUrl = `${config.prodBaseUrl}${config.basePath}`;
     const qrDataUrl = generateQR(pageUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-${typeCode}.png`);
@@ -247,7 +247,7 @@ function LoveAppInner() {
     const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-invite-${typeCode}.png`);
@@ -272,10 +272,9 @@ function LoveAppInner() {
 
   const handleDebugForceType = useCallback((code: string) => {
     const allQs = [...config.questions, ...config.specialQuestions];
-    const answers: Record<string, number> = {};
+    const answers: Record<string, number | number[]> = {};
     allQs.forEach((q) => {
-      const maxVal = q.options[q.options.length - 1].value;
-      answers[q.id] = Math.floor(Math.random() * maxVal) + 1;
+      answers[q.id] = randomAnswerForQuestion(q);
     });
     const res = computeResult(answers, false, config, code);
     setResult(res);
@@ -298,7 +297,7 @@ function LoveAppInner() {
     const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite');
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-compare-${typeCode}.png`);

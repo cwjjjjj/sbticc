@@ -31,7 +31,7 @@ export const cyberConfig: TestConfig = {
   getCompatibility,
   sumToLevel,
   maxDistance: 8,
-  fallbackTypeCode: 'VQSO',
+  fallbackTypeCode: 'ZOMBIE',
   hiddenTypeCode: 'BOT',
   similarityThreshold: 60,
   prodBaseUrl: 'https://sbti.jiligulu.xyz',
@@ -39,6 +39,6 @@ export const cyberConfig: TestConfig = {
   localHistoryKey: 'cyber_history',
   localStatsKey: 'cyber_local_stats',
   apiTestParam: 'cyber',
-  dimSectionTitle: '四维度评分',
-  questionCountLabel: '16',
+  dimSectionTitle: '六维度评分',
+  questionCountLabel: '30',
 };

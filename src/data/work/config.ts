@@ -6,22 +6,22 @@ import { TYPE_IMAGES, SHARE_IMAGES } from './typeImages';
 import { COMPATIBILITY, getCompatibility } from './compatibility';
 
 function sumToLevel(score: number): string {
-  if (score <= 6) return 'A';
+  if (score <= 12) return 'A';
   return 'B';
 }
 
 export const workConfig: TestConfig = {
   id: 'work',
-  name: 'WQ16 职场人格矩阵',
+  name: '打工人鉴定',
   dimensionOrder,
   dimensionMeta,
   dimExplanations: DIM_EXPLANATIONS,
   questions,
   specialQuestions,
   gateQuestionId: 'work_gate',
-  gateAnswerValue: 3,
+  gateAnswerValue: 4,
   hiddenTriggerQuestionId: 'work_gate',
-  hiddenTriggerValue: 3,
+  hiddenTriggerValue: 4,
   typeLibrary: TYPE_LIBRARY,
   normalTypes: NORMAL_TYPES,
   typeRarity: TYPE_RARITY,
@@ -30,8 +30,8 @@ export const workConfig: TestConfig = {
   compatibility: COMPATIBILITY,
   getCompatibility,
   sumToLevel,
-  maxDistance: 8,
-  fallbackTypeCode: 'GSCB',
+  maxDistance: 12,
+  fallbackTypeCode: 'HSGJI',
   hiddenTypeCode: '996',
   similarityThreshold: 60,
   prodBaseUrl: 'https://sbti.jiligulu.xyz',
@@ -39,6 +39,6 @@ export const workConfig: TestConfig = {
   localHistoryKey: 'work_history',
   localStatsKey: 'work_local_stats',
   apiTestParam: 'work',
-  dimSectionTitle: '四维度评分',
-  questionCountLabel: '16',
+  dimSectionTitle: '六维度评分',
+  questionCountLabel: '30',
 };

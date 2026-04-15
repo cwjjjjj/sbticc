@@ -6,22 +6,22 @@ import { TYPE_IMAGES, SHARE_IMAGES } from './typeImages';
 import { COMPATIBILITY, getCompatibility } from './compatibility';
 
 function sumToLevel(score: number): string {
-  if (score <= 6) return 'A';
+  if (score <= 12) return 'A';
   return 'B';
 }
 
-export const valuesConfig: TestConfig = {
-  id: 'values',
-  name: 'VQ16 三观人格矩阵',
+export const desireConfig: TestConfig = {
+  id: 'desire',
+  name: '欲望图谱',
   dimensionOrder,
   dimensionMeta,
   dimExplanations: DIM_EXPLANATIONS,
   questions,
   specialQuestions,
-  gateQuestionId: 'mlc_gate',
-  gateAnswerValue: 3,
-  hiddenTriggerQuestionId: 'mlc_gate',
-  hiddenTriggerValue: 3,
+  gateQuestionId: 'kink_gate',
+  gateAnswerValue: 4,
+  hiddenTriggerQuestionId: 'kink_gate',
+  hiddenTriggerValue: 4,
   typeLibrary: TYPE_LIBRARY,
   normalTypes: NORMAL_TYPES,
   typeRarity: TYPE_RARITY,
@@ -30,15 +30,15 @@ export const valuesConfig: TestConfig = {
   compatibility: COMPATIBILITY,
   getCompatibility,
   sumToLevel,
-  maxDistance: 8,
-  fallbackTypeCode: 'QINGXN',
-  hiddenTypeCode: 'MLC',
+  maxDistance: 12,
+  fallbackTypeCode: 'MCBGLR',
+  hiddenTypeCode: 'XXX',
   similarityThreshold: 60,
   prodBaseUrl: 'https://sbti.jiligulu.xyz',
-  basePath: '/new/values',
-  localHistoryKey: 'values_history',
-  localStatsKey: 'values_local_stats',
-  apiTestParam: 'values',
+  basePath: '/new/desire',
+  localHistoryKey: 'desire_history',
+  localStatsKey: 'desire_local_stats',
+  apiTestParam: 'desire',
   dimSectionTitle: '六维度评分',
   questionCountLabel: '30',
 };
