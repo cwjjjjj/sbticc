@@ -6,22 +6,22 @@ import { TYPE_IMAGES, SHARE_IMAGES } from './typeImages';
 import { COMPATIBILITY, getCompatibility } from './compatibility';
 
 function sumToLevel(score: number): string {
-  if (score <= 6) return 'A';
+  if (score <= 12) return 'A';
   return 'B';
 }
 
 export const loveConfig: TestConfig = {
   id: 'love',
-  name: 'LQ16 恋爱人格矩阵',
+  name: '恋爱脑浓度检测',
   dimensionOrder,
   dimensionMeta,
   dimExplanations: DIM_EXPLANATIONS,
   questions,
   specialQuestions,
   gateQuestionId: 'ex_gate',
-  gateAnswerValue: 3,
+  gateAnswerValue: 4,
   hiddenTriggerQuestionId: 'ex_gate',
-  hiddenTriggerValue: 3,
+  hiddenTriggerValue: 4,
   typeLibrary: TYPE_LIBRARY,
   normalTypes: NORMAL_TYPES,
   typeRarity: TYPE_RARITY,
@@ -30,8 +30,8 @@ export const loveConfig: TestConfig = {
   compatibility: COMPATIBILITY,
   getCompatibility,
   sumToLevel,
-  maxDistance: 8,
-  fallbackTypeCode: 'HWDP',
+  maxDistance: 12,
+  fallbackTypeCode: 'HWDPLV',
   hiddenTypeCode: 'EX',
   similarityThreshold: 60,
   prodBaseUrl: 'https://sbti.jiligulu.xyz',
@@ -39,6 +39,6 @@ export const loveConfig: TestConfig = {
   localHistoryKey: 'love_history',
   localStatsKey: 'love_local_stats',
   apiTestParam: 'love',
-  dimSectionTitle: '四维度评分',
-  questionCountLabel: '16',
+  dimSectionTitle: '六维度评分',
+  questionCountLabel: '30',
 };

@@ -41,7 +41,7 @@ export interface ComputeResultOutput {
 /* ---------- main algorithm ---------- */
 
 export function computeResult(
-  answers: Record<string, number>,
+  answers: Record<string, number | number[]>,
   hiddenTriggered: boolean,
   config: TestConfig,
   debugForceType?: string | null,
@@ -55,7 +55,20 @@ export function computeResult(
 
   questions.forEach(q => {
     if (q.dim) {
-      rawScores[q.dim] += Number(answers[q.id] || 0);
+      const ans = answers[q.id];
+      if (Array.isArray(ans)) {
+        // Multi-select answers store option indexes so duplicate score values
+        // can still be selected independently.
+        const selectedValues = ans
+          .map((optionIndex) => q.options[optionIndex]?.value)
+          .filter((value): value is number => typeof value === 'number');
+        const avg = selectedValues.length > 0
+          ? selectedValues.reduce((a, b) => a + b, 0) / selectedValues.length
+          : 0;
+        rawScores[q.dim] += Math.round(avg);
+      } else {
+        rawScores[q.dim] += Number(ans || 0);
+      }
     }
   });
 

@@ -47,4 +47,11 @@ export const ALL_TESTS: TestLink[] = [
     path: '/new/cyber',
     emoji: '📱',
   },
+  {
+    id: 'desire',
+    name: '欲望图谱',
+    tagline: '关上门之后你是谁',
+    path: '/new/desire',
+    emoji: '🔥',
+  },
 ];

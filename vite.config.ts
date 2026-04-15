@@ -14,6 +14,7 @@ export default defineConfig({
         work: 'work.html',
         values: 'values.html',
         cyber: 'cyber.html',
+        desire: 'desire.html',
       },
     },
   },

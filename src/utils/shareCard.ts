@@ -1,7 +1,5 @@
-import { SHARE_IMAGES } from '../data/typeImages';
-import { dimensionOrder, dimensionMeta } from '../data/dimensions';
 import { PROD_BASE_URL } from '../theme/tokens';
-import type { TypeDef } from '../data/types';
+import type { TestConfig, TypeDef } from '../data/testConfig';
 import type { ComputeResultOutput } from './matching';
 
 /* ---------- helpers ---------- */
@@ -27,6 +25,7 @@ export function wrapText(
   maxWidth: number,
   lineHeight: number,
 ): number {
+  if (!text) return y;
   const chars = text.split('');
   let line = '';
   let currentY = y;
@@ -56,13 +55,16 @@ export async function drawShareCard(
   result: ComputeResultOutput,
   qrUrl: string,
   mode: 'share' | 'invite',
+  config: TestConfig,
+  isPaid: boolean = false,
 ): Promise<HTMLCanvasElement> {
+  const { dimensionOrder, dimensionMeta, shareImages } = config;
   const W = 840;
   const pad = 50;
   const contentW = W - pad * 2;
 
   // Pre-load poster image
-  const posterSrc = SHARE_IMAGES[type.code] || '';
+  const posterSrc = shareImages[type.code] || '';
   const posterImg = posterSrc ? await loadImage(posterSrc) : null;
 
   // Pre-load QR
@@ -71,19 +73,19 @@ export async function drawShareCard(
   // Create off-screen canvas — start tall, trim later
   const canvas = document.createElement('canvas');
   canvas.width = W;
-  canvas.height = 1800;
+  canvas.height = 2000;
   const ctx = canvas.getContext('2d')!;
 
   // -- Background
   ctx.fillStyle = '#0a0a0a';
-  ctx.fillRect(0, 0, W, 1800);
+  ctx.fillRect(0, 0, W, 2000);
 
   let y = pad;
 
   // -- Brand header
   ctx.font = 'bold 18px "JetBrains Mono", monospace';
   ctx.fillStyle = '#666';
-  ctx.fillText('SBTI \u4eba\u683c\u6d4b\u8bd5', pad, y + 18);
+  ctx.fillText(config.name, pad, y + 18);
   y += 50;
 
   // -- Poster image + type info
@@ -105,6 +107,16 @@ export async function drawShareCard(
     ctx.clip();
     ctx.drawImage(posterImg, pad, y, posterSize, posterSize);
     ctx.restore();
+  } else {
+    // Placeholder box
+    ctx.fillStyle = '#1a1a1a';
+    roundRect(ctx, pad, y, posterSize, posterSize, 16);
+    ctx.fill();
+    ctx.font = 'bold 64px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'center';
+    ctx.fillText(type.code.substring(0, 4), pad + posterSize / 2, y + posterSize / 2 + 20);
+    ctx.textAlign = 'left';
   }
 
   const infoX = pad + posterSize + 30;
@@ -126,10 +138,10 @@ export async function drawShareCard(
   const badgeText = `\u5339\u914d\u5ea6 ${similarity}%`;
   ctx.font = 'bold 16px "JetBrains Mono", monospace';
   const badgeW = ctx.measureText(badgeText).width + 24;
-  ctx.fillStyle = 'rgba(255, 59, 59, 0.2)';
+  ctx.fillStyle = 'rgba(255, 59, 130, 0.2)';
   roundRect(ctx, infoX, y + 108, badgeW, 32, 8);
   ctx.fill();
-  ctx.fillStyle = '#ff3b3b';
+  ctx.fillStyle = '#ff3b82';
   ctx.fillText(badgeText, infoX + 12, y + 130);
 
   y += posterSize + 30;
@@ -155,7 +167,7 @@ export async function drawShareCard(
   for (const dimKey of dimensionOrder) {
     const level = result.levels[dimKey] || 'M';
     const dimInfo = dimensionMeta[dimKey];
-    const shortName = dimInfo ? dimInfo.name.split(' ')[1] || dimInfo.name : dimKey;
+    const shortName = dimInfo ? dimInfo.name.replace(/^[A-Za-z]+\d*\s*/, '') : dimKey;
     const label = `${shortName} ${level}`;
     const tw = ctx.measureText(label).width + 16;
 
@@ -183,11 +195,13 @@ export async function drawShareCard(
   ctx.stroke();
   y += 30;
 
-  // -- Watermark
-  ctx.font = '14px "JetBrains Mono", monospace';
-  ctx.fillStyle = '#666';
-  ctx.fillText(PROD_BASE_URL.replace('https://', ''), pad, y);
-  y += 30;
+  // -- Watermark (only if not paid)
+  if (!isPaid) {
+    ctx.font = '14px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#444';
+    ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, pad, y);
+    y += 30;
+  }
 
   // -- QR + CTA footer
   const qrSize = 120;
@@ -196,11 +210,11 @@ export async function drawShareCard(
     ctx.fillStyle = '#ffffff';
     roundRect(ctx, W - pad - qrSize - 10, y - 5, qrSize + 20, qrSize + 20, 8);
     ctx.fill();
-    ctx.drawImage(qrImg, W - pad - qrSize - 0, y + 5, qrSize, qrSize);
+    ctx.drawImage(qrImg, W - pad - qrSize, y + 5, qrSize, qrSize);
   }
 
   ctx.font = '16px "Noto Sans SC", sans-serif';
-  ctx.fillStyle = '#888';
+  ctx.fillStyle = '#666';
   ctx.fillText('\u626b\u7801\u6216\u70b9\u51fb\u94fe\u63a5', pad, y + 20);
   ctx.fillText('\u6d4b\u8bd5\u4f60\u7684\u4eba\u683c', pad, y + 44);
   y += qrSize + 40;

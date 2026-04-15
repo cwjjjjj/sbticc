@@ -11,6 +11,7 @@
     { "source": "/work", "destination": "/work/index.html" },
     { "source": "/values", "destination": "/values/index.html" },
     { "source": "/cyber", "destination": "/cyber/index.html" },
-    { "source": "/((?!api|assets|images|love|work|values|cyber|sw\\.js).*)", "destination": "/index.html" }
+    { "source": "/desire", "destination": "/desire/index.html" },
+    { "source": "/((?!api|assets|images|love|work|values|cyber|desire|sw\\.js).*)", "destination": "/index.html" }
   ]
 }

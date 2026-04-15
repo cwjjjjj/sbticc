@@ -13,7 +13,7 @@ cp dist-temp/index.html dist/index.html
 cp -r dist-temp/assets dist/assets
 
 # 4. Copy test entry points into subfolders
-for test in love work values cyber; do
+for test in love work values cyber desire; do
   mkdir -p dist/$test
   cp dist-temp/$test.html dist/$test/index.html
 done

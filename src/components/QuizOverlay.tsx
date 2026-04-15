@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import ProgressBar from './ProgressBar';
 import QuestionCard from './QuestionCard';
+import AdSlot from './AdSlot';
 import type { UseQuizReturn } from '../hooks/useQuiz';
 
 interface QuizOverlayProps {
@@ -29,18 +30,21 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
   } = quiz;
 
   const handleAnswer = useCallback(
-    (qId: string, value: number) => {
+    (qId: string, value: number | number[]) => {
       answer(qId, value);
-      // Auto-advance after 300ms, but only if not already on the last question
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-      if (currentQ < totalQuestions - 1) {
-        autoAdvanceTimer.current = setTimeout(() => {
-          setDirection(1);
-          goNext();
-        }, 300);
+      // Auto-advance after 300ms for single-select only, not on last question
+      const isMulti = currentQuestion?.multiSelect;
+      if (!isMulti) {
+        if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+        if (currentQ < totalQuestions - 1) {
+          autoAdvanceTimer.current = setTimeout(() => {
+            setDirection(1);
+            goNext();
+          }, 300);
+        }
       }
     },
-    [answer, goNext, currentQ, totalQuestions],
+    [answer, goNext, currentQ, totalQuestions, currentQuestion],
   );
 
   const handlePrev = useCallback(() => {
@@ -70,7 +74,12 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
   }, [currentQ]);
 
   const isCurrentAnswered = currentQuestion
-    ? answers[currentQuestion.id] !== undefined
+    ? (() => {
+        const a = answers[currentQuestion.id];
+        if (a === undefined) return false;
+        if (Array.isArray(a)) return a.length > 0;
+        return true;
+      })()
     : false;
   const isFirstQuestion = currentQ === 0;
   const isLastQuestion = currentQ === totalQuestions - 1;
@@ -148,6 +157,13 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
             <div className="w-[72px]" /> /* spacer to keep layout balanced */
           )}
         </div>
+
+        {/* Bottom ad during the quiz flow */}
+        <AdSlot
+          zone="10859606"
+          src="https://nap5k.com/tag.min.js"
+          className="mt-5 mb-2 rounded-lg border border-border/60 bg-surface-2/40 overflow-hidden"
+        />
 
         {/* Submit area */}
         {isLastQuestion && (

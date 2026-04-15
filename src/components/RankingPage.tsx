@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { TYPE_LIBRARY, TYPE_RARITY } from '../data/types';
 import type { UseRankingReturn } from '../hooks/useRanking';
 import type { UseLocalHistoryReturn } from '../hooks/useLocalHistory';
+import { useTestConfig, type RarityInfo } from '../data/testConfig';
 
 interface RankingPageProps {
   ranking: UseRankingReturn;
@@ -15,10 +15,14 @@ function formatTime(ts: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function getRarityLabel(code: string): string {
-  const r = TYPE_RARITY[code];
+function getRarityLabel(
+  code: string,
+  rarity: Record<string, RarityInfo>,
+  hiddenTypeCode: string,
+): string {
+  const r = rarity[code];
   if (!r) return '';
-  if (code === 'DRUNK') return '\ud83c\udf7a \u9690\u85cf';
+  if (code === hiddenTypeCode) return '\ud83c\udf7a \u9690\u85cf';
   if (r.stars === 5) return '\ud83d\udc8e \u6781\u7a00\u6709';
   return '\u2605'.repeat(r.stars) + ' ' + r.label;
 }
@@ -28,6 +32,7 @@ export default function RankingPage({
   localHistory,
   onStartTest,
 }: RankingPageProps) {
+  const config = useTestConfig();
   const { data, loading, error, fetchRanking } = ranking;
   const { history, stats } = localHistory;
 
@@ -46,7 +51,7 @@ export default function RankingPage({
   const localUnlockedCount = Object.keys(stats).length;
 
   return (
-    <div className="pt-20 px-4 max-w-4xl mx-auto pb-16">
+    <div className="pt-28 px-4 max-w-4xl mx-auto pb-16">
       {/* Section 1: Global Ranking */}
       <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
         <h2 className="font-mono font-extrabold text-xl sm:text-2xl text-center text-white">
@@ -101,7 +106,7 @@ export default function RankingPage({
           <div>
             {list.map((item, idx) => {
               const rank = idx + 1;
-              const typeDef = TYPE_LIBRARY[item.code];
+              const typeDef = config.typeLibrary[item.code];
               const cn = typeDef?.cn ?? '';
               const barPct = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
 
@@ -181,9 +186,13 @@ export default function RankingPage({
             {/* History list */}
             <div>
               {displayHistory.map((entry, i) => {
-                const typeDef = TYPE_LIBRARY[entry.code];
+                const typeDef = config.typeLibrary[entry.code];
                 const cn = typeDef?.cn ?? '';
-                const rarityLabel = getRarityLabel(entry.code);
+                const rarityLabel = getRarityLabel(
+                  entry.code,
+                  config.typeRarity,
+                  config.hiddenTypeCode,
+                );
 
                 return (
                   <div
