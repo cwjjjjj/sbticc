@@ -1,9 +1,16 @@
 {
   "buildCommand": "bash build.sh",
   "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/new/:path*", "destination": "/:path*", "permanent": true },
+    { "source": "/new", "destination": "/", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/new", "destination": "/new/index.html" },
-    { "source": "/new/((?!assets/).*)", "destination": "/new/index.html" }
+    { "source": "/love", "destination": "/love/index.html" },
+    { "source": "/work", "destination": "/work/index.html" },
+    { "source": "/values", "destination": "/values/index.html" },
+    { "source": "/cyber", "destination": "/cyber/index.html" },
+    { "source": "/((?!api|assets|images|love|work|values|cyber|sw\\.js).*)", "destination": "/index.html" }
   ]
 }

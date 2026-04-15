@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBTI 人格测试</title>
+  <script>
+  // A/B split: 50% users see new React version at /new
+  // Same user always gets the same version (stored in localStorage)
+  (function(){
+    try {
+      var key = 'sbti_ab_version';
+      var v = localStorage.getItem(key);
+      if (!v) {
+        v = Math.random() < 0.5 ? 'new' : 'old';
+        localStorage.setItem(key, v);
+      }
+      if (v === 'new' && window.location.pathname === '/') {
+        window.location.replace('/new' + window.location.search + window.location.hash);
+      }
+    } catch(e) {}
+  })();
+  </script>
+  <link rel="stylesheet" href="./main.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
+  <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js" defer></script>
+  <!-- Monetag: In-Page Push -->
+  <script>(function(s){s.dataset.zone='10859606',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <div class="top-nav-brand">SBTI</div>
+      <div class="top-nav-tabs">
+        <button class="top-nav-tab active" data-tab="tab-home">首页</button>
+        <button class="top-nav-tab" data-tab="tab-profiles">人格介绍</button>
+        <button class="top-nav-tab" data-tab="tab-compat">人格相性</button>
+        <button class="top-nav-tab" data-tab="tab-ranking">全站排行</button>
+      </div>
+      <button id="navStartBtn" class="btn-primary nav-start-btn">开始测试</button>
+    </div>
+  </nav>
+
+  <div class="shell">
+    <!-- Tab: 首页 -->
+    <div id="tab-home" class="tab-panel active">
+      <div class="hero card hero-minimal">
+        <h1>MBTI已经过时，SBTI来了。</h1>
+        <div class="hero-actions hero-actions-single">
+          <button id="startBtn" class="btn-primary">开始测试</button>
+        </div>
+      </div>
+
+      <div class="types-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">全部人格一览</h2>
+        <div class="rarity-switch">
+          <span class="rarity-switch-label" id="raritySwitchLabel">理论稀有度</span>
+          <label class="switch">
+            <input type="checkbox" id="rarityToggle" />
+            <span class="switch-slider"></span>
+          </label>
+          <span class="rarity-switch-hint" id="raritySwitchHint">切换到真实数据</span>
+        </div>
+        <div id="typesGrid" class="types-grid"></div>
+      </div>
+      <div class="compat-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">人格相性表</h2>
+        <div id="compatGrid" class="compat-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: 人格介绍 -->
+    <div id="tab-profiles" class="tab-panel">
+      <div class="types-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">全部人格一览</h2>
+        <div class="rarity-switch">
+          <span class="rarity-switch-label rarity-switch-label-sub">理论稀有度</span>
+          <label class="switch">
+            <input type="checkbox" class="rarityToggleSub" />
+            <span class="switch-slider"></span>
+          </label>
+          <span class="rarity-switch-hint rarity-switch-hint-sub">切换到真实数据</span>
+        </div>
+        <div id="typesGridSub" class="types-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: 人格相性 -->
+    <div id="tab-compat" class="tab-panel">
+      <div class="compat-gallery card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:18px; text-align:center;">人格相性表</h2>
+        <div id="compatGridSub" class="compat-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: 全站排行 -->
+    <div id="tab-ranking" class="tab-panel">
+      <div class="card" style="margin-top:22px; padding:22px;">
+        <h2 style="font-size:clamp(20px,3.5vw,28px); margin-bottom:6px; text-align:center;">全站人格排行榜</h2>
+        <p style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:22px;">基于所有用户的测试统计</p>
+        <div id="rankingLoading" class="ranking-empty"><p>加载中...</p></div>
+        <div id="rankingEmpty" class="ranking-empty" style="display:none;">
+          <p>还没有测试记录，去测一次吧！</p>
+          <button id="rankingGoTest" class="btn-primary" style="margin-top:14px;">去测试</button>
+        </div>
+        <div id="rankingContent" style="display:none;">
+          <div class="ranking-stats">
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="rankTotalCount">0</div>
+              <div class="ranking-stat-label">总测试次数</div>
+            </div>
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="rankUniqueTypes">0</div>
+              <div class="ranking-stat-label">已解锁人格</div>
+            </div>
+          </div>
+          <div id="rankingList" class="ranking-list"></div>
+          <!-- TODO: 启用广告后取消隐藏 <div id="adBannerRanking" class="ad-banner-container" style="margin-top:16px;"></div> -->
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px; padding:22px;" id="localHistoryCard">
+        <h2 style="font-size:clamp(18px,3vw,24px); margin-bottom:14px; text-align:center;">我的测试记录</h2>
+        <p style="text-align:center; color:var(--muted); font-size:13px; margin-bottom:16px;">数据保存在你的浏览器中</p>
+        <div id="localHistoryEmpty" style="text-align:center; color:var(--muted); padding:20px 0;">还没有测试记录</div>
+        <div id="localHistoryContent" style="display:none;">
+          <div class="ranking-stats">
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="localTestCount">0</div>
+              <div class="ranking-stat-label">我的测试次数</div>
+            </div>
+            <div class="ranking-stat-item">
+              <div class="ranking-stat-value" id="localUniqueTypes">0</div>
+              <div class="ranking-stat-label">我解锁的人格</div>
+            </div>
+          </div>
+          <div id="localHistoryList" class="local-history-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 测试流程（全屏覆盖层） -->
+  <div id="testOverlay" class="test-overlay">
+    <div class="test-overlay-inner">
+      <section id="test" class="screen active">
+        <div class="test-wrap card">
+          <div class="topbar">
+            <div class="progress"><span id="progressBar"></span></div>
+            <div class="progress-text" id="progressText">0 / 31</div>
+          </div>
+
+          <div id="questionList" class="question-list"></div>
+
+          <div class="actions-bottom">
+            <div class="hint" id="testHint">全选完才会放行。世界已经够乱了，起码把题做完整。</div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="backIntroBtn" class="btn-secondary">返回首页</button>
+              <button id="submitBtn" class="btn-primary" disabled>提交并查看结果</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="result" class="screen">
+        <div class="result-wrap card">
+          <div id="testToolbar" class="test-toolbar" style="display:none;">
+            <div class="test-toolbar-title">DEBUG TOOLBAR (test domain only)</div>
+            <div class="test-toolbar-btns">
+              <button id="testReroll" class="test-toolbar-btn">🎲 换一个人格</button>
+              <button id="testShareImg" class="test-toolbar-btn">🖼️ 测试分享图</button>
+              <button id="testInviteImg" class="test-toolbar-btn">📨 测试邀请图</button>
+            </div>
+            <div class="test-toolbar-pick">
+              <select id="testTypePicker" class="test-toolbar-select">
+                <option value="">🎯 选择指定人格…</option>
+              </select>
+              <button id="testPickBtn" class="test-toolbar-btn">生成该人格</button>
+            </div>
+          </div>
+          <div class="result-layout">
+            <div class="result-top">
+              <div class="poster-box" id="posterBox">
+                <img id="posterImage" class="poster-image" alt="人格结果图" />
+                <div id="posterCaption" class="poster-caption">怎么样，被我拿捏了吧？</div>
+              </div>
+
+              <div class="type-box">
+                <div class="type-kicker" id="resultModeKicker">你的主类型</div>
+                <div class="type-name" id="resultTypeName">CTRL（拿捏者）</div>
+                <div class="match" id="matchBadge">匹配度 92%</div>
+                <div class="type-subname" id="resultTypeSub">系统备注会显示在这里。</div>
+              </div>
+            </div>
+
+            <div class="analysis-box">
+              <h3>该人格的简单解读</h3>
+              <p id="resultDesc"></p>
+            </div>
+
+            <div class="dim-box" style="position:relative;">
+              <h3>十五维度评分</h3>
+              <div id="dimList" class="dim-list"></div>
+              <!-- TODO: 启用付费墙后取消注释
+              <div id="paywallOverlay" class="paywall-overlay">
+                <div class="paywall-blur"></div>
+                <div class="paywall-cta">
+                  <div class="paywall-lock">&#128274;</div>
+                  <div class="paywall-title" id="paywallTitle">解锁完整报告</div>
+                  <div class="paywall-desc" id="paywallDesc">15维度深度解析 + 去广告 + 高清分享图</div>
+                  <button id="paywallBtn" class="btn-primary paywall-btn">&#165;1.99 / $0.99 解锁</button>
+                  <button id="paywallAlreadyPaid" class="btn-secondary paywall-already-paid">我已支付</button>
+                </div>
+              </div>
+              -->
+            </div>
+
+            <div class="compat-result-box" id="compatResultBox" style="display:none;">
+              <h3>你的相性关系</h3>
+              <div id="compatResultList" class="compat-result-list"></div>
+            </div>
+
+            <div class="note-box">
+              <h3>友情提示</h3>
+              <p id="funNote">本测试仅供娱乐，别拿它当诊断、面试、相亲、分手、招魂、算命或人生判决书。</p>
+            </div>
+
+            <!-- TODO: 启用广告后取消隐藏 <div id="adBannerResult" class="ad-banner-container"></div> -->
+
+            <details class="author-box">
+              <summary>作者的话</summary>
+              <div class="author-content">
+                <p>本测试首发于b站up主蛆肉儿串儿（UID417038183），初衷是劝诫一位爱喝酒的朋友戒酒。</p>
+                <p>由于作者的人格是SHIT愤世者，所以平等的攻击了各位，在此抱歉！！不过我是一个绝世大美女，你们一定会原谅我，有B站的朋友们也可以关注我。</p>
+                <p>关于这个测试，我没法很好的平衡娱乐和专业性，因此对于一些人格的阐释较为模糊或完全不准（如屌丝可能并非真的屌丝），如有冒犯非常抱歉！！</p>
+                <p>再鉴于时间精力有限，就随便搞了一个先这样玩玩，后续会慢慢完善修改的，总之好玩为主，还请不要用于盈利呀。</p>
+              </div>
+            </details>
+          </div>
+
+          <div class="result-actions">
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="shareBtn" class="btn-primary">生成分享图</button>
+              <button id="compareInviteBtn" class="btn-primary">邀请好友对比</button>
+              <button id="restartBtn" class="btn-secondary">重新测试</button>
+              <button id="toTopBtn" class="btn-secondary">回到首页</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="compare" class="screen">
+        <div class="result-wrap card">
+          <div class="compare-layout">
+            <h2 style="text-align:center; margin-bottom:18px;">人格对比</h2>
+            <div class="compare-vs">
+              <div class="compare-person">
+                <img id="compareImgA" class="compare-avatar" alt="" />
+                <div class="compare-name" id="compareCodeA"></div>
+                <div class="compare-cn" id="compareCnA"></div>
+              </div>
+              <div class="compare-vs-icon">VS</div>
+              <div class="compare-person">
+                <img id="compareImgB" class="compare-avatar" alt="" />
+                <div class="compare-name" id="compareCodeB"></div>
+                <div class="compare-cn" id="compareCnB"></div>
+              </div>
+            </div>
+            <div class="compare-radar-box">
+              <canvas id="compareRadar" width="400" height="400"></canvas>
+            </div>
+            <div class="compare-similarity-box">
+              <div class="compare-similarity-label">两人相似度</div>
+              <div class="compare-similarity-value" id="compareSimilarity">0%</div>
+            </div>
+            <div class="compare-compat-box" id="compareCompat"></div>
+            <div class="compare-comment" id="compareComment"></div>
+          </div>
+          <div class="result-actions" style="margin-top:22px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="compareShareBtn" class="btn-primary">生成对比分享图</button>
+              <button id="compareRestartBtn" class="btn-secondary">我也要测</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 分享卡片（隐藏，用于渲染成图片） -->
+  <div id="shareCard" class="share-card" aria-hidden="true">
+    <div class="share-card-accent"></div>
+    <div class="share-card-inner">
+      <div class="share-card-brand">SBTI PERSONALITY</div>
+
+      <div class="share-card-hero">
+        <div class="share-card-poster">
+          <img id="shareCardPoster" alt="" />
+        </div>
+        <div class="share-card-type-info">
+          <div class="share-card-code" id="shareCardCode">CTRL</div>
+          <div class="share-card-cn" id="shareCardCn">拿捏者</div>
+          <div class="share-card-match" id="shareCardMatch">92% MATCH</div>
+        </div>
+      </div>
+
+      <div class="share-card-intro" id="shareCardIntro">怎么样，被我拿捏了吧？</div>
+
+      <div class="share-card-dims" id="shareCardDims"></div>
+
+      <div id="shareCardWatermark" class="share-card-watermark">SBTI人格测试 → sbti.jiligulu.xyz</div>
+      <div class="share-card-footer">
+        <div class="share-card-cta">扫码来测<br>你是什么人格</div>
+        <div class="share-card-qr" id="shareCardQR"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分享弹窗 -->
+  <div id="shareModal" class="share-modal">
+    <div class="share-modal-content">
+      <div class="share-modal-header">
+        <h3>你的分享图已生成</h3>
+        <button id="shareModalClose" class="share-modal-close">&times;</button>
+      </div>
+      <div class="share-modal-body">
+        <img id="sharePreview" class="share-preview" alt="分享图预览" />
+      </div>
+      <div class="share-modal-actions">
+        <button id="shareDownloadBtn" class="btn-primary">保存图片</button>
+        <button id="shareCopyLinkBtn" class="btn-secondary">复制链接</button>
+        <button id="shareNativeBtn" class="btn-secondary">分享给好友</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./main.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

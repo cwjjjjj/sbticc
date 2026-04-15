@@ -5,11 +5,11 @@ export default defineConfig({
   plugins: [react({
     jsxImportSource: '@emotion/react',
   })],
-  base: '/new/',
+  base: '/',
   build: {
     rollupOptions: {
       input: {
-        main: 'new.html',
+        main: 'index.html',
         love: 'love.html',
         work: 'work.html',
         values: 'values.html',

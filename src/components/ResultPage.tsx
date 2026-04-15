@@ -268,7 +268,29 @@ export default function ResultPage({
             </details>
           </motion.div>
 
-          {/* 7. Other tests */}
+          {/* 7. WeChat contact */}
+          <motion.div
+            variants={staggerItem}
+            transition={{ duration: 0.4 }}
+            className="bg-surface border border-border rounded-2xl p-7 mb-5 text-center"
+          >
+            <h3 className="flex items-center gap-2.5 text-base font-bold text-white mb-4 justify-center">
+              <span className="w-[3px] h-4 bg-accent rounded-sm" />
+              想聊聊？
+            </h3>
+            <p className="text-sm text-[#888] mb-4">
+              扫码添加作者微信，交流测试心得或提出建议
+            </p>
+            <div className="flex justify-center">
+              <img
+                src="/images/wechat-qr.png"
+                alt="微信二维码"
+                className="w-[180px] h-[180px] rounded-xl"
+              />
+            </div>
+          </motion.div>
+
+          {/* 8. Other tests */}
           <motion.div
             variants={staggerItem}
             transition={{ duration: 0.4 }}
