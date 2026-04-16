@@ -195,29 +195,53 @@ export async function drawShareCard(
   ctx.stroke();
   y += 30;
 
-  // -- Watermark (only if not paid)
-  if (!isPaid) {
-    ctx.font = '14px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#444';
-    ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, pad, y);
-    y += 30;
-  }
-
   // -- QR + CTA footer
-  const qrSize = 120;
-  if (qrImg) {
-    // White background for QR
-    ctx.fillStyle = '#ffffff';
-    roundRect(ctx, W - pad - qrSize - 10, y - 5, qrSize + 20, qrSize + 20, 8);
-    ctx.fill();
-    ctx.drawImage(qrImg, W - pad - qrSize, y + 5, qrSize, qrSize);
+  const qrSize = 140;
+  const qrPadding = 12;
+  const qrBlockW = qrSize + qrPadding * 2;
+  const qrBlockH = qrSize + qrPadding * 2;
+  const qrBlockX = W - pad - qrBlockW;
+  const ctaTextX = pad;
+
+  // Test name
+  ctx.font = 'bold 22px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#ffaa00';
+  ctx.fillText(config.name, ctaTextX, y + 24);
+
+  // Call-to-action
+  ctx.font = '18px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#ccc';
+  ctx.fillText('扫码测测你是什么人格 →', ctaTextX, y + 58);
+
+  // URL (prominent)
+  ctx.font = 'bold 16px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#ff3b82';
+  ctx.fillText('sbti.jiligulu.xyz', ctaTextX, y + 90);
+
+  // Watermark path (only if not paid)
+  if (!isPaid) {
+    ctx.font = '13px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#444';
+    ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, ctaTextX, y + 115);
   }
 
-  ctx.font = '16px "Noto Sans SC", sans-serif';
-  ctx.fillStyle = '#666';
-  ctx.fillText('\u626b\u7801\u6216\u70b9\u51fb\u94fe\u63a5', pad, y + 20);
-  ctx.fillText('\u6d4b\u8bd5\u4f60\u7684\u4eba\u683c', pad, y + 44);
-  y += qrSize + 40;
+  // QR code
+  if (qrImg) {
+    // White background for QR readability
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, qrBlockX, y, qrBlockW, qrBlockH, 10);
+    ctx.fill();
+    ctx.drawImage(qrImg, qrBlockX + qrPadding, y + qrPadding, qrSize, qrSize);
+
+    // URL label below QR
+    ctx.font = '12px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#666';
+    ctx.textAlign = 'center';
+    ctx.fillText('扫码参加测试', qrBlockX + qrBlockW / 2, y + qrBlockH + 20);
+    ctx.textAlign = 'left';
+  }
+
+  y += Math.max(qrBlockH + 30, 130) + 20;
 
   // -- Trim canvas to actual height
   const finalH = y + pad;
