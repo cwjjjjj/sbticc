@@ -1,0 +1,21 @@
+{
+  "name": "人格实验室",
+  "short_name": "人格实验室",
+  "description": "6款趣味人格测试，测出你从未认识的自己",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

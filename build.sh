@@ -22,10 +22,9 @@ for test in love work values cyber desire; do
   cp dist-temp/$test.html dist/new/$test/index.html
 done
 
-# 6. Copy old version to dist root
+# 6. Copy hub landing page + PWA manifest
 cp index.html dist/index.html
-cp main.js dist/main.js
-cp main.css dist/main.css
+cp manifest.json dist/manifest.json
 
 # 7. Copy shared static assets
 cp -r images dist/images
