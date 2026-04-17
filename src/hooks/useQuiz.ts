@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import type { Question } from '../data/testConfig';
+import type { Question, Gender } from '../data/testConfig';
 import { useTestConfig } from '../data/testConfig';
 import { buildShuffledQuestions, getVisibleQuestions } from '../utils/quiz';
 import { computeResult, type ComputeResultOutput } from '../utils/matching';
@@ -72,6 +72,10 @@ export interface UseQuizReturn {
   debugForceType: string | null;
   hasSavedProgress: boolean;
 
+  /* gender (GSTI) */
+  gender: Gender;
+  setGender: (g: Gender) => void;
+
   /* derived */
   visibleQuestions: Question[];
   totalQuestions: number;
@@ -96,6 +100,27 @@ export function useQuiz(): UseQuizReturn {
   const [currentQ, setCurrentQ] = useState(0);
   const [previewMode, setPreviewMode] = useState(false);
   const [debugForceType, setDebugForceType] = useState<string | null>(null);
+
+  /* GSTI: gender selection, persisted per-test to localStorage */
+  const [gender, setGenderState] = useState<Gender>(() => {
+    if (typeof window === 'undefined') return 'unspecified';
+    try {
+      const stored = window.localStorage.getItem(`${config.id}_gender`);
+      if (stored === 'male' || stored === 'female' || stored === 'unspecified') {
+        return stored;
+      }
+    } catch { /* ignore */ }
+    return 'unspecified';
+  });
+
+  const setGender = useCallback((g: Gender) => {
+    setGenderState(g);
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(`${config.id}_gender`, g);
+      }
+    } catch { /* ignore storage failures */ }
+  }, [config.id]);
 
   // Whether there is valid saved progress the user could resume
   const [hasSavedProgress, setHasSavedProgress] = useState<boolean>(
@@ -192,13 +217,13 @@ export function useQuiz(): UseQuizReturn {
 
   const getResult = useCallback(
     (): ComputeResultOutput => {
-      const result = computeResult(answers, hiddenTriggered, config, debugForceType);
+      const result = computeResult(answers, hiddenTriggered, config, debugForceType, gender);
       // Quiz complete — clear saved progress
       clearProgress(config.id);
       quizActiveRef.current = false;
       return result;
     },
-    [answers, hiddenTriggered, config, debugForceType],
+    [answers, hiddenTriggered, config, debugForceType, gender],
   );
 
   return {
@@ -208,6 +233,9 @@ export function useQuiz(): UseQuizReturn {
     previewMode,
     debugForceType,
     hasSavedProgress,
+
+    gender,
+    setGender,
 
     visibleQuestions,
     totalQuestions,
