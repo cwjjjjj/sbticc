@@ -2139,6 +2139,13 @@ git push origin main
 - 改动：新建 `src/GstiApp.tsx` 217 行。顶层 App：`home → picker → quiz → interstitial → result → compare` 流程。`handleStartTest` 在 `gender === 'unspecified'` 时先跳 picker；`handleRestart` 回到 picker 让用户重选性别。`<ResultPage gender={quiz.gender} ...>` 正确传入 prop（implementer 手动补上，plan 原代码块漏了）。默认导出用 `TestConfigProvider config={gstiConfig}` 包裹。
 - Review：spec + quality ✅。
 
+**Task 12 — 配置 Vite 新增 gsti 入口** ✅
+- Commit: `a9d3a81` — `feat(gsti): add gsti vite entry`
+- 改动：新建 `gsti.html`，按现有多入口 HTML 风格内联 import `src/GstiApp.tsx`；`vite.config.ts` 的 `rollupOptions.input` 新增 `gsti: 'gsti.html'`；`build.sh` 的测试产物复制循环加入 `gsti`，输出到 `/new/gsti/`。
+- **Plan 偏离：** 不改 `src/main.tsx`。项目实际架构是每个 HTML 直接挂载对应 App，`main.tsx` 只服务 `new.html`。
+- Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task12 --emptyOutDir` ✅（确认产出 `dist-task12/gsti.html` 和 GSTI chunk）；`bash -n build.sh` ✅。
+- Review：spec + architecture correction ✅。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2164,9 +2171,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 10** — `ResultPage.tsx` 接入 gender prop + `GSTIApp.tsx` 传参
-- [ ] **Task 11** — 创建 `src/GstiApp.tsx` 顶层组件
-- [ ] **Task 12** — 配置 `gsti.html` + `vite.config.ts` + `src/main.tsx` routing + `build.sh`
 - [ ] **Task 13** — `shareCard.ts` 绘制 SWAP 徽章
 - [ ] **Task 14** — `index.html` hub 页加 GSTI 卡
 - [ ] **Task 15** — `src/App.tsx` (SBTI) 加性转版导流卡
