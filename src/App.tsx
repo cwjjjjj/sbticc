@@ -246,6 +246,23 @@ function AppInner() {
           {activeTab === 'home' && (
             <>
               <Hero onStartTest={handleStartTest} totalTests={totalTests} />
+              <a
+                href="/new/gsti"
+                className="block mx-auto max-w-2xl -mt-8 mb-14 px-5 py-4 bg-surface border border-accent/40 rounded-lg hover:border-accent hover:bg-surface-2 transition-colors group"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xs px-2 py-0.5 rounded-md bg-accent text-white font-bold">
+                    NEW
+                  </span>
+                  <span className="text-white font-bold">GSTI · 性转版</span>
+                </div>
+                <p className="text-sm text-muted leading-relaxed">
+                  刚测完本体，再去看看性转后会被扣成什么物种。男生进女性池，女生进男性池，反差到有点冒犯。
+                </p>
+                <span className="text-xs text-accent mt-3 inline-block group-hover:underline">
+                  立即体验 →
+                </span>
+              </a>
               <TypeCardsPreview />
               <ProfilesGallery rankingData={ranking.data} />
               <CompatTable />
