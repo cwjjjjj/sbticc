@@ -1,18 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { css } from '@emotion/react';
-import { TYPE_LIBRARY } from '../data/types';
+import { useTestConfig } from '../data/testConfig';
 
 interface HeroProps {
   onStartTest: () => void;
   totalTests: number;
-}
-
-const TYPE_CODES = Object.keys(TYPE_LIBRARY).filter(c => c !== 'DRUNK' && c !== 'HHHH');
-
-function pickRandomType() {
-  const code = TYPE_CODES[Math.floor(Math.random() * TYPE_CODES.length)];
-  return { code, cn: TYPE_LIBRARY[code].cn };
 }
 
 const fadeInUp = (delay: number) => ({
@@ -30,20 +23,37 @@ const heroGlow = css`
 `;
 
 export default function Hero({ onStartTest, totalTests }: HeroProps) {
-  const [ticker, setTicker] = useState(pickRandomType);
+  const config = useTestConfig();
+  const isGsti = config.id === 'gsti';
+  const typeCodes = useMemo(
+    () => config.normalTypes.map((type) => type.code),
+    [config.normalTypes],
+  );
+
+  const pickRandomType = useCallback(() => {
+    if (typeCodes.length === 0) return { code: config.id.toUpperCase(), cn: config.name };
+    const code = typeCodes[Math.floor(Math.random() * typeCodes.length)];
+    return { code, cn: config.typeLibrary[code]?.cn ?? '' };
+  }, [config, typeCodes]);
+
+  const [ticker, setTicker] = useState(() => pickRandomType());
   const [tickerKey, setTickerKey] = useState(0);
 
   const rotateTicker = useCallback(() => {
     setTicker(pickRandomType());
     setTickerKey(k => k + 1);
-  }, []);
+  }, [pickRandomType]);
 
   useEffect(() => {
+    rotateTicker();
     const id = setInterval(rotateTicker, 4000);
     return () => clearInterval(id);
   }, [rotateTicker]);
 
   const displayTotal = totalTests > 0 ? totalTests.toLocaleString() : '---';
+  const brand = isGsti ? 'GSTI' : 'SBTI';
+  const typeCount = config.normalTypes.length;
+  const questionCount = config.questionCountLabel;
 
   return (
     <section
@@ -73,7 +83,7 @@ export default function Hero({ onStartTest, totalTests }: HeroProps) {
           letterSpacing: '-6px',
         }}
       >
-        SBTI
+        {brand}
       </motion.h1>
 
       {/* Divider */}
@@ -92,7 +102,15 @@ export default function Hero({ onStartTest, totalTests }: HeroProps) {
         {...fadeInUp(0.25)}
         className="text-xl sm:text-2xl text-white/80 mb-3"
       >
-        MBTI 已经过时。<span className="text-accent font-bold">这个会骂你。</span>
+        {isGsti ? (
+          <>
+            性转人格测试。<span className="text-accent font-bold">这个会反串你。</span>
+          </>
+        ) : (
+          <>
+            MBTI 已经过时。<span className="text-accent font-bold">这个会骂你。</span>
+          </>
+        )}
       </motion.p>
 
       {/* Sub */}
@@ -100,7 +118,9 @@ export default function Hero({ onStartTest, totalTests }: HeroProps) {
         {...fadeInUp(0.3)}
         className="text-sm text-muted mb-10"
       >
-        31 道题 / 15 个维度 / 29 种人格 / 每一种都不太客气
+        {isGsti
+          ? `${questionCount} 道题 / 6 个维度 / ${typeCount} 种人格 / 男生进女性池，女生进男性池`
+          : `${questionCount} 道题 / 15 个维度 / ${typeCount} 种人格 / 每一种都不太客气`}
       </motion.p>
 
       {/* Stats row */}
@@ -114,12 +134,12 @@ export default function Hero({ onStartTest, totalTests }: HeroProps) {
         </div>
         <div className="w-px h-8 bg-border" />
         <div className="text-center">
-          <div className="font-mono text-2xl font-extrabold text-white">29</div>
+          <div className="font-mono text-2xl font-extrabold text-white">{typeCount}</div>
           <div className="text-xs text-muted mt-1">种人格</div>
         </div>
         <div className="w-px h-8 bg-border" />
         <div className="text-center">
-          <div className="font-mono text-2xl font-extrabold text-white">31</div>
+          <div className="font-mono text-2xl font-extrabold text-white">{questionCount}</div>
           <div className="text-xs text-muted mt-1">道毒题</div>
         </div>
       </motion.div>

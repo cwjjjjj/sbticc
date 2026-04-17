@@ -34,7 +34,11 @@ export default function Nav({ activeTab, onTabChange, onStartTest }: NavProps) {
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         {/* Brand */}
         <div className="font-mono font-extrabold text-lg tracking-tight text-white select-none">
-          S<span className="text-accent">[B]</span>TI
+          {config.id === 'gsti' ? (
+            <>G<span className="text-accent">S</span>TI</>
+          ) : (
+            <>S<span className="text-accent">[B]</span>TI</>
+          )}
         </div>
 
         {/* Tab buttons - hidden on mobile */}

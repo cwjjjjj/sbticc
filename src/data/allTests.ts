@@ -54,4 +54,11 @@ export const ALL_TESTS: TestLink[] = [
     path: '/new/desire',
     emoji: '🔥',
   },
+  {
+    id: 'gsti',
+    name: 'GSTI 性转人格',
+    tagline: '性转后你是什么鬼',
+    path: '/new/gsti',
+    emoji: '🪞',
+  },
 ];
