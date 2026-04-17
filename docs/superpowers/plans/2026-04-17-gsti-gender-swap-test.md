@@ -2174,6 +2174,14 @@ git push origin main
 - Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task16 --emptyOutDir` ✅。
 - Review：spec ✅；兼容性 ✅。
 
+**Task 17 — 敏感词与合规自检 + Pattern 去重校准** ✅
+- Commit: `3120c04` — `chore(gsti): sensitive word audit and pattern calibration`
+- 改动：新增 `docs/superpowers/plans/2026-04-17-gsti-sensitive-word-checklist.md` 审计清单；`src/data/gsti/types.ts` 的 40 个 normal type pattern 从二元 `A/B` 校准为三档 `L/M/H`，对齐 `gstiConfig.sumToLevel`。
+- Pattern 结果：全量 40/40 unique，男池 20/20 unique，女池 20/20 unique；全量最小 Hamming distance = 2。
+- 敏感词结果：禁用词列表无命中；额外高风险词扫描仅命中中性词组 `生死`，无需改写。
+- Verification：pattern 校验脚本 ✅；`npx tsc --noEmit` ✅；随机 computeResult 自测男/女/不透露三种 gender ✅；`npx vite build --outDir dist-task17 --emptyOutDir` ✅。
+- Review：合规 ✅；匹配分布风险显著降低 ✅。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2199,7 +2207,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 17** — 敏感词审校 **+ Pattern 向量去重校准（升级为显性任务）**
 - [ ] **Task 18** — `npm run build` + preview smoke test
 - [ ] **Task 19** — API record/ranking 对 `gsti` 命名空间验证（理应已支持，因 LQ16 时改造过）
 - [ ] **Task 20** — 部署前清单 + push + 监控
