@@ -2195,6 +2195,12 @@ git push origin main
 - Verification：`node --check api/record.js && node --check api/ranking.js` ✅；脚本比对 `gstiConfig` normal/hidden/fallback 42 个 code 在两个 API 文件中均存在 ✅。
 - **未执行项：** 未调用真实 Upstash，本地没有 API server/凭证；线上/预发环境仍建议补一次 `POST /api/record` + `GET /api/ranking?test=gsti`。
 
+**Task 20 — 部署前本地清单（未 push）** ⚠️
+- Commit: `ee8a0b6` — `fix(gsti): make shared home components config-driven`
+- Preflight 发现并修复：`GstiApp` 复用了硬编码 SBTI 的 `Hero`，`ProfilesGallery` 也固定读取 SBTI 类型库，顶部 `ALL_TESTS` 导航缺 GSTI。已改为配置驱动，GSTI 首页显示 `GSTI`、22 题、40 种 normal type；人格图鉴读取 `gstiConfig.typeLibrary`；导航加入 GSTI。
+- Verification：`npx tsc --noEmit` ✅；`./build.sh` ✅；`dist/new/gsti/index.html` 和 `dist/new/assets/gsti-*.js` 存在 ✅；构建后 bundle 可见 `性转人格测试` / `这个会反串你` / `全部 42 种人格类型` ✅。
+- **未执行项：** 没有 push 到 `main`，也没有 Vercel dashboard / 线上 URL / Upstash 实测。当前分支是 `feat/gsti-gender-swap`，且工作区存在无关 `.playwright-mcp` 删除与未跟踪 monetization 文件；需要人工决定 merge/push 策略。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2220,7 +2226,7 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 20** — 部署前清单 + push + 监控
+- [ ] **Task 20（剩余）** — merge/push 到部署分支 + Vercel/线上/API 手测 + 24h 监控
 
 ---
 
