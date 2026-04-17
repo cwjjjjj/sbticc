@@ -2167,6 +2167,13 @@ git push origin main
 - Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task15 --emptyOutDir` ✅。
 - Review：spec ✅。
 
+**Task 16 — 添加免责声明** ✅
+- Commit: `20e4918` — `feat(gsti): add disclaimer strip on home and result`
+- 改动：`src/GstiApp.tsx` 在 GSTI 首页 Hero 下方新增免责声明条；`src/components/ResultPage.tsx` 在结果页底部条件渲染 genderLocked 专属免责声明。非 GSTI 测试不显示结果页新增文案。
+- **Plan 偏离：** 使用 `rounded-lg`，避免新增 `rounded-xl`。
+- Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task16 --emptyOutDir` ✅。
+- Review：spec ✅；兼容性 ✅。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2192,7 +2199,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 16** — 免责声明（GstiApp Hero 下 + ResultPage 底部）
 - [ ] **Task 17** — 敏感词审校 **+ Pattern 向量去重校准（升级为显性任务）**
 - [ ] **Task 18** — `npm run build` + preview smoke test
 - [ ] **Task 19** — API record/ranking 对 `gsti` 命名空间验证（理应已支持，因 LQ16 时改造过）
