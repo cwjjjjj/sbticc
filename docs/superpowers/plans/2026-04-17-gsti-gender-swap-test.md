@@ -2182,6 +2182,12 @@ git push origin main
 - Verification：pattern 校验脚本 ✅；`npx tsc --noEmit` ✅；随机 computeResult 自测男/女/不透露三种 gender ✅；`npx vite build --outDir dist-task17 --emptyOutDir` ✅。
 - Review：合规 ✅；匹配分布风险显著降低 ✅。
 
+**Task 18 — TypeScript 全量编译 + 生产构建验证** ✅
+- Commit: `3c4e449` — `verify: gsti build and preview HTTP smoke pass`
+- Verification：`npm run build` ✅；`dist/gsti.html` 和 `dist/assets/gsti-*.js` 产物存在 ✅；`npm run preview -- --host 127.0.0.1` 后访问 `/new/gsti.html` 返回 200 ✅；页面 HTML 正确引用 `/new/assets/gsti-*.js` ✅。
+- **路径说明：** 因 Vite `base: '/new/'`，preview 下应访问 `/new/gsti.html`；直接 `/gsti.html` 会被 preview 提示 base path 不匹配。部署脚本 `build.sh` 会把产物整理到 `/new/gsti/index.html`。
+- **未自动化项：** 当前环境没有本地 Playwright 包/浏览器驱动，未做完整点击答题和分享海报视觉 smoke；Task 17 已做 computeResult 随机自测，浏览器手测仍建议部署前补一遍。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2207,7 +2213,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 18** — `npm run build` + preview smoke test
 - [ ] **Task 19** — API record/ranking 对 `gsti` 命名空间验证（理应已支持，因 LQ16 时改造过）
 - [ ] **Task 20** — 部署前清单 + push + 监控
 
