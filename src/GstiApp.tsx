@@ -9,6 +9,7 @@ import ComparePage from './components/ComparePage';
 import ShareModal from './components/ShareModal';
 import RankingPage from './components/RankingPage';
 import ProfilesGallery from './components/ProfilesGallery';
+import CompatTable from './components/CompatTable';
 import GenderPicker from './components/GenderPicker';
 import { useQuiz } from './hooks/useQuiz';
 import { useRanking } from './hooks/useRanking';
@@ -156,6 +157,9 @@ function AppInner() {
           )}
           {activeTab === 'ranking' && (
             <RankingPage ranking={ranking} localHistory={localHistory} onStartTest={handleStartTest} />
+          )}
+          {activeTab === 'compat' && (
+            <div className="pt-28"><CompatTable /></div>
           )}
         </main>
       )}

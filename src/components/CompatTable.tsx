@@ -1,8 +1,8 @@
-import { COMPATIBILITY } from '../data/compatibility';
-import { TYPE_LIBRARY } from '../data/types';
+import { useTestConfig } from '../data/testConfig';
 
 export default function CompatTable() {
-  const entries = Object.entries(COMPATIBILITY);
+  const config = useTestConfig();
+  const entries = Object.entries(config.compatibility);
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12">
@@ -15,11 +15,17 @@ export default function CompatTable() {
         </p>
       </div>
 
+      {entries.length === 0 && (
+        <div className="bg-surface border border-border rounded-xl p-6 text-sm text-muted">
+          当前测试暂未开放人格相性表。
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {entries.map(([key, entry]) => {
           const [codeA, codeB] = key.split('+');
-          const typeA = TYPE_LIBRARY[codeA];
-          const typeB = TYPE_LIBRARY[codeB];
+          const typeA = config.typeLibrary[codeA];
+          const typeB = config.typeLibrary[codeB];
           if (!typeA || !typeB) return null;
 
           const isSoulmate = entry.type === 'soulmate';
