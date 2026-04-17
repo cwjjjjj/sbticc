@@ -2153,6 +2153,13 @@ git push origin main
 - Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task13 --emptyOutDir` ✅。浏览器点击分享的视觉 smoke 留到 Task 18 统一做。
 - Review：spec ✅；兼容性 ✅。
 
+**Task 14 — 首页导航加 GSTI 入口** ✅
+- Commit: `fde5411` — `feat(gsti): add GSTI entry card to hub page`
+- 改动：`index.html` hub 页新增 GSTI 卡片，链接到 `/new/gsti`；首页 title/meta/hero 从 6 个测试更新为 7 个测试；动画 delay 增加第 7 张卡；总参与人数统计数组加入 `gsti`。
+- **Plan 偏离：** 现有 hub 链接使用部署路径 `/new/<test>`，因此没有使用 plan 示例里的 `/gsti.html`。
+- Verification：静态 `rg` 核对 `/new/gsti`、7 个测试文案和 `gsti` 统计项 ✅；`npx vite build --outDir dist-task14 --emptyOutDir` ✅。
+- Review：spec ✅。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2178,7 +2185,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 14** — `index.html` hub 页加 GSTI 卡
 - [ ] **Task 15** — `src/App.tsx` (SBTI) 加性转版导流卡
 - [ ] **Task 16** — 免责声明（GstiApp Hero 下 + ResultPage 底部）
 - [ ] **Task 17** — 敏感词审校 **+ Pattern 向量去重校准（升级为显性任务）**
