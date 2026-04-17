@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
+import DescriptionBlock from './DescriptionBlock';
 import OtherTests from './OtherTests';
+import TypeCard from './TypeCard';
 import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
 
@@ -41,7 +43,6 @@ export default function ResultPage({
   const [debugSelectedType, setDebugSelectedType] = useState('');
   const typeCode = result.finalType.code;
   const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
-  const imgSrc = config.typeImages[typeCode];
 
   // Find soulmates and rivals for this type
   const { soulmates, rivals } = useMemo(() => {
@@ -145,19 +146,7 @@ export default function ResultPage({
             className="flex gap-8 items-center mb-8 flex-col sm:flex-row"
           >
             {/* Poster */}
-            <div className="w-[200px] h-[200px] bg-surface border border-border rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center">
-              {imgSrc ? (
-                <img
-                  src={imgSrc}
-                  alt={typeCode}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="font-mono text-4xl font-bold text-muted">
-                  {typeCode}
-                </span>
-              )}
-            </div>
+            <TypeCard typeCode={typeCode} size="lg" />
 
             {/* Info */}
             <div className="text-center sm:text-left">
