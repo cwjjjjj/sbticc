@@ -1,5 +1,5 @@
 import { PROD_BASE_URL } from '../theme/tokens';
-import type { TestConfig, TypeDef } from '../data/testConfig';
+import type { Gender, TestConfig, TypeDef } from '../data/testConfig';
 import type { ComputeResultOutput } from './matching';
 
 /* ---------- helpers ---------- */
@@ -87,6 +87,12 @@ export async function drawShareCard(
   ctx.fillStyle = '#666';
   ctx.fillText(config.name, pad, y + 18);
   y += 50;
+
+  // GSTI-only: make the swap direction visible on generated posters.
+  if (config.genderLocked) {
+    drawSwapBadge(ctx, pad, y, type.code, config);
+    y += 68;
+  }
 
   // -- Poster image + type info
   const posterSize = 200;
@@ -281,4 +287,55 @@ function roundRect(
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
+}
+
+function drawSwapBadge(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  typeCode: string,
+  config: TestConfig,
+) {
+  const gender = readStoredGender(config);
+  const genderLabel: Record<Gender, string> = {
+    male: '男',
+    female: '女',
+    unspecified: '?',
+  };
+  const poolLabel = typeCode.startsWith('M_')
+    ? '女性物种'
+    : typeCode.startsWith('F_')
+      ? '男性物种'
+      : '无池';
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(220, 38, 38, 0.16)';
+  ctx.strokeStyle = 'rgba(220, 38, 38, 0.72)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, x, y, 330, 52, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 18px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('GSTI · SWAP', x + 18, y + 26);
+
+  ctx.font = '16px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#fca5a5';
+  ctx.fillText(`${genderLabel[gender]} → ${poolLabel}`, x + 170, y + 26);
+  ctx.restore();
+}
+
+function readStoredGender(config: TestConfig): Gender {
+  if (typeof window === 'undefined') return 'unspecified';
+  try {
+    const stored = window.localStorage.getItem(`${config.id}_gender`);
+    if (stored === 'male' || stored === 'female' || stored === 'unspecified') {
+      return stored;
+    }
+  } catch {
+    // Ignore storage failures and fall back to the neutral label.
+  }
+  return 'unspecified';
 }
