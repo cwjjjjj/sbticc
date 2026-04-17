@@ -6,6 +6,8 @@ import OtherTests from './OtherTests';
 import TypeCard from './TypeCard';
 import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
+import GSTIHeroBadge from './GSTIHeroBadge';
+import type { Gender } from '../data/testConfig';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
@@ -20,6 +22,7 @@ interface ResultPageProps {
   onAlreadyPaid?: () => void;
   onDebugReroll?: () => void;
   onDebugForceType?: (code: string) => void;
+  gender?: Gender;
 }
 
 const staggerItem = {
@@ -38,6 +41,7 @@ export default function ResultPage({
   onAlreadyPaid = () => undefined,
   onDebugReroll,
   onDebugForceType,
+  gender,
 }: ResultPageProps) {
   const config = useTestConfig();
   const [debugSelectedType, setDebugSelectedType] = useState('');
@@ -137,6 +141,14 @@ export default function ResultPage({
                 </button>
               </div>
             </motion.div>
+          )}
+
+          {config.genderLocked && gender && (
+            <GSTIHeroBadge
+              gender={gender}
+              typeCode={result.finalType.code}
+              typeCn={result.finalType.cn}
+            />
           )}
 
           {/* 1. Result top */}
