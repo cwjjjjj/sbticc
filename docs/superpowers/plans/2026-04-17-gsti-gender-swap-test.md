@@ -2051,7 +2051,7 @@ git push origin main
 
 - [ ] 40 个类型的 Pattern 向量精细校准（首版有几处 pattern 重复）
 - [ ] 自定义 typeImages（插画师 or Midjourney 产出 40 张卡）
-- [ ] compatibility table：男池 × 女池的"异性反串相爱/相杀"CP 表
+- [x] compatibility table：男池 × 女池的"异性反串相爱/相杀"CP 表
 - [ ] GSTI 独立子域名（若数据表现好）
 - [ ] 基于 GSTI 冷启动结果反哺 FPI / FSI / MPI 的设计节奏
 
@@ -2205,6 +2205,11 @@ git push origin main
 - **Vercel rewrite 修复：** 初次部署后 `/new/gsti` 被 catch-all rewrite 到 SBTI 主站，已在 `vercel.json` 增加 `/new/gsti` 和 `/new/gsti/(.*)` 两条 rewrite 后重新部署。
 - 线上浏览器 smoke：使用临时 Playwright + 系统 Chrome 跑通男 / 女 / 不透露三条完整路径 ✅。男生结果 `M_WHIT`（M_ 池）✅；女生结果 `F_TOOL`（F_ 池）✅；不透露结果 `UNDEF` ✅；三条路径均显示 GSTIHeroBadge 和免责声明 ✅；分享图自然尺寸 `840×790`，canvas 捕获到 `GSTI · SWAP` 和对向池文案 ✅；桌面排行榜 tab 渲染正常且顶部导航含 GSTI ✅。
 - **剩余人工项：** Vercel dashboard 观察构建日志、上线后 24h 监控。
+
+**Post-launch improvement — GSTI compatibility table** ✅
+- Commit: `55b2240` — `feat(gsti): add config-driven compatibility table`
+- 改动：`CompatTable` 改为读取当前 `TestConfig` 的 `compatibility` / `typeLibrary`，避免固定使用 SBTI 数据；`GstiApp` 的 `compat` tab 接入 `CompatTable`；`src/data/gsti/compatibility.ts` 新增 20 组男池 × 女池 CP（10 组 soulmate + 10 组 rival）和双向查询逻辑。
+- Verification：`npx tsc --noEmit` ✅；`bash build.sh` ✅；已 push 到 `origin/main` 触发部署；线上 `https://sbti.jiligulu.xyz/new/gsti` 引用新 GSTI bundle ✅；Playwright + 系统 Chrome 点击"人格相性"tab 后标题为 `人格相性表`、卡片数 20、相爱/相杀示例文案可见、无 placeholder、无 4xx/5xx/pageerror ✅。
 
 ---
 
