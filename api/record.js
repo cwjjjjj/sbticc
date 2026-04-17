@@ -44,6 +44,12 @@ const VALID_TYPES_BY_TEST = {
     'F_ACGR','F_WILD','F_DARK','F_BOSS','F_KBGR','F_DADG','F_PART','F_BRIC',
     'UNDEF','HWDP'
   ]),
+  'fpi': new Set([
+    'FILTR','9PIC!','EMO-R','FLEXR','CKIN!','3DAYS','SUBMR','LIKER',
+    'GHOST','COPYR','SELLR','BABY!','FURRY','MUKBG','TRVL9','BLOCK',
+    'REDBK','JUDGE','QSLIF','NPC-F',
+    '0POST','FEED?'
+  ]),
 };
 
 export default async function handler(req, res) {
