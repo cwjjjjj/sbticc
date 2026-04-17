@@ -2160,6 +2160,13 @@ git push origin main
 - Verification：静态 `rg` 核对 `/new/gsti`、7 个测试文案和 `gsti` 统计项 ✅；`npx vite build --outDir dist-task14 --emptyOutDir` ✅。
 - Review：spec ✅。
 
+**Task 15 — SBTI 主站加性转版入口** ✅
+- Commit: `f8ccd9c` — `feat(sbti): add GSTI cross-promo card to main site`
+- 改动：`src/App.tsx` 在 SBTI 首页 Hero 下方新增 GSTI 导流卡，链接到 `/new/gsti`。入口仅出现在 SBTI 主站 home tab，不影响 quiz/result/compare overlay。
+- **Plan 偏离：** 使用部署路径 `/new/gsti`；卡片圆角用 `rounded-lg`，避免新增 `rounded-2xl`。
+- Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task15 --emptyOutDir` ✅。
+- Review：spec ✅。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2185,7 +2192,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 15** — `src/App.tsx` (SBTI) 加性转版导流卡
 - [ ] **Task 16** — 免责声明（GstiApp Hero 下 + ResultPage 底部）
 - [ ] **Task 17** — 敏感词审校 **+ Pattern 向量去重校准（升级为显性任务）**
 - [ ] **Task 18** — `npm run build` + preview smoke test
