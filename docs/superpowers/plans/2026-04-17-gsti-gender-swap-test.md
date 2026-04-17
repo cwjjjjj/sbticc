@@ -2203,7 +2203,8 @@ git push origin main
 - 部署：已 push `feat/gsti-gender-swap` 到 `origin/main`（`189547c..52babaa`，随后 `52babaa..154b731`）。
 - 线上验证：`https://sbti.jiligulu.xyz/new/gsti` 返回 GSTI HTML，引用 `/new/assets/gsti-rL4pnFyt.js` ✅；`GET /api/ranking?test=gsti` 返回 GSTI mock ranking ✅；`POST /api/record {"type":"M_GOLD","test":"gsti"}` 返回 `ok:true,total:1` ✅；`GET /api/ranking?test=gsti&real=1` 返回 `M_GOLD:1` ✅。
 - **Vercel rewrite 修复：** 初次部署后 `/new/gsti` 被 catch-all rewrite 到 SBTI 主站，已在 `vercel.json` 增加 `/new/gsti` 和 `/new/gsti/(.*)` 两条 rewrite 后重新部署。
-- **剩余人工项：** Vercel dashboard 观察构建日志、浏览器手动完整答题/分享海报视觉 smoke、上线后 24h 监控。
+- 线上浏览器 smoke：使用临时 Playwright + 系统 Chrome 跑通男 / 女 / 不透露三条完整路径 ✅。男生结果 `M_WHIT`（M_ 池）✅；女生结果 `F_TOOL`（F_ 池）✅；不透露结果 `UNDEF` ✅；三条路径均显示 GSTIHeroBadge 和免责声明 ✅；分享图自然尺寸 `840×790`，canvas 捕获到 `GSTI · SWAP` 和对向池文案 ✅；桌面排行榜 tab 渲染正常且顶部导航含 GSTI ✅。
+- **剩余人工项：** Vercel dashboard 观察构建日志、上线后 24h 监控。
 
 ---
 
@@ -2230,7 +2231,7 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **上线后人工项** — Vercel dashboard 构建日志 + 浏览器完整流程/分享海报视觉 smoke + 24h 监控
+- [ ] **上线后人工项** — Vercel dashboard 构建日志 + 24h 监控
 
 ---
 
