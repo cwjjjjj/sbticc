@@ -1,5 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
+export type Gender = 'male' | 'female' | 'unspecified';
+
 export interface DimensionInfo {
   name: string;
   model: string;
@@ -93,6 +95,14 @@ export interface TestConfig {
   // Display text
   dimSectionTitle: string;
   questionCountLabel: string;
+
+  // GSTI-only: 性别锁定支持
+  genderLocked?: boolean;                  // true → UI 触发性别选择器
+  typePoolByGender?: {                      // 按性别过滤匹配的类型池
+    male: string[];                         // 男性用户可匹配的类型代号
+    female: string[];                       // 女性用户可匹配的类型代号
+    both: string[];                         // 选"不透露"时，可匹配的类型代号（通常 = male + female）
+  };
 }
 
 const TestConfigContext = createContext<TestConfig | null>(null);
