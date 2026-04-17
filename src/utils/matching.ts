@@ -1,4 +1,4 @@
-import type { TestConfig, TypeDef } from '../data/testConfig';
+import type { TestConfig, TypeDef, Gender } from '../data/testConfig';
 
 /* ---------- helpers ---------- */
 
@@ -45,7 +45,7 @@ export function computeResult(
   hiddenTriggered: boolean,
   config: TestConfig,
   debugForceType?: string | null,
-  gender?: 'male' | 'female' | 'unspecified',
+  gender?: Gender,
 ): ComputeResultOutput {
   const { dimensionOrder, dimensionMeta, questions, typeLibrary, normalTypes, maxDistance, fallbackTypeCode, hiddenTypeCode, similarityThreshold } = config;
   const dimCount = dimensionOrder.length;
@@ -84,13 +84,19 @@ export function computeResult(
 
   // 4. Apply pool filter if genderLocked
   let pool = normalTypes;
-  if (config.genderLocked && config.typePoolByGender && gender) {
+  if (config.genderLocked && gender) {
+    if (!config.typePoolByGender) {
+      throw new Error('[matching] genderLocked=true but typePoolByGender is missing in config');
+    }
     const allowedCodes = new Set(
       gender === 'male' ? config.typePoolByGender.male :
       gender === 'female' ? config.typePoolByGender.female :
       config.typePoolByGender.both
     );
     pool = normalTypes.filter(t => allowedCodes.has(t.code));
+    if (pool.length === 0) {
+      throw new Error(`[matching] pool is empty for gender=${gender} — check that typePoolByGender codes match NORMAL_TYPES codes`);
+    }
   }
 
   // 5. Compare against each pool type pattern
