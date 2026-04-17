@@ -1,8 +1,67 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import type { Question } from '../data/testConfig';
 import { useTestConfig } from '../data/testConfig';
 import { buildShuffledQuestions, getVisibleQuestions } from '../utils/quiz';
 import { computeResult, type ComputeResultOutput } from '../utils/matching';
+
+/** How long saved progress remains valid (2 hours). */
+const PROGRESS_TTL_MS = 2 * 60 * 60 * 1000;
+
+interface SavedProgress {
+  answers: Record<string, number | number[]>;
+  currentQ: number;
+  shuffledQuestions: Question[];
+  timestamp: number;
+}
+
+function getStorageKey(testId: string): string {
+  return `${testId}_quiz_progress`;
+}
+
+function loadProgress(testId: string): SavedProgress | null {
+  try {
+    const raw = localStorage.getItem(getStorageKey(testId));
+    if (!raw) return null;
+    const parsed: SavedProgress = JSON.parse(raw);
+    if (
+      typeof parsed.timestamp !== 'number' ||
+      Date.now() - parsed.timestamp > PROGRESS_TTL_MS
+    ) {
+      localStorage.removeItem(getStorageKey(testId));
+      return null;
+    }
+    // Basic shape validation
+    if (
+      !parsed.answers ||
+      typeof parsed.currentQ !== 'number' ||
+      !Array.isArray(parsed.shuffledQuestions)
+    ) {
+      localStorage.removeItem(getStorageKey(testId));
+      return null;
+    }
+    return parsed;
+  } catch {
+    // Corrupted data — discard
+    try { localStorage.removeItem(getStorageKey(testId)); } catch { /* ignore */ }
+    return null;
+  }
+}
+
+function saveProgress(testId: string, data: SavedProgress): void {
+  try {
+    localStorage.setItem(getStorageKey(testId), JSON.stringify(data));
+  } catch {
+    // Storage full or unavailable — silently ignore
+  }
+}
+
+function clearProgress(testId: string): void {
+  try {
+    localStorage.removeItem(getStorageKey(testId));
+  } catch {
+    // ignore
+  }
+}
 
 export interface UseQuizReturn {
   /* state */
@@ -11,6 +70,7 @@ export interface UseQuizReturn {
   currentQ: number;
   previewMode: boolean;
   debugForceType: string | null;
+  hasSavedProgress: boolean;
 
   /* derived */
   visibleQuestions: Question[];
@@ -37,9 +97,28 @@ export function useQuiz(): UseQuizReturn {
   const [previewMode, setPreviewMode] = useState(false);
   const [debugForceType, setDebugForceType] = useState<string | null>(null);
 
+  // Whether there is valid saved progress the user could resume
+  const [hasSavedProgress, setHasSavedProgress] = useState<boolean>(
+    () => loadProgress(config.id) !== null,
+  );
+
+  // Track whether quiz is active so we only auto-save while in progress
+  const quizActiveRef = useRef(false);
+
   // Love test: gate and trigger are the same question (ex_gate, value 3)
   // SBTI: gate is drink_gate_q1 (value 3), trigger is drink_gate_q2 (value 2)
   const hasFollowUp = config.gateQuestionId !== config.hiddenTriggerQuestionId;
+
+  /* Auto-save progress whenever answers, currentQ, or shuffledQuestions change */
+  useEffect(() => {
+    if (!quizActiveRef.current || shuffledQuestions.length === 0) return;
+    saveProgress(config.id, {
+      answers,
+      currentQ,
+      shuffledQuestions,
+      timestamp: Date.now(),
+    });
+  }, [answers, currentQ, shuffledQuestions, config.id]);
 
   /* derived */
   const visibleQuestions = useMemo(
@@ -69,12 +148,24 @@ export function useQuiz(): UseQuizReturn {
   /* actions */
   const startQuiz = useCallback((preview = false) => {
     setPreviewMode(preview);
-    setAnswers({});
-    setCurrentQ(0);
     setDebugForceType(null);
-    setShuffledQuestions(
-      buildShuffledQuestions(config.questions, config.specialQuestions[0]),
-    );
+
+    // Attempt to restore saved progress
+    const saved = loadProgress(config.id);
+    if (saved && !preview) {
+      setAnswers(saved.answers);
+      setCurrentQ(saved.currentQ);
+      setShuffledQuestions(saved.shuffledQuestions);
+    } else {
+      setAnswers({});
+      setCurrentQ(0);
+      setShuffledQuestions(
+        buildShuffledQuestions(config.questions, config.specialQuestions[0]),
+      );
+    }
+
+    quizActiveRef.current = true;
+    setHasSavedProgress(false);
   }, [config]);
 
   const answer = useCallback((qId: string, value: number | number[]) => {
@@ -100,7 +191,13 @@ export function useQuiz(): UseQuizReturn {
   }, []);
 
   const getResult = useCallback(
-    (): ComputeResultOutput => computeResult(answers, hiddenTriggered, config, debugForceType),
+    (): ComputeResultOutput => {
+      const result = computeResult(answers, hiddenTriggered, config, debugForceType);
+      // Quiz complete — clear saved progress
+      clearProgress(config.id);
+      quizActiveRef.current = false;
+      return result;
+    },
     [answers, hiddenTriggered, config, debugForceType],
   );
 
@@ -110,6 +207,7 @@ export function useQuiz(): UseQuizReturn {
     currentQ,
     previewMode,
     debugForceType,
+    hasSavedProgress,
 
     visibleQuestions,
     totalQuestions,
