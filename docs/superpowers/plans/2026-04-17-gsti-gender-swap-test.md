@@ -2146,6 +2146,13 @@ git push origin main
 - Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task12 --emptyOutDir` ✅（确认产出 `dist-task12/gsti.html` 和 GSTI chunk）；`bash -n build.sh` ✅。
 - Review：spec + architecture correction ✅。
 
+**Task 13 — 分享海报增加反差视觉** ✅
+- Commit: `69c5268` — `feat(gsti): render SWAP badge on share card`
+- 改动：`src/utils/shareCard.ts` 在 `config.genderLocked` 时绘制 GSTI 专属红色 `GSTI · SWAP` 徽章；从 `${config.id}_gender` localStorage 读取性别标签，并按 `M_`/`F_` 类型前缀显示对向池（女性物种 / 男性物种）。非 genderLocked 测试不渲染该徽章。
+- **Plan 偏离：** 为避免和原品牌 header 重叠，徽章绘制在品牌行下方、海报头像/类型信息之前，而不是固定覆盖左上角绝对坐标。
+- Verification：`npx tsc --noEmit` ✅；`npx vite build --outDir dist-task13 --emptyOutDir` ✅。浏览器点击分享的视觉 smoke 留到 Task 18 统一做。
+- Review：spec ✅；兼容性 ✅。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2171,7 +2178,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 13** — `shareCard.ts` 绘制 SWAP 徽章
 - [ ] **Task 14** — `index.html` hub 页加 GSTI 卡
 - [ ] **Task 15** — `src/App.tsx` (SBTI) 加性转版导流卡
 - [ ] **Task 16** — 免责声明（GstiApp Hero 下 + ResultPage 底部）
