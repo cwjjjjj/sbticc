@@ -16,6 +16,7 @@ export default defineConfig({
         cyber: 'cyber.html',
         desire: 'desire.html',
         gsti: 'gsti.html',
+        fpi: 'fpi.html',
       },
     },
   },
