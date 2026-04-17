@@ -340,6 +340,18 @@ export default function ResultPage({
             </button>
           </motion.div>
 
+          {config.genderLocked && (
+            <motion.div
+              variants={staggerItem}
+              transition={{ duration: 0.4 }}
+              className="mt-8 px-5 py-4 bg-surface/40 border border-border/50 rounded-lg text-center"
+            >
+              <p className="text-xs text-muted leading-relaxed">
+                这只是个反串梗，你的人格不由任何测试决定，也不由任何性别标签决定。
+              </p>
+            </motion.div>
+          )}
+
           {/* Bottom spacer */}
           <div className="h-12" />
         </motion.div>

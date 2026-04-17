@@ -142,6 +142,12 @@ function AppInner() {
           {activeTab === 'home' && (
             <>
               <Hero onStartTest={handleStartTest} totalTests={totalTests} />
+              <div className="mx-auto max-w-2xl -mt-8 mb-14 px-5 py-3 bg-surface/40 border border-border/50 rounded-lg">
+                <p className="text-xs text-muted leading-relaxed text-center">
+                  <strong className="text-white">免责：</strong>
+                  GSTI 是对性别标签的戏谑反串，所有类型描述都是娱乐段子，不构成对任何人的真实评价。笑一下就过，别拿它给自己或别人定性。
+                </p>
+              </div>
               <ProfilesGallery rankingData={ranking.data} />
             </>
           )}
