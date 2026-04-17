@@ -46,6 +46,12 @@ const MOCK_TYPES_BY_TEST = {
     'F_ACGR','F_WILD','F_DARK','F_BOSS','F_KBGR','F_DADG','F_PART','F_BRIC',
     'UNDEF','HWDP',
   ],
+  fpi: [
+    'FILTR','9PIC!','EMO-R','FLEXR','CKIN!','3DAYS','SUBMR','LIKER',
+    'GHOST','COPYR','SELLR','BABY!','FURRY','MUKBG','TRVL9','BLOCK',
+    'REDBK','JUDGE','QSLIF','NPC-F',
+    '0POST','FEED?',
+  ],
 };
 
 const HIDDEN_TYPE_BY_TEST = {
@@ -56,6 +62,7 @@ const HIDDEN_TYPE_BY_TEST = {
   cyber: 'BOT',
   desire: 'XXX',
   gsti: 'UNDEF',
+  fpi: '0POST',
 };
 
 function hashString(input) {
