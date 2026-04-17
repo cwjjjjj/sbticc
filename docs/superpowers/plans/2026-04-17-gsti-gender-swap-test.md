@@ -2134,6 +2134,33 @@ git push origin main
 - 对其他 6 个 App 无破坏性影响（它们不传 `gender`，徽章不渲染）。
 - Review：spec ✅。
 
+**Task 11 — 创建 GstiApp 顶层组件** ✅
+- Commit: `f858f62` — `feat(gsti): add GstiApp top-level component with GenderPicker flow`
+- 改动：新建 `src/GstiApp.tsx` 217 行。顶层 App：`home → picker → quiz → interstitial → result → compare` 流程。`handleStartTest` 在 `gender === 'unspecified'` 时先跳 picker；`handleRestart` 回到 picker 让用户重选性别。`<ResultPage gender={quiz.gender} ...>` 正确传入 prop（implementer 手动补上，plan 原代码块漏了）。默认导出用 `TestConfigProvider config={gstiConfig}` 包裹。
+- Review：spec + quality ✅。
+
+---
+
+### 关键架构纠正（Task 12 前必看）
+
+**多入口机制真相：** 项目**不用** `main.tsx` 做路由。Vite 的 `rollupOptions.input` 指定多 HTML 入口，**每个 HTML 直接内联 `<script type="module">` import 对应的 App 组件**。`main.tsx` 只服务于 `new.html`（SBTI 主站）。
+
+- 参考：`cyber.html` 底部：
+  ```html
+  <script type="module">
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+    import CyberApp from './src/CyberApp.tsx'
+    import './src/index.css'
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      React.createElement(React.StrictMode, null,
+        React.createElement(CyberApp)
+      )
+    )
+  </script>
+  ```
+- **因此 Plan Task 12 的 Step 2（"修改 main.tsx 按 query param 挂载不同 App"）作废。** gsti.html 按 cyber.html 的风格内联 script 即可。main.tsx 不改。
+
 ---
 
 ### 待执行（按顺序推进）
