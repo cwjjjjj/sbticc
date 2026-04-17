@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>朋友圈人设诊断 — 你在朋友圈是什么物种 | 免费测试</title>
+  <meta name="description" content="24 道灵魂拷问，6 个维度，20 种朋友圈物种。九宫格暴君 vs 三天可见教主 vs 朋友圈坟墓，测测你的 Feed Persona。" />
+  <meta name="keywords" content="朋友圈测试,人设测试,社交媒体测试,FPI,朋友圈物种" />
+  <link rel="canonical" href="https://sbti.jiligulu.xyz/new/fpi" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="朋友圈人设诊断 — 你在朋友圈是什么物种" />
+  <meta property="og:description" content="你不是在记录生活，你是在给生活做商业精修。测出你的朋友圈物种。" />
+  <meta property="og:url" content="https://sbti.jiligulu.xyz/new/fpi" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="朋友圈人设诊断 — 你在朋友圈是什么物种" />
+  <meta name="twitter:description" content="你不是在记录生活，你是在给生活做商业精修。测出你的朋友圈物种。" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Quiz",
+    "name": "FPI 朋友圈人设诊断",
+    "description": "24 题 6 维度，20 种朋友圈物种，测出你的 Feed Persona。",
+    "educationalLevel": "entertainment"
+  }
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+    import FpiApp from './src/FpiApp.tsx'
+    import './src/index.css'
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      React.createElement(React.StrictMode, null,
+        React.createElement(FpiApp)
+      )
+    )
+  </script>
+</body>
+</html>
