@@ -2062,3 +2062,109 @@ git push origin main
 | 日期 | 变更 | 作者 |
 |------|------|------|
 | 2026-04-17 | v1 初版 | cwjjjjj + Claude |
+| 2026-04-17 | 开始执行：Subagent-Driven 模式，feature branch `feat/gsti-gender-swap` | Claude |
+
+---
+
+## 执行进度日志（Execution Log）
+
+> **目的：** 每完成一个 task 追加一条，记录 commit SHA、review 发现、关键决策，方便中途切换 AI 或开发者接手。
+>
+> **接手指南：**
+> 1. `git checkout feat/gsti-gender-swap`
+> 2. `git log --oneline` 看到的最新 commit 就是进度位置
+> 3. 在本"执行进度日志"中找到对应 task，看下一个 `[PENDING]` 的 task 编号
+> 4. 按 plan 里的 Task 描述（Task N）继续实现
+
+### 已完成
+
+**Task 1 — 扩展 TestConfig 类型支持性别锁定** ✅
+- Commit: `f038535` — `feat(gsti): extend TestConfig with genderLocked + typePoolByGender`
+- 改动：`src/data/testConfig.tsx` +10 行。新增可选字段 `genderLocked?: boolean` 和 `typePoolByGender?: { male, female, both }`；导出 `Gender = 'male' | 'female' | 'unspecified'`。
+- Review 结论：spec ✅；quality 建议（非阻塞）日后考虑把 `both` 键重命名为 `unspecified` 以对齐 `Gender` 类型——未采纳，Task 5 仍用 `both`。
+
+**Task 2 — 创建 GSTI 数据目录骨架** ✅
+- Commit: `9177aa5` — `feat(gsti): add dimensions/typeImages/compatibility stubs`
+- 改动：新建 `src/data/gsti/dimensions.ts`（6 维度 + DIM_EXPLANATIONS）、`typeImages.ts`（空 Record 占位）、`compatibility.ts`（空 + stub getCompatibility）。
+- Review：spec + quality 合并 ✅。
+
+**Task 3 — 写 GSTI 题目库（22 题）** ✅
+- Commit: `3823c94` — `feat(gsti): add 22 neutral-scenario questions covering 6 dimensions`
+- 改动：新建 `src/data/gsti/questions.ts` 228 行。22 主题目（D1×3, D2×4, D3×4, D4×4, D5×4, D6×3）+ 1 gate 题 `gsti_gate`。
+- Review：✅。
+
+**Task 4 — 写 GSTI 类型库（40+1+1）** ✅
+- Commit: `6812ec1` — `feat(gsti): add 40 swap-gender types + UNDEF hidden + HWDP fallback`
+- 改动：新建 `src/data/gsti/types.ts` 306 行。TYPE_LIBRARY 42 条（20 M_ + 20 F_ + UNDEF + HWDP），NORMAL_TYPES 40，TYPE_RARITY 42，MALE_POOL_CODES/FEMALE_POOL_CODES 数组。
+- **已知遗留债**：40 个 pattern 只有 **22 个 unique**（约 45% 重复）。女池重复尤其严重：ABBBBA 和 AABBBA 各有 4-5 个类型共享。需要在 **Task 17 做 pattern 去重校准**，不然某些类型永远不会被匹到。
+- Review：spec ✅（Task 17 负责修）。
+
+**Task 5 — 组装 GSTI TestConfig** ✅
+- Commit: `24c6b27` — `feat(gsti): assemble TestConfig with gender-locked pool support`
+- 改动：新建 `src/data/gsti/config.ts` 56 行。`gstiConfig.id='gsti'`, `basePath='/new/gsti'`, `apiTestParam='gsti'`, `gateQuestionId='gsti_gate'`, `hiddenTriggerValue=4`, `maxDistance=12`, `similarityThreshold=55`, `genderLocked=true`, `typePoolByGender={male,female,both}`.
+- `sumToLevel`: L≤6, M=7-10, H≥11。
+- Review：✅。
+
+**Task 6 — 扩展 matching.ts 支持按性别池过滤** ✅
+- Commit 1: `f7535e7` — `feat(matching): add optional gender param + typePoolByGender filter`
+- Commit 2 (review fix): `5d1097a` — `fix(matching): throw on genderLocked misconfiguration + use Gender alias`
+- 改动：`src/utils/matching.ts` +24 / -6（合计两次 commit）。`computeResult` 新增 5th 参数 `gender?: Gender`。Pool filter 在 scoring loop 之前，guard 是 `config.genderLocked && gender` → 存在时强制检查 `typePoolByGender` 存在（否则 throw）、过滤后 pool 非空（否则 throw）。13 个现有 caller 都只传 4 参，走 fallback 分支，向后兼容。
+- Review：spec ✅；quality reviewer 提出 Important 建议（silent fallback on misconfig → throw; Gender alias 单源），已采纳并在 `5d1097a` 修复。
+
+**Task 7 — 扩展 useQuiz hook 支持 gender state** ✅
+- Commit: `36142f7` — `feat(useQuiz): add gender state with localStorage persistence`
+- 改动：`src/hooks/useQuiz.ts` +31 / -3。新增 `gender`/`setGender` state，初始从 `localStorage[${config.id}_gender]` 读取，`setGender` 同步写回。`getResult` 把 `gender` 传给 `computeResult`（deps 里加了）。`UseQuizReturn` 接口+返回对象都加了 `gender/setGender`。SSR-safe（`typeof window` 守卫 + try/catch）。
+- 对其他 6 个 App 无破坏性影响——它们不解构 `gender/setGender`。
+- Review：implementer 的 prompt 里已经基于 actual file content 精确指导，跳过独立 spec review。
+
+---
+
+### 待执行（按顺序推进）
+
+- [ ] **Task 8** — 创建 `src/components/GenderPicker.tsx`
+- [ ] **Task 9** — 创建 `src/components/GSTIHeroBadge.tsx`
+- [ ] **Task 10** — `ResultPage.tsx` 接入 gender prop + `GSTIApp.tsx` 传参
+- [ ] **Task 11** — 创建 `src/GstiApp.tsx` 顶层组件
+- [ ] **Task 12** — 配置 `gsti.html` + `vite.config.ts` + `src/main.tsx` routing + `build.sh`
+- [ ] **Task 13** — `shareCard.ts` 绘制 SWAP 徽章
+- [ ] **Task 14** — `index.html` hub 页加 GSTI 卡
+- [ ] **Task 15** — `src/App.tsx` (SBTI) 加性转版导流卡
+- [ ] **Task 16** — 免责声明（GstiApp Hero 下 + ResultPage 底部）
+- [ ] **Task 17** — 敏感词审校 **+ Pattern 向量去重校准（升级为显性任务）**
+- [ ] **Task 18** — `npm run build` + preview smoke test
+- [ ] **Task 19** — API record/ranking 对 `gsti` 命名空间验证（理应已支持，因 LQ16 时改造过）
+- [ ] **Task 20** — 部署前清单 + push + 监控
+
+---
+
+### 关键决策记录
+
+- **Pattern 碰撞处理**：Task 4 产出的 40 pattern 有 18 个重复，已升级为 Task 17 的**显性任务**（原计划是"隐性要求"）。上线前必须去重，否则多个类型永远匹不到。建议每个 pattern 与同池其他 pattern 至少相差 2 维。
+- **`typePoolByGender.both` 命名**：Task 1 review 建议改名为 `unspecified` 对齐 Gender 类型，未采纳（成本 vs 收益不划算，Task 5/6 已定型）。
+- **尺度**：中度冲击已锁定，40 个类型 desc 均用性转反差+自嘲，避开 PUA/拳师/北京小灵等极端词；对称设计（男女池烈度等价）。Task 17 还要做一次人工对称性审计。
+- **TDD**：项目无测试框架，验证方式为 `npx tsc --noEmit` + Task 18 的手动 smoke。不强求写 test file。
+- **Review 策略**：小/机械任务（Task 2/3/4/5）用合并精简 reviewer；架构/集成任务（Task 6/7/10/11/12/13）走完整两阶段 review。
+
+---
+
+### 续接指令（给下一个 AI 或开发者）
+
+```
+# 1. 切到开发分支
+cd /Users/jike/Desktop/Developer/sbticc
+git checkout feat/gsti-gender-swap
+git log --oneline | head -15
+
+# 2. 确认当前 HEAD 是最新的已完成 task commit（比对本 md 的"已完成"区）
+
+# 3. 从下一个 "[ ] Task N" 开始。Plan 里每个 task 有完整代码块、verification、commit message。
+#    打开 docs/superpowers/plans/2026-04-17-gsti-gender-swap-test.md 找到对应 task。
+
+# 4. 完成后：
+#    - 追加"已完成"条目到本 md（commit SHA、改动摘要、review 发现）
+#    - 更新"待执行"清单去掉已完成项
+#    - 在"关键决策记录"记录新决策（如果有）
+
+# 5. 推荐模式：Subagent-Driven Development（或手动执行）。
+#    参考 skill: superpowers:subagent-driven-development
+```
