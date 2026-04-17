@@ -45,6 +45,7 @@ export function computeResult(
   hiddenTriggered: boolean,
   config: TestConfig,
   debugForceType?: string | null,
+  gender?: 'male' | 'female' | 'unspecified',
 ): ComputeResultOutput {
   const { dimensionOrder, dimensionMeta, questions, typeLibrary, normalTypes, maxDistance, fallbackTypeCode, hiddenTypeCode, similarityThreshold } = config;
   const dimCount = dimensionOrder.length;
@@ -81,8 +82,19 @@ export function computeResult(
   // 3. Build user vector
   const userVector = dimensionOrder.map(dim => levelNum(levels[dim]));
 
-  // 4. Compare against each NORMAL_TYPE pattern
-  const ranked: RankedType[] = normalTypes.map(type => {
+  // 4. Apply pool filter if genderLocked
+  let pool = normalTypes;
+  if (config.genderLocked && config.typePoolByGender && gender) {
+    const allowedCodes = new Set(
+      gender === 'male' ? config.typePoolByGender.male :
+      gender === 'female' ? config.typePoolByGender.female :
+      config.typePoolByGender.both
+    );
+    pool = normalTypes.filter(t => allowedCodes.has(t.code));
+  }
+
+  // 5. Compare against each pool type pattern
+  const ranked: RankedType[] = pool.map(type => {
     const vector = parsePattern(type.pattern).map(levelNum);
     let distance = 0;
     let exact = 0;
@@ -105,7 +117,7 @@ export function computeResult(
     return b.similarity - a.similarity;
   });
 
-  // 5. Pick best and apply special cases
+  // 6. Pick best and apply special cases
   const bestNormal = ranked[0];
 
   let finalType: RankedType | TypeDef;
