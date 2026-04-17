@@ -173,9 +173,7 @@ export default function ResultPage({
               <span className="w-[3px] h-4 bg-accent rounded-sm" />
               该人格的简单解读
             </h3>
-            <p className="text-sm text-[#aaa] leading-relaxed">
-              {typeDef.desc}
-            </p>
+            <DescriptionBlock desc={typeDef.desc} />
           </motion.div>
 
           {/* 3. Dimensions */}
