@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
 import DescriptionBlock from './DescriptionBlock';
@@ -23,6 +24,8 @@ interface ResultPageProps {
   onDebugReroll?: () => void;
   onDebugForceType?: (code: string) => void;
   gender?: Gender;
+  /** Optional test-specific badge shown above the main type title (e.g. FPI feed stickers). */
+  testBadge?: ReactNode;
 }
 
 const staggerItem = {
@@ -42,6 +45,7 @@ export default function ResultPage({
   onDebugReroll,
   onDebugForceType,
   gender,
+  testBadge,
 }: ResultPageProps) {
   const config = useTestConfig();
   const [debugSelectedType, setDebugSelectedType] = useState('');
@@ -143,6 +147,10 @@ export default function ResultPage({
             </motion.div>
           )}
 
+          {/* FPI 专属贴纸（如果传入） — 与 GSTIHeroBadge 并列，但只渲染一个 */}
+          {testBadge && !config.genderLocked && testBadge}
+
+          {/* GSTI HeroBadge（现有代码，保持不变） */}
           {config.genderLocked && gender && (
             <GSTIHeroBadge
               gender={gender}
