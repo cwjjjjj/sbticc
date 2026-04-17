@@ -2127,6 +2127,13 @@ git push origin main
 - 改动：新建 `src/components/GSTIHeroBadge.tsx` 40 行。结果页顶部小徽章，显示 "GSTI · SWAP | [性别标签] → [池标签]"。Pool detection: `M_` 前缀 → '女性物种'，`F_` 前缀 → '男性物种'，其他 → '无池'。
 - Review：spec ✅。
 
+**Task 10 — ResultPage 条件渲染徽章** ✅
+- Commit: `abcb20a` — `feat(gsti): render HeroBadge on ResultPage via optional gender prop`
+- 改动：`src/components/ResultPage.tsx` +12 行。新增 `gender?: Gender` prop（可选），在结果页类型大名渲染之前（line 146-152）条件渲染 `GSTIHeroBadge`，守卫为 `config.genderLocked && gender`。
+- **Plan 偏离：** plan 原本 Task 10 Step 3 要改 GstiApp.tsx 传 `gender={quiz.gender}` prop；因 GstiApp.tsx 在 Task 11 才创建，推迟到 Task 11 的 GstiApp 初版代码里直接加入 `gender={quiz.gender}`。
+- 对其他 6 个 App 无破坏性影响（它们不传 `gender`，徽章不渲染）。
+- Review：spec ✅。
+
 ---
 
 ### 待执行（按顺序推进）
