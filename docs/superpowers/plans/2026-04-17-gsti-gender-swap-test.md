@@ -2188,6 +2188,13 @@ git push origin main
 - **路径说明：** 因 Vite `base: '/new/'`，preview 下应访问 `/new/gsti.html`；直接 `/gsti.html` 会被 preview 提示 base path 不匹配。部署脚本 `build.sh` 会把产物整理到 `/new/gsti/index.html`。
 - **未自动化项：** 当前环境没有本地 Playwright 包/浏览器驱动，未做完整点击答题和分享海报视觉 smoke；Task 17 已做 computeResult 随机自测，浏览器手测仍建议部署前补一遍。
 
+**Task 19 — API record/ranking 支持 gsti 命名空间** ✅
+- Commit: `f172ba0` — `feat(gsti): add API namespace type allowlist`
+- 改动：`api/record.js` 的 `VALID_TYPES_BY_TEST` 新增 `gsti`，包含 40 个 normal type + `UNDEF` + `HWDP`；`api/ranking.js` 的 mock type 列表新增 `gsti`，`HIDDEN_TYPE_BY_TEST.gsti='UNDEF'`。
+- **Plan 纠正：** 原判断“理应已支持，无需修改”不成立；路由已有 `test` 参数命名空间，但类型白名单和 mock 列表还缺 GSTI。
+- Verification：`node --check api/record.js && node --check api/ranking.js` ✅；脚本比对 `gstiConfig` normal/hidden/fallback 42 个 code 在两个 API 文件中均存在 ✅。
+- **未执行项：** 未调用真实 Upstash，本地没有 API server/凭证；线上/预发环境仍建议补一次 `POST /api/record` + `GET /api/ranking?test=gsti`。
+
 ---
 
 ### 关键架构纠正（Task 12 前必看）
@@ -2213,7 +2220,6 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 19** — API record/ranking 对 `gsti` 命名空间验证（理应已支持，因 LQ16 时改造过）
 - [ ] **Task 20** — 部署前清单 + push + 监控
 
 ---
