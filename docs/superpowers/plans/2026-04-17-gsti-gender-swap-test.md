@@ -2049,7 +2049,7 @@ git push origin main
 
 ## 上线后未覆盖的改进点（供后续 session 跟进）
 
-- [ ] 40 个类型的 Pattern 向量精细校准（首版有几处 pattern 重复）
+- [x] 40 个类型的 Pattern 向量精细校准（Task 17 已完成：40/40 unique）
 - [ ] 自定义 typeImages（插画师 or Midjourney 产出 40 张卡）
 - [x] compatibility table：男池 × 女池的"异性反串相爱/相杀"CP 表
 - [ ] GSTI 独立子域名（若数据表现好）
