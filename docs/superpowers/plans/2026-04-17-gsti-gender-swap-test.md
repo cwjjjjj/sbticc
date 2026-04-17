@@ -2117,11 +2117,15 @@ git push origin main
 - 对其他 6 个 App 无破坏性影响——它们不解构 `gender/setGender`。
 - Review：implementer 的 prompt 里已经基于 actual file content 精确指导，跳过独立 spec review。
 
+**Task 8 — 创建 GenderPicker 组件** ✅
+- Commit: `753adf1` — `feat(gsti): add GenderPicker component with 3 options`
+- 改动：新建 `src/components/GenderPicker.tsx` 67 行。全屏 motion.div 覆盖层，3 个性别按钮（男 / 女 / 不告诉你），底部免责声明。Props: `onPick: (g: Gender) => void`, `onClose?: () => void`。
+- Review：spec ✅。
+
 ---
 
 ### 待执行（按顺序推进）
 
-- [ ] **Task 8** — 创建 `src/components/GenderPicker.tsx`
 - [ ] **Task 9** — 创建 `src/components/GSTIHeroBadge.tsx`
 - [ ] **Task 10** — `ResultPage.tsx` 接入 gender prop + `GSTIApp.tsx` 传参
 - [ ] **Task 11** — 创建 `src/GstiApp.tsx` 顶层组件
