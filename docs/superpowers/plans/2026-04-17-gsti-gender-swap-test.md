@@ -2122,11 +2122,14 @@ git push origin main
 - 改动：新建 `src/components/GenderPicker.tsx` 67 行。全屏 motion.div 覆盖层，3 个性别按钮（男 / 女 / 不告诉你），底部免责声明。Props: `onPick: (g: Gender) => void`, `onClose?: () => void`。
 - Review：spec ✅。
 
+**Task 9 — 创建 GSTIHeroBadge 组件** ✅
+- Commit: `7536b42` — `feat(gsti): add HeroBadge for result page gender×type reveal`
+- 改动：新建 `src/components/GSTIHeroBadge.tsx` 40 行。结果页顶部小徽章，显示 "GSTI · SWAP | [性别标签] → [池标签]"。Pool detection: `M_` 前缀 → '女性物种'，`F_` 前缀 → '男性物种'，其他 → '无池'。
+- Review：spec ✅。
+
 ---
 
 ### 待执行（按顺序推进）
-
-- [ ] **Task 9** — 创建 `src/components/GSTIHeroBadge.tsx`
 - [ ] **Task 10** — `ResultPage.tsx` 接入 gender prop + `GSTIApp.tsx` 传参
 - [ ] **Task 11** — 创建 `src/GstiApp.tsx` 顶层组件
 - [ ] **Task 12** — 配置 `gsti.html` + `vite.config.ts` + `src/main.tsx` routing + `build.sh`
