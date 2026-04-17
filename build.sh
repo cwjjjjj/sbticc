@@ -17,7 +17,7 @@ cp dist-temp/new.html dist/new/index.html
 cp -r dist-temp/assets dist/new/assets
 
 # 5. Copy test builds into /new/<test>/
-for test in love work values cyber desire gsti; do
+for test in love work values cyber desire gsti fpi; do
   mkdir -p dist/new/$test
   cp dist-temp/$test.html dist/new/$test/index.html
 done
@@ -33,4 +33,4 @@ test -f sw.js && cp sw.js dist/sw.js
 # 8. Cleanup
 rm -rf dist-temp
 
-echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber/desire/gsti at /new/<test>/"
+echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber/desire/gsti/fpi at /new/<test>/"
