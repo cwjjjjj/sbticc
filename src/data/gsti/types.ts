@@ -202,55 +202,55 @@ export const TYPE_LIBRARY: Record<string, TypeDef> = {
 };
 
 /* =============================================================
- * Normal types pattern vectors (A/B × 6 维)
- * 注意：此处 pattern 为首版草稿，建议上线前做一轮距离校准，
- * 让 40 个类型两两间至少有 2 维差异，避免匹配结果过度集中。
+ * Normal types pattern vectors (L/M/H × 6 维)
+ * L/M/H 对应 config.sumToLevel 输出；40 个类型全量两两至少差 2 维，
+ * 避免重复 pattern 导致部分类型永远无法命中。
  * ============================================================= */
 
 export const NORMAL_TYPES: NormalType[] = [
   // 男池 20 个
-  { code: 'M_GOLD', pattern: 'BBAAAB' },  // 索/冷/主/算/演/开
-  { code: 'M_HUBY', pattern: 'BABABA' },  // 索/热/被/算/真/忠
-  { code: 'M_GTEA', pattern: 'AAAAAA' },  // 给/热/主/算/演/忠 (ambiguous—暧昧型)
-  { code: 'M_WHIT', pattern: 'AABBBA' },  // 给/热/被/真/真/忠
-  { code: 'M_FBRO', pattern: 'ABBBBA' },  // 给/冷/被/真/真/忠
-  { code: 'M_SAIN', pattern: 'AABABA' },  // 给/热/被/算(自我牺牲式算计)/真/忠
-  { code: 'M_MALK', pattern: 'BBAAAA' },  // 索/冷/主/算/演/忠
-  { code: 'M_TEAM', pattern: 'ABAAAA' },  // 给/冷/主/算/演/忠
-  { code: 'M_BABY', pattern: 'BABBBA' },  // 索/热/被/真/真/忠
-  { code: 'M_CTRL', pattern: 'AAABBA' },  // 给(过度给)/热/主/真/真/忠
-  { code: 'M_MOON', pattern: 'ABBBBB' },  // 给/冷/被/真/真/开
-  { code: 'M_PRNC', pattern: 'BABBAA' },  // 索/热/被/真/演/忠
-  { code: 'M_DRAM', pattern: 'BAABBA' },  // 索/热/主/真(情绪真实)/真/忠
-  { code: 'M_SOFT', pattern: 'AAABAA' },  // 给(伪装)/热/主/真/演/忠
-  { code: 'M_PHNX', pattern: 'BBAAAA' },  // 索/冷/主/算/演/忠（与 MALK 近似—校准时考虑合并或微调）
-  { code: 'M_FANC', pattern: 'AABBBB' },  // 给/热/被/真/真/开（对偶像专一，对真人开）
-  { code: 'M_HOTG', pattern: 'AAAABA' },  // 给/热/主/算/演/忠（但展示为主）
-  { code: 'M_SCHM', pattern: 'BBABAA' },  // 索/冷/主/算(策略)/演/忠
-  { code: 'M_WLOT', pattern: 'AAABAA' },  // 给(表演式)/热/主/真/演/忠（与 SOFT 近似—校准）
-  { code: 'M_HOOK', pattern: 'BAABBB' },  // 索(情感)/热/主/真/真/开
+  { code: 'M_GOLD', pattern: 'HHLHLH' },  // 索/冷/主/算/演/开
+  { code: 'M_HUBY', pattern: 'HLHLHL' },  // 索/热/被/算/真/忠
+  { code: 'M_GTEA', pattern: 'LLLLLL' },  // 给/热/主/算/演/忠
+  { code: 'M_WHIT', pattern: 'LLHLML' },  // 给/热/被/真/真/忠
+  { code: 'M_FBRO', pattern: 'LHHHLL' },  // 给/冷/被/真/真/忠
+  { code: 'M_SAIN', pattern: 'LLHLHM' },  // 给/热/被/算/真/忠
+  { code: 'M_MALK', pattern: 'HMLLLL' },  // 索/冷/主/算/演/忠
+  { code: 'M_TEAM', pattern: 'LHLLLH' },  // 给/冷/主/算/演/忠
+  { code: 'M_BABY', pattern: 'HLHHHH' },  // 索/热/被/真/真/忠
+  { code: 'M_CTRL', pattern: 'LLLHHM' },  // 给/热/主/真/真/忠
+  { code: 'M_MOON', pattern: 'LHHHHH' },  // 给/冷/被/真/真/开
+  { code: 'M_PRNC', pattern: 'HLHHLL' },  // 索/热/被/真/演/忠
+  { code: 'M_DRAM', pattern: 'HLLHHL' },  // 索/热/主/真/真/忠
+  { code: 'M_SOFT', pattern: 'LLLHML' },  // 给/热/主/真/演/忠
+  { code: 'M_PHNX', pattern: 'HHLMLL' },  // 索/冷/主/算/演/忠
+  { code: 'M_FANC', pattern: 'LLMHHH' },  // 给/热/被/真/真/开
+  { code: 'M_HOTG', pattern: 'LLLMHL' },  // 给/热/主/算/演/忠
+  { code: 'M_SCHM', pattern: 'HHLHML' },  // 索/冷/主/算/演/忠
+  { code: 'M_WLOT', pattern: 'LLLHLH' },  // 给/热/主/真/演/忠
+  { code: 'M_HOOK', pattern: 'HLLHMH' },  // 索/热/主/真/真/开
 
   // 女池 20 个
-  { code: 'F_PHNX', pattern: 'BBAAAA' },
-  { code: 'F_MGIR', pattern: 'ABBBBA' },
-  { code: 'F_PCON', pattern: 'BAAAAA' },  // 索/热/主/算/演/忠
-  { code: 'F_LICK', pattern: 'AABBBA' },
-  { code: 'F_OCEA', pattern: 'BAAABB' },  // 索/热/主/算/真/开
-  { code: 'F_TOOL', pattern: 'ABBBBA' },  // 给/冷/被/真/真/忠（同 FBRO pattern—但类型池不同不冲突）
-  { code: 'F_DADY', pattern: 'BAAAAA' },  // 与 PCON 近似—校准时微调 D5/D6
-  { code: 'F_IRON', pattern: 'ABBBBA' },  // 同 TOOL—校准
-  { code: 'F_ROUG', pattern: 'AABBBA' },  // 与 LICK 近似—校准
-  { code: 'F_STRG', pattern: 'BBAABA' },  // 索/冷/主/真(对男性的"真实"敌意)/演/忠
-  { code: 'F_NICE', pattern: 'AABBBA' },
-  { code: 'F_BACK', pattern: 'AABBBA' },  // 与 LICK 近似—校准
-  { code: 'F_ACGR', pattern: 'AAAABB' },  // 给/热/主/算/演/开
-  { code: 'F_WILD', pattern: 'BAAABB' },
-  { code: 'F_DARK', pattern: 'BBAAAA' },
-  { code: 'F_BOSS', pattern: 'BBAAAA' },  // 与 DARK 近似—校准
-  { code: 'F_KBGR', pattern: 'BBAABA' },
-  { code: 'F_DADG', pattern: 'AAABBA' },  // 给(过度)/热/主/真/真/忠
-  { code: 'F_PART', pattern: 'BAAABB' },
-  { code: 'F_BRIC', pattern: 'ABBBBA' },
+  { code: 'F_PHNX', pattern: 'MHLLLL' },
+  { code: 'F_MGIR', pattern: 'LHHHMM' },
+  { code: 'F_PCON', pattern: 'HLLLML' },  // 索/热/主/算/演/忠
+  { code: 'F_LICK', pattern: 'LLHHLM' },
+  { code: 'F_OCEA', pattern: 'HLMLHH' },  // 索/热/主/算/真/开
+  { code: 'F_TOOL', pattern: 'LHHMHM' },
+  { code: 'F_DADY', pattern: 'HLLLLH' },
+  { code: 'F_IRON', pattern: 'LHHLHL' },
+  { code: 'F_ROUG', pattern: 'LLHMHH' },
+  { code: 'F_STRG', pattern: 'HHLLHL' },  // 索/冷/主/真/演/忠
+  { code: 'F_NICE', pattern: 'LLHHMH' },
+  { code: 'F_BACK', pattern: 'LLHHHL' },
+  { code: 'F_ACGR', pattern: 'LLLLHH' },  // 给/热/主/算/演/开
+  { code: 'F_WILD', pattern: 'HLLLHM' },
+  { code: 'F_DARK', pattern: 'HHHLLL' },
+  { code: 'F_BOSS', pattern: 'HHLLLM' },
+  { code: 'F_KBGR', pattern: 'HHLHHM' },
+  { code: 'F_DADG', pattern: 'LHLHHL' },  // 给/热/主/真/真/忠
+  { code: 'F_PART', pattern: 'HLLMHH' },
+  { code: 'F_BRIC', pattern: 'HHHHHL' },
 ];
 
 /* =============================================================
