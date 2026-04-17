@@ -2195,11 +2195,15 @@ git push origin main
 - Verification：`node --check api/record.js && node --check api/ranking.js` ✅；脚本比对 `gstiConfig` normal/hidden/fallback 42 个 code 在两个 API 文件中均存在 ✅。
 - **未执行项：** 未调用真实 Upstash，本地没有 API server/凭证；线上/预发环境仍建议补一次 `POST /api/record` + `GET /api/ranking?test=gsti`。
 
-**Task 20 — 部署前本地清单（未 push）** ⚠️
+**Task 20 — 部署与线上验证** ✅
 - Commit: `ee8a0b6` — `fix(gsti): make shared home components config-driven`
 - Preflight 发现并修复：`GstiApp` 复用了硬编码 SBTI 的 `Hero`，`ProfilesGallery` 也固定读取 SBTI 类型库，顶部 `ALL_TESTS` 导航缺 GSTI。已改为配置驱动，GSTI 首页显示 `GSTI`、22 题、40 种 normal type；人格图鉴读取 `gstiConfig.typeLibrary`；导航加入 GSTI。
 - Verification：`npx tsc --noEmit` ✅；`./build.sh` ✅；`dist/new/gsti/index.html` 和 `dist/new/assets/gsti-*.js` 存在 ✅；构建后 bundle 可见 `性转人格测试` / `这个会反串你` / `全部 42 种人格类型` ✅。
-- **未执行项：** 没有 push 到 `main`，也没有 Vercel dashboard / 线上 URL / Upstash 实测。当前分支是 `feat/gsti-gender-swap`，且工作区存在无关 `.playwright-mcp` 删除与未跟踪 monetization 文件；需要人工决定 merge/push 策略。
+- Commit: `154b731` — `fix(gsti): add Vercel rewrite for /new/gsti`
+- 部署：已 push `feat/gsti-gender-swap` 到 `origin/main`（`189547c..52babaa`，随后 `52babaa..154b731`）。
+- 线上验证：`https://sbti.jiligulu.xyz/new/gsti` 返回 GSTI HTML，引用 `/new/assets/gsti-rL4pnFyt.js` ✅；`GET /api/ranking?test=gsti` 返回 GSTI mock ranking ✅；`POST /api/record {"type":"M_GOLD","test":"gsti"}` 返回 `ok:true,total:1` ✅；`GET /api/ranking?test=gsti&real=1` 返回 `M_GOLD:1` ✅。
+- **Vercel rewrite 修复：** 初次部署后 `/new/gsti` 被 catch-all rewrite 到 SBTI 主站，已在 `vercel.json` 增加 `/new/gsti` 和 `/new/gsti/(.*)` 两条 rewrite 后重新部署。
+- **剩余人工项：** Vercel dashboard 观察构建日志、浏览器手动完整答题/分享海报视觉 smoke、上线后 24h 监控。
 
 ---
 
@@ -2226,7 +2230,7 @@ git push origin main
 ---
 
 ### 待执行（按顺序推进）
-- [ ] **Task 20（剩余）** — merge/push 到部署分支 + Vercel/线上/API 手测 + 24h 监控
+- [ ] **上线后人工项** — Vercel dashboard 构建日志 + 浏览器完整流程/分享海报视觉 smoke + 24h 监控
 
 ---
 
