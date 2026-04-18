@@ -16,6 +16,8 @@
     { "source": "/new/desire/(.*)", "destination": "/new/desire/index.html" },
     { "source": "/new/gsti", "destination": "/new/gsti/index.html" },
     { "source": "/new/gsti/(.*)", "destination": "/new/gsti/index.html" },
+    { "source": "/new/fpi", "destination": "/new/fpi/index.html" },
+    { "source": "/new/fpi/(.*)", "destination": "/new/fpi/index.html" },
     { "source": "/new/((?!assets/).*)", "destination": "/new/index.html" }
   ]
 }
