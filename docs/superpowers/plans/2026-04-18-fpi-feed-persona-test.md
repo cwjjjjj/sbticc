@@ -2089,6 +2089,13 @@ git commit --allow-empty -m "ship(fpi): deploy + smoke checklist done"
 - **修复：** `Math.max(...options.map(o => o.value))` 取所有 value 最大值，不依赖顺序。其他 7 个测试（升序）行为不变。
 - 新增 `scripts/fpi-smoke-dist.ts` + `scripts/fpi-smoke-hidden.ts`。修复后 20/20 可达，hidden 正常 → `0POST`。
 
+**Task 18 — 敏感词 & 合规审校** ✅
+- Commit: `f3f8601` — `chore(fpi): sensitive word + compliance audit pass`
+- 扫描命中 0：`穷酸|低端|底层|老登|小仙女|妓|娼|婊|贱|日你|草你` 禁用词全无。
+- 群体对立扫描（阶层/职业/地域/年龄/性别）命中 0。
+- FPIHeroBadge 视觉审查：无微信绿 + 白对话框、无仿头像昵称占位、无仿微信 logo。
+- Empty commit 按 plan 记录审校通过。
+
 ---
 
 ### 关键架构纠正（继承自 GSTI plan）
