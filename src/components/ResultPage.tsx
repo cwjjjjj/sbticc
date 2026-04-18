@@ -9,6 +9,10 @@ import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
 import GSTIHeroBadge from './GSTIHeroBadge';
 import type { Gender } from '../data/testConfig';
+import RevealOverlay from './RevealOverlay';
+import RarityBadge from './RarityBadge';
+import HookMatrix from './HookMatrix';
+import { useRarity } from '../hooks/useRarity';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
@@ -52,8 +56,30 @@ export default function ResultPage({
 }: ResultPageProps) {
   const config = useTestConfig();
   const [debugSelectedType, setDebugSelectedType] = useState('');
+  const [revealed, setRevealed] = useState(false);
   const typeCode = result.finalType.code;
   const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
+  const rarity = useRarity(config.id, typeCode);
+
+  // Count how many of the 10 tests the user has completed locally (for ContinueJourneyCard).
+  const localHistoryCount = useMemo(() => {
+    const keys = [
+      'sbti_history', 'love_history', 'work_history', 'values_history',
+      'cyber_history', 'desire_history', 'gsti_history', 'fpi_history',
+      'fsi_history', 'mpi_history',
+    ];
+    let n = 0;
+    for (const k of keys) {
+      try {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr) && arr.length > 0) n++;
+        }
+      } catch {}
+    }
+    return n;
+  }, []);
 
   // Find soulmates and rivals for this type
   const { soulmates, rivals } = useMemo(() => {
@@ -86,6 +112,14 @@ export default function ResultPage({
 
   return (
     <div className="fixed inset-0 z-[200] bg-bg overflow-y-auto">
+      {!revealed && (
+        <RevealOverlay
+          rarity={rarity}
+          typeCn={typeDef.cn}
+          typeCode={typeCode}
+          onComplete={() => setRevealed(true)}
+        />
+      )}
       <div className="max-w-[680px] mx-auto px-4 py-8">
         <motion.div
           initial="hidden"
@@ -184,6 +218,15 @@ export default function ResultPage({
                 {result.badge}
               </span>
             </div>
+          </motion.div>
+
+          {/* Rarity badge — live percentile from /api/ranking */}
+          <motion.div
+            variants={staggerItem}
+            transition={{ duration: 0.4 }}
+            className="flex justify-center sm:justify-start mb-6"
+          >
+            <RarityBadge rarity={rarity} />
           </motion.div>
 
           {/* 2. Description */}
@@ -317,6 +360,15 @@ export default function ResultPage({
             className="mb-5"
           >
             <OtherTests />
+          </motion.div>
+
+          {/* 7.5 Hook Matrix — invite compare + recommend tests + journey progress */}
+          <motion.div variants={staggerItem} transition={{ duration: 0.4 }}>
+            <HookMatrix
+              testId={config.id}
+              localHistoryCount={localHistoryCount}
+              onInviteCompare={onInviteCompare}
+            />
           </motion.div>
 
           {/* 8. Action buttons */}
