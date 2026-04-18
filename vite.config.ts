@@ -18,6 +18,7 @@ export default defineConfig({
         gsti: 'gsti.html',
         fpi: 'fpi.html',
         fsi: 'fsi.html',
+        mpi: 'mpi.html',
       },
     },
   },
