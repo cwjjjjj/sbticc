@@ -26,9 +26,35 @@ import { COMPATIBILITY, getCompatibility } from './compatibility';
 // per-dim threshold override（后续迭代）。
 
 function sumToLevel(score: number): string {
+  // Flat fallback — tuned for 4-题 dims (CTRL/WARM/MNEY/LITE).
   if (score <= 8) return 'L';
   if (score <= 12) return 'M';
   return 'H';
+}
+
+// Per-dim thresholds: FSI has mixed question counts (2 / 3 / 4 题). Without
+// per-dim thresholds, ECHO (3 题, max raw=12) and GNDR (2 题, max raw=8)
+// can never reach 'H' under the flat rule above — which breaks the BOSSY
+// trigger (spec §5.1 requires ECHO=H) and skews GNDR toward L.
+// Thresholds scaled linearly against the 4-题 baseline (≤8=L, 9-12=M, ≥13=H):
+//   4 题 raw 4-16  → ≤8=L,  9-12=M,  ≥13=H
+//   3 题 raw 3-12  → ≤6=L,  7-9=M,   ≥10=H
+//   2 题 raw 2-8   → ≤4=L,  5-6=M,   ≥7=H
+function sumToLevelByDim(score: number, dim: string): string | undefined {
+  // ECHO is 3 questions
+  if (dim === 'D6') {
+    if (score <= 6) return 'L';
+    if (score <= 9) return 'M';
+    return 'H';
+  }
+  // GNDR is 2 questions
+  if (dim === 'D3') {
+    if (score <= 4) return 'L';
+    if (score <= 6) return 'M';
+    return 'H';
+  }
+  // D1/D2/D4/D5 are 4-题, fall back to flat sumToLevel
+  return undefined;
 }
 
 export const fsiConfig: TestConfig = {
@@ -65,6 +91,7 @@ export const fsiConfig: TestConfig = {
 
   // Matching params
   sumToLevel,
+  sumToLevelByDim,
   maxDistance: 12,              // 6 维 × 最大差 2
   fallbackTypeCode: 'FAMX?',
   hiddenTypeCode: 'BOSSY',

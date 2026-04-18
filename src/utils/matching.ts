@@ -73,10 +73,11 @@ export function computeResult(
     }
   });
 
-  // 2. Convert to levels using config's sumToLevel
+  // 2. Convert to levels using config's sumToLevel (with optional per-dim override)
   const levels: Record<string, string> = {};
   Object.entries(rawScores).forEach(([dim, score]) => {
-    levels[dim] = config.sumToLevel(score);
+    const overridden = config.sumToLevelByDim?.(score, dim);
+    levels[dim] = overridden ?? config.sumToLevel(score);
   });
 
   // 3. Build user vector

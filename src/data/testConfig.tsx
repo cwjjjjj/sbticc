@@ -80,6 +80,13 @@ export interface TestConfig {
 
   // Matching params
   sumToLevel: (score: number) => string;
+  /**
+   * Optional per-dimension override for sumToLevel. When provided and it
+   * returns a non-undefined value for the given dim, matching.ts will use it
+   * in place of the flat `sumToLevel`. Used by tests whose dims have varying
+   * question counts (e.g. FSI: 2 题 GNDR / 3 题 ECHO / 4 题 others).
+   */
+  sumToLevelByDim?: (score: number, dim: string) => string | undefined;
   maxDistance: number;
   fallbackTypeCode: string;
   hiddenTypeCode: string;
