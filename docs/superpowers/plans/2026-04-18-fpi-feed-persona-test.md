@@ -2020,7 +2020,74 @@ git commit --allow-empty -m "ship(fpi): deploy + smoke checklist done"
 
 ### 已完成
 
-（执行时从 Task 1 起逐条补。）
+**Task 1 — fpi.html 入口** ✅
+- Commit: `15718d3` — `feat(fpi): add fpi.html entry`
+- 48 行。内联 `<script type="module">` import `FpiApp`，Chinese meta + OG + JSON-LD。
+
+**Task 2 — dimensions.ts** ✅
+- Commit: `7057e6e` — `feat(fpi): add dimensions.ts with 6 feed-axis model`
+- 46 行。6 维 D1-D6（POST/POLI/MASK/EMOT/ECHO/GATE）+ L/M/H 三档 `DIM_EXPLANATIONS`（对齐 MPI/FSI 风格，非 GSTI 的 A/B）。
+
+**Task 3 — typeImages.ts + compatibility.ts 占位** ✅
+- Commit: `90acce0` — `feat(fpi): add typeImages + compatibility stubs`
+- 空 Record 占位 + `getCompatibility` stub 返回 normal。
+
+**Task 4 — questions.ts（24 题 + 1 gate）** ✅
+- Commit: `8ab1062` — `feat(fpi): add 24 feed-behavior questions + gate`
+- 270 行。4-4-4-4-4-4 分布覆盖 D1-D6 + `fpi_gate`（special / kind:'gate'）。
+- 注意：部分题目选项 value 非单调递增（mask1/mask4/echo2 等）是 spec 刻意，**Task 17 smoke 由此暴露 randomAnswerForQuestion bug**（详见 Task 17）。
+
+**Task 5 — types.ts（20+2）** ✅
+- Commit: `8e37f79` — `feat(fpi): add 20 feed persona types + 0POST hidden + FEED? fallback`
+- 163 行。20 常规类型（FILTR/9PIC!/EMO-R/FLEXR/CKIN!/3DAYS/SUBMR/LIKER/GHOST/COPYR/SELLR/BABY!/FURRY/MUKBG/TRVL9/BLOCK/REDBK/JUDGE/QSLIF/NPC-F）+ 隐藏 `0POST` + 兜底 `FEED?`。每个 desc 4 段式（开场定位/天赋优势/隐秘代价/一句刺痛）。
+- **Pattern 质量显著优于 GSTI 首版：** 20/20 unique，min Hamming=2（最近：FILTR HHHLLM vs 9PIC! HHMLHM）。
+
+**Task 6 — config.ts** ✅
+- Commit: `fd1551c` — `feat(fpi): assemble TestConfig`
+- 68 行。`fpiConfig.id='fpi'`, `basePath='/new/fpi'`, `apiTestParam='fpi'`, `gateQuestionId='fpi_gate'`, `fallbackTypeCode='FEED?'`, `hiddenTypeCode='0POST'`, `maxDistance=12`, `similarityThreshold=55`。**不含 `genderLocked`**（FPI 不做性别锁定）。
+
+**Task 7 — FPIHeroBadge 组件** ✅
+- Commit: `b775720` — `feat(fpi): add FPIHeroBadge component`
+- 50 行。"Feed sticker"视觉（非微信 UI 仿冒 per spec §7.1），按 typeCode 分 9 种 sticker + default。
+
+**Task 8 — ResultPage 加 testBadge slot** ✅
+- Commit: `1596380` — `feat(fpi): add optional testBadge slot to ResultPage`
+- ResultPage 新增可选 `testBadge?: ReactNode`。FPI 走 slot，GSTI 继续走 `config.genderLocked + gender` 内联（互斥条件 `testBadge && !config.genderLocked && testBadge`）。7 个现有 App 不传 testBadge 无影响。
+
+**Task 9 — Pattern 唯一性自检脚本** ✅
+- Commit: `0a03cdb` — `verify: fpi 20 normal-type patterns are unique (min hamming 2)`
+- 新建 `scripts/fpi-pattern-check.ts` + `package.json` 加 `fpi:pattern-check` 脚本。输出确认 20/20 unique，min Hamming=2。
+
+**Task 10 — FpiApp 顶层组件** ✅
+- Commit: `dba1bce` — `feat(fpi): add FpiApp top-level component`
+- 424 行。`ScreenId` 无 `'picker'`；`computeResult` 4 参调用（无 gender）；`<ResultPage testBadge={<FPIHeroBadge typeCode=... typeCn=... />} ...>`；默认导出 `TestConfigProvider config={fpiConfig}` 包裹。
+
+**Task 11 — vite.config.ts** ✅
+- Commit: `62458fe` — `feat(fpi): add fpi vite entry`
+
+**Task 12 — build.sh** ✅
+- Commit: `fe6c84a` — `feat(fpi): copy fpi build output to /new/fpi/`
+
+**Task 13 — hub 首页 FPI 卡** ✅
+- Commit: `4fcd022` — `feat(fpi): add FPI card to hub page (8 tests total)`
+- `index.html` meta + 卡片 + JS tests 数组都加 FPI（总卡片 7 → 8）。
+
+**Task 14 — api/record.js** ✅
+- Commit: `ae02b55` — `feat(fpi): whitelist fpi type codes in record API`
+- `VALID_TYPES_BY_TEST.fpi` 新增 22 码 Set。
+
+**Task 15 — api/ranking.js** ✅
+- Commit: `2c44b9a` — `feat(fpi): add fpi to ranking mock types + hidden type map`
+
+**Task 16 — SBTI 交叉引流（跳过）** ✅
+- Commit: `2388a8d` — `decide: skip FPI cross-promo card on SBTI main site for MVP`
+- 按 plan 原决策跳过，避免 SBTI 主页堆积过多 promo 卡。
+
+**Task 17 — Smoke + bug 修复** ✅
+- Commit: `2472a2f` — `fix(fpi): randomAnswerForQuestion uses max option value, not last`
+- **关键发现：** 200 轮 smoke 脚本暴露 `src/utils/quiz.ts` 的 `randomAnswerForQuestion` bug：假设 options 按 value 升序，用 `options[last].value` 当随机上限；FPI 若干题用 H→L 降序，导致随机上限=1，结果全塌陷到 SUBMR（LLLLLL）。
+- **修复：** `Math.max(...options.map(o => o.value))` 取所有 value 最大值，不依赖顺序。其他 7 个测试（升序）行为不变。
+- 新增 `scripts/fpi-smoke-dist.ts` + `scripts/fpi-smoke-hidden.ts`。修复后 20/20 可达，hidden 正常 → `0POST`。
 
 ---
 
