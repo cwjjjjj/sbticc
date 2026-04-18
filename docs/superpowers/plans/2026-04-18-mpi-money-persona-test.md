@@ -2087,5 +2087,73 @@ git commit --allow-empty -m "ship(mpi): deploy + smoke checklist done"
 
 > **目的：** 每完成一个 task 追加一条，记录 commit SHA、review 发现、关键决策。
 
-### 待执行
-（plan 刚写完，尚未开始执行。按 Task 1-20 顺序推进即可。）
+### 已完成
+
+> **分支：** `feat/mpi-money-persona`（基于 `origin/main` HEAD `3048e36` = FSI 完工后的 main）
+
+**Task 1-3 — 数据骨架** ✅
+- `08acb7a` feat(mpi): add mpi.html vite entry
+- `47fcd4e` feat(mpi): add 6-dimension metadata + L/M/H explanations（HOARD/FLAUNT/FRUGAL/SUSCEPT/SECONDHAND/LIVESTREAM）
+- `000abd5` feat(mpi): add typeImages + compatibility stubs
+
+**Task 4 — 题库（21+1=22）** ✅
+- `992f8e6` feat(mpi): add 22 money-behavior questions + mpi_gate
+- 分布 4/3/4/4/3/3 + mpi_gate（也记入 D6 LIVESTREAM）
+- `secondhand3` 非单调 value（H/L/L/M）—— `randomAnswerForQuestion` `Math.max` 修复已落位
+
+**Task 5 — 类型库（18+2）** ✅
+- `1ee3412` feat(mpi): add 18 types + ZERO$ hidden + MIXDR fallback
+- 18/18 pattern unique min Hamming=2；每个 desc 4 段式以"一句刺痛你的话："收尾（SBTI/GSTI/FPI 调性，非 FSI 温柔出口）
+- `ZERO$` / `LIVE!` / `2HAND` / `FOMO+` 特殊字符正确 quote
+
+**Task 6 — TestConfig** ✅
+- `207117b` feat(mpi): assemble TestConfig (no gender lock)
+- **关键架构决策：** plan 原本要加 `sumToLevel(score, dim?)` 2 参签名，但 FSI Task 17 已落地 `sumToLevelByDim` 可选字段到 TestConfig + matching.ts。MPI 直接复用该 infra，无需再改 matching.ts/testConfig.tsx。
+- `hiddenTriggerValue: -1` 不可达，ZERO$ 走 MpiApp 后置多条件覆盖（对齐 FSI BOSSY 模式）
+- Per-dim threshold：D2/D5（3 题）用 ≤6/7-9/≥10；其他默认 flat
+
+**Task 7-9 — Badge + slot 复用 + 自检** ✅
+- `65bdacd` feat(mpi): add MPIHeroBadge with invoice-sticker visual（金色发票美学）
+- `f2e88f4` verify: ResultPage testBadge slot reused from FPI（empty，无代码改动）
+- `c33f261` verify: mpi 18 normal-type patterns are unique (min hamming 2)（`scripts/mpi-pattern-check.ts` + `npm run mpi:pattern-check`）
+
+**Task 10 — MpiApp 顶层** ✅
+- `21f8923` feat(mpi): add MpiApp top-level with ZERO$ post-compute override（464 行）
+- `maybeOverrideToZero(result, answers)`：`mpi_gate===1 AND levels.D3==='L'` → 覆盖 finalType=ZERO$（复用 `quiz.answers`，无需扩展 useQuiz）
+- `<ResultPage testBadge={<MPIHeroBadge>} ...>`；无 testFooter（MPI 不需要危机热线）、无 DisclaimerModal、无 GenderPicker
+
+**Task 11-16 — 构建配置 + Hub + API + skip promo** ✅
+- `c80cd88` feat(mpi): add mpi vite entry
+- `64dcdae` feat(mpi): copy mpi build artefact to /new/mpi/
+- `b21e062` feat(mpi): add MPI card to hub page (10 tests total)
+- `322b369` feat(mpi): whitelist mpi type codes in record API（20 codes）
+- `06c17ae` feat(mpi): add mpi to ranking mock types + hidden type map
+- `ace7647` decide: skip MPI cross-promo card on SBTI main site for MVP（empty）
+
+**Task 17 — Smoke** ✅
+- `1e460d7` verify: mpi smoke-dist 18/18 reachable + smoke-zero 5/5 pass
+- 新增 `scripts/mpi-smoke-dist.ts`（2000 轮验证全部 18 类型可达）+ `scripts/mpi-smoke-zero.ts`（ZERO$ 5 用例含 3 个 gate 负例 + 1 个 FRUGAL guard）
+
+**Task 18 — 合规审校（含金融扫描）** ✅
+- `951f9d6` chore(mpi): remove '分期' + platform names + add adult-only disclaimer
+- 3 处合规修复：
+  1. MPIHeroBadge LUXUR sticker `"分期有风险·此处不提供"` → `"仅供娱乐，不提供消费建议"`（去金融关键词）
+  2. BILIB desc 里真实平台名 `淘宝、京东、拼多多、抖音` → `各大综合电商、直播间、品牌小程序、会员店、海淘渠道`（去品牌实名）
+  3. MpiApp 首页加成人专属警告
+- 最终扫描：金融词/污名词/品牌实名 全 0 命中
+
+**Task 19 — TypeScript + 生产构建** ✅
+- `6a3f04d` verify: mpi tsc + production build pass（MPI chunk 43.02 kB / gzip 19.66 kB，`dist/new/mpi/index.html` 可达）
+
+**Task 20 — Vercel rewrite + ship** ✅
+- `dd3dd8c` fix(mpi): add Vercel rewrite for /new/mpi
+- 2 条 rewrite 置于 catch-all 之前，对齐 gsti/fpi/fsi 模式
+
+---
+
+### MPI 本地实现完工状态
+
+- 20 task 全部完成
+- 5 个 smoke/verify 脚本就位（pattern-check / smoke-dist / smoke-zero）
+- 金融合规审校通过（0 金融词 / 0 品牌实名 / 0 污名词）
+- 分支 `feat/mpi-money-persona` 准备 push 到 main
