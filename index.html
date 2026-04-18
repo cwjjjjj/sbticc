@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#080808" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/images/icon-192.png" />
-  <title>人格实验室 — 8个测试，N种人格，0个正确答案</title>
-  <meta name="description" content="人格实验室：8款趣味人格测试，从恋爱脑到打工人，从赛博基因到朋友圈人设，测出你从未认识的自己。" />
+  <title>人格实验室 — 9个测试，N种人格，0个正确答案</title>
+  <meta name="description" content="人格实验室：9款趣味人格测试，从恋爱脑到打工人，从赛博基因到朋友圈人设再到原生家庭，测出你从未认识的自己。" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -252,6 +252,7 @@
     .test-card:nth-child(6) { animation-delay: 0.30s; }
     .test-card:nth-child(7) { animation-delay: 0.35s; }
     .test-card:nth-child(8) { animation-delay: 0.40s; }
+    .test-card:nth-child(9) { animation-delay: 0.45s; }
   </style>
 </head>
 <body>
@@ -259,7 +260,7 @@
   <section class="hero">
     <div class="hero-content fade-in-up">
       <h1 class="hero-brand">人格实验室</h1>
-      <p class="hero-subtitle">8个测试，N种人格，0个正确答案</p>
+      <p class="hero-subtitle">9个测试，N种人格，0个正确答案</p>
       <p class="hero-tagline">别太当真，也别不当回事。</p>
       <div class="hero-counter" id="heroCounter">
         已有 <span class="count-number" id="totalCount">0</span> 人参与测试
@@ -326,6 +327,13 @@
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
+      <a class="test-card fade-in-up" href="/new/fsi">
+        <div class="card-emoji">🏷️</div>
+        <div class="card-name">原生家庭幸存者</div>
+        <div class="card-tagline">你被养成了什么形状</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
     </div>
   </section>
 
@@ -338,7 +346,7 @@
   <script>
     // Fetch total test count across all tests and display social proof
     (function () {
-      var tests = ['', 'love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi'];
+      var tests = ['', 'love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi'];
       var total = 0;
       var done = 0;
 
