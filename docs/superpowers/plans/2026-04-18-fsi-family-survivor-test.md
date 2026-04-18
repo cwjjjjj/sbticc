@@ -2422,7 +2422,65 @@ git commit --allow-empty -m "ship(fsi): deploy + smoke checklist done"
 
 ### 已完成
 
-（执行时在下方追加条目；每条包含 task 编号、commit SHA、改动摘要、review 发现）
+> **分支：** `feat/fsi-family-survivor`（基于 `origin/main` HEAD `fb37ed0`）
+
+**Task 1-6 — 数据层** ✅
+- `1142ce6` feat(fsi): add fsi.html vite entry（48 行）
+- `1b54525` feat(fsi): add 6-dimension metadata（CTRL/WARM/GNDR/MNEY/LITE/ECHO，46 行）
+- `1d459b5` feat(fsi): add typeImages + compatibility stubs
+- `6a7aa5e` feat(fsi): add 22 sensitive-scenario questions（21 主 + 1 gate，分布 4/4/2/4/4/3）
+- `eb2b7b9` feat(fsi): add 18 types + BOSSY hidden + FAMX? fallback（每个 desc 以"一句温柔出口："收尾；pattern 18/18 unique min Hamming=2）
+- `7f55772` feat(fsi): assemble TestConfig（`hiddenTriggerValue: -1` 刻意不可达，BOSSY 走 FsiApp 多条件）
+
+**Task 7-8 — UI 组件与插槽** ✅
+- `6d2fed0` feat(fsi): add hero badge + support block + disclaimer modal（3 个新组件，含危机热线 010-82951332 / 400-161-9995）
+- `e953429` feat(ResultPage): add optional testFooter slot（新独立 slot，8 个现有 App 零影响）
+
+**Task 9 — Pattern 自检** ✅
+- `294edf1` verify: fsi 18 normal-type patterns are unique（`scripts/fsi-pattern-check.ts` + `npm run fsi:pattern-check`）
+
+**Task 10 — FsiApp 顶层** ✅
+- `af70314` feat(fsi): add FsiApp top-level with BOSSY cond + disclaimer + support block（490 行）
+  - `maybeOverrideToBossy()` post-compute override：gate=3 AND CTRL/LITE/ECHO 全 H → 覆盖 BOSSY
+  - Disclaimer modal 首启拦截，localStorage `fsi_disclaimer_ack_v1`
+  - `<ResultPage testBadge={<FSIHeroBadge>} testFooter={<FSIResultSupportBlock>} ...>`
+
+**Task 11-12 — 构建配置** ✅
+- `57419cb` feat(fsi): add fsi vite entry
+- `418d4ec` feat(fsi): copy fsi build output to /new/fsi/
+
+**Task 13-16 — Hub + API + Skip promo** ✅
+- `2a9465f` feat(fsi): add FSI card to hub page (9 tests total)
+- `94e8cd1` feat(fsi): whitelist fsi type codes in record API（20 codes）
+- `efb1171` feat(fsi): add fsi to ranking mock types + hidden type map
+- `dca9db0` decide: skip FSI cross-promo card on SBTI main site for MVP（empty）
+
+**Task 17 — Smoke + P0 bug 修复（关键）** ✅
+- `b71c00a` fix(fsi): per-dim sumToLevel for ECHO (3q) and GNDR (2q)
+- **P0 发现：** smoke-bossy 暴露 ECHO（3 题，raw max=12）/ GNDR（2 题，raw max=8）在 flat `sumToLevel`（需 raw≥13 才 H）下**永远无法达到 H**。BOSSY spec §5.1 要求 ECHO=H → 数学不可触发。
+- **架构修复（beyond plan）：** `TestConfig` 加可选 `sumToLevelByDim?: (score, dim) => string | undefined`，matching.ts 优先使用 per-dim 函数；FSI 定义 ECHO 阈值 ≤6/≤9/≥10、GNDR ≤4/≤6/≥7。**向后兼容**，FPI smoke 无回归。
+- 新增 `scripts/fsi-smoke-dist.ts`（200 轮）+ `scripts/fsi-smoke-bossy.ts`（5 用例）。修复后 18/18 可达，BOSSY 5/5 触发。
+
+**Task 18 — 合规审校** ✅
+- `1d043a6` chore(fsi): gentle PICKR opening + §9.3/§9.4 lint pass
+- PICKR 开头 "你永远不够好" → "你总觉得还不够好"（保节奏、温柔出口不变）
+- 20 条 desc 全含"一句温柔出口："；crisis hotlines 验证在 FSIResultSupportBlock
+
+**Task 19 — TypeScript + 生产构建** ✅
+- `bcfcb69` verify: fsi tsc + production build pass（FSI chunk 42.08 kB / gzip 18.57 kB，`dist/new/fsi/index.html` 1955 B）
+
+**Task 20 — 部署清单 + Vercel rewrite** ✅
+- `094ad7a` fix(fsi): add Vercel rewrite for /new/fsi
+- `931bb59` ship(fsi): deploy + local checklist pass
+
+---
+
+### FSI 本地实现完工状态
+
+- 20 task 全部完成
+- 5 个 smoke/verify 脚本就位（pattern-check / smoke-dist / smoke-bossy）
+- 关键架构扩展 `sumToLevelByDim` 向后兼容
+- 分支准备 push 到 main
 
 ---
 
