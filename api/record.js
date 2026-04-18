@@ -56,6 +56,12 @@ const VALID_TYPES_BY_TEST = {
     'BRAG+','DUAL!',
     'BOSSY','FAMX?'
   ]),
+  'mpi': new Set([
+    'LIVE!','2HAND','HAULX','CHEAP','GOLDN','SETUP','NUBOY','LUXUR',
+    'BILIB','FOMO+','GIFTR','RETRN','STEAL','PREMM','FLIPR','INSTA',
+    'CHAR0','BOSSX',
+    'ZERO$','MIXDR'
+  ]),
 };
 
 export default async function handler(req, res) {
