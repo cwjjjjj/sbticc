@@ -26,6 +26,8 @@ interface ResultPageProps {
   gender?: Gender;
   /** Optional test-specific badge shown above the main type title (e.g. FPI feed stickers). */
   testBadge?: ReactNode;
+  /** Optional test-specific footer rendered after action buttons (e.g. FSI support block). */
+  testFooter?: ReactNode;
 }
 
 const staggerItem = {
@@ -46,6 +48,7 @@ export default function ResultPage({
   onDebugForceType,
   gender,
   testBadge,
+  testFooter,
 }: ResultPageProps) {
   const config = useTestConfig();
   const [debugSelectedType, setDebugSelectedType] = useState('');
@@ -359,6 +362,9 @@ export default function ResultPage({
               </p>
             </motion.div>
           )}
+
+          {/* FSI 专属页脚（如心理支持兜底） — 只渲染当上游传入且非 genderLocked 测试 */}
+          {testFooter && !config.genderLocked && testFooter}
 
           {/* Bottom spacer */}
           <div className="h-12" />
