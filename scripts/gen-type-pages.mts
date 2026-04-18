@@ -1,0 +1,200 @@
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const HTML_ESC: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+function escapeHtml(s: string): string {
+  return String(s).replace(/[&<>"']/g, (c) => HTML_ESC[c]);
+}
+
+export interface TypePageData {
+  origin: string;
+  testId: string;
+  testName: string;
+  testPath: string;
+  code: string;
+  cn: string;
+  intro: string;
+  desc: string;
+  relatedTypes: Array<{ code: string; cn: string }>;
+}
+
+export function renderTypePageHTML(d: TypePageData): string {
+  const title = `${escapeHtml(d.cn)}是什么人？${escapeHtml(d.testName)} - 人格实验室`;
+  const descMeta = escapeHtml(d.desc.slice(0, 160).replace(/\s+/g, ' '));
+  const canonical = `${d.origin}/types/${d.code}`;
+  const ogImage = `${d.origin}/images/og-${d.testId}.png`;
+  const descHtml = escapeHtml(d.desc).split(/\n\n+/).map((p) => `      <p>${p}</p>`).join('\n');
+  const relatedLinks = d.relatedTypes.map((t) =>
+    `        <li><a href="/types/${escapeHtml(t.code)}"><span class="rcode">${escapeHtml(t.code)}</span><span class="rcn">${escapeHtml(t.cn)}</span></a></li>`
+  ).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${title}</title>
+  <meta name="description" content="${descMeta}" />
+  <link rel="canonical" href="${canonical}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="${title}" />
+  <meta property="og:description" content="${descMeta}" />
+  <meta property="og:image" content="${ogImage}" />
+  <meta property="og:url" content="${canonical}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="${ogImage}" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "${escapeHtml(d.cn)} - ${escapeHtml(d.testName)}",
+    "articleBody": "${descMeta}",
+    "mainEntityOfPage": "${canonical}"
+  }
+  </script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #080808; color: #fff; }
+    body { line-height: 1.6; }
+    .container { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+    nav.breadcrumb { font-size: 13px; color: #888; margin-bottom: 32px; }
+    nav.breadcrumb a { color: #bbb; text-decoration: none; }
+    nav.breadcrumb a:hover { color: #fff; }
+    .type-card { background: linear-gradient(145deg, #1a1a1a, #0a0a0a); border: 1px solid #222; border-radius: 16px; padding: 48px 32px; text-align: center; margin-bottom: 32px; }
+    .type-code { font-family: ui-monospace, monospace; font-size: 32px; font-weight: 800; letter-spacing: 2px; color: #ff3b3b; }
+    h1 { font-size: 36px; margin: 12px 0 8px; }
+    .intro { font-size: 15px; color: #999; font-style: italic; }
+    section { margin-bottom: 32px; }
+    section h2 { font-size: 20px; margin-bottom: 12px; color: #ff3b3b; }
+    section p { margin-bottom: 12px; color: #ddd; white-space: pre-wrap; }
+    .cta { display: inline-block; background: #fff; color: #000; padding: 14px 28px; border-radius: 12px; font-weight: 700; text-decoration: none; margin-top: 8px; }
+    .cta:hover { background: #eee; }
+    ul.related { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    ul.related li a { display: flex; flex-direction: column; gap: 4px; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 8px; text-decoration: none; font-size: 13px; }
+    ul.related li a:hover { background: #222; border-color: #555; }
+    ul.related .rcode { font-family: ui-monospace, monospace; color: #ff3b3b; font-weight: 700; font-size: 12px; }
+    ul.related .rcn { color: #ddd; }
+    footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #222; font-size: 13px; color: #666; text-align: center; }
+    footer a { color: #888; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <article class="container">
+    <nav class="breadcrumb"><a href="/">首页</a> › <a href="${escapeHtml(d.testPath)}">${escapeHtml(d.testName)}</a> › <a href="/types/">类型百科</a> › <span>${escapeHtml(d.cn)}</span></nav>
+    <div class="type-card">
+      <div class="type-code">${escapeHtml(d.code)}</div>
+      <h1>${escapeHtml(d.cn)}</h1>
+      <p class="intro">${escapeHtml(d.intro)}</p>
+    </div>
+    <section>
+      <h2>关于这个类型</h2>
+${descHtml}
+    </section>
+    <section>
+      <h2>想测出 ${escapeHtml(d.cn)}？</h2>
+      <p>这个类型来自《${escapeHtml(d.testName)}》——5 分钟出结果，免费，附稀有度评分。</p>
+      <a class="cta" href="${escapeHtml(d.testPath)}">去做 ${escapeHtml(d.testName)} →</a>
+    </section>
+${relatedLinks ? `    <section>
+      <h2>相关类型</h2>
+      <ul class="related">
+${relatedLinks}
+      </ul>
+    </section>\n` : ''}
+    <footer>
+      <p><a href="/">人格实验室</a> · <a href="/types/">所有类型</a> · 所有测试仅供娱乐</p>
+    </footer>
+  </article>
+</body>
+</html>`;
+}
+
+// --- Main build logic ---
+
+interface TypeDef { code: string; cn: string; intro: string; desc: string; }
+
+interface TestSpec {
+  id: string;
+  name: string;
+  path: string;
+  typesModule: string;
+}
+
+const TESTS: TestSpec[] = [
+  { id: 'sbti',   name: 'SBTI 人格测试',         path: '/sbti',   typesModule: '../src/data/types.ts' },
+  { id: 'love',   name: '恋爱脑浓度检测',         path: '/love',   typesModule: '../src/data/love/types.ts' },
+  { id: 'work',   name: '打工人鉴定',             path: '/work',   typesModule: '../src/data/work/types.ts' },
+  { id: 'values', name: '活法检测报告',           path: '/values', typesModule: '../src/data/values/types.ts' },
+  { id: 'cyber',  name: '赛博基因检测',           path: '/cyber',  typesModule: '../src/data/cyber/types.ts' },
+  { id: 'desire', name: '欲望图谱',               path: '/desire', typesModule: '../src/data/desire/types.ts' },
+  { id: 'gsti',   name: 'GSTI 性转人格测试',       path: '/gsti',   typesModule: '../src/data/gsti/types.ts' },
+  { id: 'fpi',    name: '朋友圈人设诊断',         path: '/fpi',    typesModule: '../src/data/fpi/types.ts' },
+  { id: 'fsi',    name: '原生家庭幸存者',         path: '/fsi',    typesModule: '../src/data/fsi/types.ts' },
+  { id: 'mpi',    name: '消费人格图鉴',           path: '/mpi',    typesModule: '../src/data/mpi/types.ts' },
+];
+
+const ORIGIN = 'https://test.jiligulu.xyz';
+
+async function main() {
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const outDir = join(__dirname, '..', 'dist', 'types');
+  mkdirSync(outDir, { recursive: true });
+
+  const allRoutes: string[] = ['/types/'];
+  const allTypes: Array<{ testSpec: TestSpec; code: string; cn: string; intro: string; desc: string }> = [];
+
+  for (const spec of TESTS) {
+    let mod;
+    try {
+      mod = await import(spec.typesModule);
+    } catch (e) {
+      console.warn(`WARN: failed to import ${spec.typesModule}: ${(e as Error).message}`);
+      continue;
+    }
+    const lib: Record<string, TypeDef> = mod.TYPE_LIBRARY;
+    if (!lib) { console.warn(`WARN: ${spec.id} has no TYPE_LIBRARY export, skipping`); continue; }
+    for (const [code, typedef] of Object.entries(lib)) {
+      allTypes.push({ testSpec: spec, code, cn: typedef.cn, intro: typedef.intro, desc: typedef.desc });
+    }
+  }
+
+  for (const t of allTypes) {
+    const related = allTypes
+      .filter((r) => r.testSpec.id === t.testSpec.id && r.code !== t.code)
+      .slice(0, 3)
+      .map((r) => ({ code: r.code, cn: r.cn }));
+    const html = renderTypePageHTML({
+      origin: ORIGIN,
+      testId: t.testSpec.id,
+      testName: t.testSpec.name,
+      testPath: t.testSpec.path,
+      code: t.code,
+      cn: t.cn,
+      intro: t.intro,
+      desc: t.desc,
+      relatedTypes: related,
+    });
+    const typeDir = join(outDir, t.code);
+    mkdirSync(typeDir, { recursive: true });
+    writeFileSync(join(typeDir, 'index.html'), html, 'utf8');
+    allRoutes.push(`/types/${t.code}`);
+  }
+
+  writeFileSync(join(__dirname, 'type-routes.json'), JSON.stringify(allRoutes, null, 2), 'utf8');
+
+  console.log(`Generated ${allTypes.length} type pages + routes manifest (${allRoutes.length} routes)`);
+}
+
+// Run main only when executed directly
+const scriptPath = process.argv[1];
+const isMain = scriptPath && import.meta.url.endsWith(scriptPath.split('/').pop()!);
+if (isMain) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}
