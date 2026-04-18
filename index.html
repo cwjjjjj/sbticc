@@ -272,70 +272,70 @@
   <section class="tests-section">
     <div class="tests-grid">
 
-      <a class="test-card fade-in-up" href="/new">
+      <a class="test-card fade-in-up" href="/sbti">
         <div class="card-emoji">🧠</div>
         <div class="card-name">SBTI 人格测试</div>
         <div class="card-tagline">15维度深度人格扫描</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/love">
+      <a class="test-card fade-in-up" href="/love">
         <div class="card-emoji">💘</div>
         <div class="card-name">恋爱脑浓度检测</div>
         <div class="card-tagline">你谈恋爱是什么德性</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/work">
+      <a class="test-card fade-in-up" href="/work">
         <div class="card-emoji">💼</div>
         <div class="card-name">打工人鉴定</div>
         <div class="card-tagline">你是哪种打工人</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/values">
+      <a class="test-card fade-in-up" href="/values">
         <div class="card-emoji">🌏</div>
         <div class="card-name">活法检测报告</div>
         <div class="card-tagline">你到底在活什么</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/cyber">
+      <a class="test-card fade-in-up" href="/cyber">
         <div class="card-emoji">📱</div>
         <div class="card-name">赛博基因检测</div>
         <div class="card-tagline">你是什么品种的网民</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/desire">
+      <a class="test-card fade-in-up" href="/desire">
         <div class="card-emoji">🔥</div>
         <div class="card-name">欲望图谱</div>
         <div class="card-tagline">关上门之后你是谁</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/gsti">
+      <a class="test-card fade-in-up" href="/gsti">
         <div class="card-emoji">🪞</div>
         <div class="card-name">GSTI 性转人格测试</div>
         <div class="card-tagline">性转后你是什么鬼</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/fpi">
+      <a class="test-card fade-in-up" href="/fpi">
         <div class="card-emoji">📸</div>
         <div class="card-name">朋友圈人设诊断</div>
         <div class="card-tagline">你在朋友圈是什么物种</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/fsi">
+      <a class="test-card fade-in-up" href="/fsi">
         <div class="card-emoji">🏷️</div>
         <div class="card-name">原生家庭幸存者</div>
         <div class="card-tagline">你被养成了什么形状</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/new/mpi">
+      <a class="test-card fade-in-up" href="/mpi">
         <div class="card-emoji">💸</div>
         <div class="card-name">消费人格图鉴</div>
         <div class="card-tagline">你是怎么把钱输给这个世界的</div>
@@ -350,6 +350,20 @@
     <p>所有测试仅供娱乐，不构成任何专业建议</p>
     <p style="margin-top: 4px; opacity: 0.5;">&copy; 人格实验室</p>
   </footer>
+
+  <script>
+    // Shuffle test card order on each visit (Fisher-Yates)
+    (function () {
+      var grid = document.querySelector('.tests-grid');
+      if (!grid) return;
+      var cards = Array.prototype.slice.call(grid.children);
+      for (var i = cards.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+      }
+      cards.forEach(function (c) { grid.appendChild(c); });
+    })();
+  </script>
 
   <script>
     // Fetch total test count across all tests and display social proof

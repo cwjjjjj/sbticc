@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import ProgressBar from './ProgressBar';
 import QuestionCard from './QuestionCard';
-import AdSlot from './AdSlot';
 import type { UseQuizReturn } from '../hooks/useQuiz';
 
 interface QuizOverlayProps {
@@ -157,13 +156,6 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
             <div className="w-[72px]" /> /* spacer to keep layout balanced */
           )}
         </div>
-
-        {/* Bottom ad during the quiz flow */}
-        <AdSlot
-          zone="10859606"
-          src="https://nap5k.com/tag.min.js"
-          className="mt-5 mb-2 rounded-lg border border-border/60 bg-surface-2/40 overflow-hidden"
-        />
 
         {/* Submit area */}
         {isLastQuestion && (
