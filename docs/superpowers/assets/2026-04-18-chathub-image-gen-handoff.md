@@ -159,7 +159,61 @@ export const SHARE_IMAGES: Record<string, string> = { ...TYPE_IMAGES };
 |------|------|------|------|--------|------|
 | - | - | - | - | - | 待开始 |
 
-## 接手 AI 的第一条指令模板
+## 模型对比临时记录（2026-04-18 第 4 次会话）
+
+- 已通过 Chrome CDP 连接 `http://localhost:9222` 的 ChatHub tab（本 Codex 会话没有直接暴露 `mcp__chrome-devtools__*` 工具，因此用 DevTools Protocol 脚本接管）。
+- 新增临时续跑脚本：`tmp/chathub-generate.mjs`，支持保存当前生成图、切换模型、提交 prompt、等待新图并转存为 PNG。
+- 已保存对比图：
+  - `tmp/model-compare/M_GOLD-seedream45-actual.png`：Seedream 4.5，4096x4096，真实原图。问题：画面顶部生成英文大标题。
+  - `tmp/model-compare/M_GOLD-nano-banana-pro.png`：Nano Banana Pro，1024x1024。问题：画面顶部生成中文大标题。
+  - `tmp/model-compare/M_GOLD-nano-banana-2-cartoon.png`：Nano Banana 2，1024x1024。按用户最新要求改为卡通形象、无任何文字，效果较适合继续批量。
+  - `tmp/model-compare/M_GOLD-nano-banana-2-personality-avatar.png`：Nano Banana 2，1024x1024。参考 16Personalities/MBTI 人格头像的方向后重跑：干净背景、全身卡通人格角色、道具符号化、无文字。当前最符合用户偏好。
+- 用户最新偏好：图片不需要出现文字，形象应该是卡通形象，并参考 MBTI/16Personalities 人格图片风格。不要直接复制官方角色，抽取“人格测试头像”的视觉规律：全身/半身 mascot、圆润比例、干净矢量感、少量人格道具、简洁背景、可小图识别。
+- 后续批量 prompt 应统一加上 `No text, no letters, no logo, no watermark`，并加强 `personality test avatar illustration / full-body stylized mascot / clean vector-like shapes / bold readable silhouette / simple symbolic props / minimal background`。
+
+## 当前状态（2026-04-18 下午，第 3 次会话结束时）
+
+### 已完成
+- ✅ Chrome 已用独立 profile 启动带 remote debugging（端口 9222）
+  - 启动命令：`/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/chrome-debug-profile"`
+  - 用户**已在新 Chrome 里登录 ChatHub** (`https://app.chathub.gg/image-generator`)
+  - 用户原 Chrome 不动（保留所有 tab）
+- ✅ HTTP `curl http://localhost:9222/json/version` 验证 9222 端点工作正常（Chrome/147）
+- ✅ `~/.claude.json` 的 chrome-devtools MCP 配置已修正：从 `--autoConnect` 改为 `-u http://localhost:9222`
+
+### 第 2 次会话遇到的坑
+- `chrome-devtools-mcp` MCP server 启动于 12:59PM（会话刚开时），Chrome 启动于 1:24PM
+- MCP server 在 Chrome 启动前初始化失败，之后所有 `mcp__chrome-devtools__*` 调用都 `Network.enable timed out`
+
+### 第 3 次会话遇到的坑
+- MCP server 配置用的是 `--autoConnect`，这个 flag 只从**默认 Chrome profile** 的 `DevToolsActivePort` 读端口
+- 但用户的 Chrome 用的是独立 profile（`~/chrome-debug-profile`），默认 profile 根本没启动
+- 结果：`list_pages` 报 `Could not find DevToolsActivePort for chrome at ~/Library/Application Support/Google/Chrome/DevToolsActivePort`
+- **修复**：改成 `--browserUrl http://localhost:9222` 强制连 9222。修复后必须重启会话使新配置生效。
+
+### 下次接手（第 4 次会话）启动指令
+
+```
+Chrome 仍在 localhost:9222 跑着（独立 profile，ChatHub 已登录）。
+~/.claude.json 的 chrome-devtools MCP 已改为 --browserUrl http://localhost:9222。
+读 docs/superpowers/assets/2026-04-18-chathub-image-gen-handoff.md。
+
+立即做：
+1. mcp__chrome-devtools__list_pages — 找到 ChatHub tab
+2. mcp__chrome-devtools__select_page — 选中
+3. mcp__chrome-devtools__take_snapshot — 看 UI 结构
+4. 用 M_GOLD 挖金壮男 prompt（docs/superpowers/assets/2026-04-18-gsti-type-images-prompts.md 第 3 条）
+   分别切换 Seedream 4.5 / Nano Banana Pro / FLUX.2 各跑一张
+5. 3 张出图后截图给用户看，让用户选模型
+6. 选定后开始 GSTI 42 张批量（模式：生成一张下一张，每 10 张 commit 一次）
+
+⚠️ 如果 list_pages 还是连不上：
+- curl 验证 http://localhost:9222/json/version 是否响应（应该返回 Chrome/147 JSON）
+- 如果响应正常：说明 MCP 启动时序问题，再次重启会话
+- 如果不响应：Chrome 挂了，让用户检查 Chrome 窗口（或用上面的启动命令重启）
+```
+
+## 接手 AI 的第一条指令模板（通用）
 
 ```
 Read docs/superpowers/assets/2026-04-18-chathub-image-gen-handoff.md
