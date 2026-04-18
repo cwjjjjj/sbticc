@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>原生家庭幸存者 — 你被养成了什么形状 | 免费测试</title>
+  <meta name="description" content="22 道轻量自省题，6 个维度，18 种家庭出厂型号。不是让你哭的，是让你笑着承认——你被这样养大，接下来怎么办。" />
+  <meta name="keywords" content="原生家庭测试,家庭心理测试,FSI,重养自己,电子父母" />
+  <link rel="canonical" href="https://sbti.jiligulu.xyz/new/fsi" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="原生家庭幸存者 — 你被养成了什么形状" />
+  <meta property="og:description" content="SBTI 测你是什么物种，FSI 测你怎么变成这个物种的。一次轻量自省，不是诊断。" />
+  <meta property="og:url" content="https://sbti.jiligulu.xyz/new/fsi" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="原生家庭幸存者 — 你被养成了什么形状" />
+  <meta name="twitter:description" content="SBTI 测你是什么物种，FSI 测你怎么变成这个物种的。一次轻量自省，不是诊断。" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Quiz",
+    "name": "FSI 原生家庭幸存者",
+    "description": "22 题 6 维度，18 种家庭出厂型号，以温柔出口收尾；含心理支持热线。",
+    "educationalLevel": "entertainment"
+  }
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+    import FsiApp from './src/FsiApp.tsx'
+    import './src/index.css'
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      React.createElement(React.StrictMode, null,
+        React.createElement(FsiApp)
+      )
+    )
+  </script>
+</body>
+</html>
