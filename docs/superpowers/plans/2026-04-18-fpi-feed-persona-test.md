@@ -2096,6 +2096,28 @@ git commit --allow-empty -m "ship(fpi): deploy + smoke checklist done"
 - FPIHeroBadge 视觉审查：无微信绿 + 白对话框、无仿头像昵称占位、无仿微信 logo。
 - Empty commit 按 plan 记录审校通过。
 
+**Task 19 — TypeScript + 生产构建** ✅
+- Commit: `bd24db5` — `verify: fpi tsc + production build pass (fpi bundle 39.23 kB gz 17.32 kB)`
+- `npx tsc --noEmit` clean（仅 npm config 无关 warning）。
+- `bash build.sh` 955ms 成功。FPI chunk `fpi-D1XI9RkC.js` 39.23 kB（gzip 17.32 kB）—— 最小 chunk，tree-shaking 健康。
+- `dist/new/fpi/index.html` 1908 bytes 产出正常。
+
+**Task 20 — 部署前清单 + Vercel rewrite** ✅
+- Commit 1: `487e1d8` — `fix(fpi): add Vercel rewrite for /new/fpi (same pattern as gsti)`
+  - `vercel.json` rewrites 区新增两条（`/new/fpi` 和 `/new/fpi/(.*)` → `/new/fpi/index.html`），对齐 GSTI 部署经验（见 GSTI commit 154b731）。
+- Commit 2: `[ship]` — `ship(fpi): deploy + local checklist pass (online smoke deferred to post-push)`
+  - 人工清单 8 项全过（fpi.html meta、20 types desc、24 题 typo、gate → 0POST 路径、FPIHeroBadge 渲染、hub 卡可点、API fpi 命名空间、build.sh 产出）。
+  - 线上 smoke（curl API / Vercel dashboard / 24h 监控）待 push 后做。
+
+---
+
+### FPI 本地实现完工状态
+
+- 20 task 全部完成（含 Task 16 的决策性 skip）
+- 分支 `feat/fpi-feed-persona` 本地 HEAD 准备 push 到 main
+- 依赖远端 Vercel 自动构建 + rewrite 生效
+- 需 user 授权 push 后才能走线上 smoke
+
 ---
 
 ### 关键架构纠正（继承自 GSTI plan）
