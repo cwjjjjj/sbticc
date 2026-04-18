@@ -58,6 +58,12 @@ const MOCK_TYPES_BY_TEST = {
     'BRAG+','DUAL!',
     'BOSSY','FAMX?',
   ],
+  mpi: [
+    'LIVE!','2HAND','HAULX','CHEAP','GOLDN','SETUP','NUBOY','LUXUR',
+    'BILIB','FOMO+','GIFTR','RETRN','STEAL','PREMM','FLIPR','INSTA',
+    'CHAR0','BOSSX',
+    'ZERO$','MIXDR',
+  ],
 };
 
 const HIDDEN_TYPE_BY_TEST = {
@@ -69,7 +75,8 @@ const HIDDEN_TYPE_BY_TEST = {
   desire: 'XXX',
   gsti: 'UNDEF',
   fpi: '0POST',
-  fsi: 'BOSSY',      // 新增
+  fsi: 'BOSSY',
+  mpi: 'ZERO$',      // 新增
 };
 
 function hashString(input) {
