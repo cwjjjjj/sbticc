@@ -2,11 +2,14 @@
 set -e
 
 # --- SEO asset generation (pre-Vite) ---
-# Regenerate OG images if any are missing (slow first time; cached after)
+# Regenerate test-level OG images if any are missing
 if [ ! -f public/images/og-gsti.png ] || [ ! -f public/images/og-fpi.png ] || \
    [ ! -f public/images/og-fsi.png ] || [ ! -f public/images/og-mpi.png ]; then
   node scripts/gen-og-images.mjs
 fi
+
+# Generate per-type OG images (idempotent — skips existing). Slow first run (~8min), free after.
+npx tsx scripts/gen-og-types.mts
 
 # 1. Type-check
 npx tsc --noEmit
@@ -42,9 +45,15 @@ test -f sw.js && cp sw.js dist/sw.js
 [ -f dist-temp/robots.txt ] && cp dist-temp/robots.txt dist/robots.txt
 
 # Merge generated OG images from public/images (dist-temp/images) into dist/images
-# Use cp -n to NOT overwrite existing repo /images/ files
+# Recursive copy to pick up og-types/ subdirs; no-clobber to preserve repo /images/ originals
 if [ -d dist-temp/images ]; then
-  cp -n dist-temp/images/* dist/images/ 2>/dev/null || true
+  cp -n dist-temp/images/*.png dist/images/ 2>/dev/null || true
+  for sub in dist-temp/images/*/; do
+    if [ -d "$sub" ]; then
+      name=$(basename "$sub")
+      cp -R "$sub" "dist/images/$name"
+    fi
+  done
 fi
 
 # 7.6 Generate type pages + hub directly into dist/types/
