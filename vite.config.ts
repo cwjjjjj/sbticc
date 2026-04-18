@@ -17,6 +17,7 @@ export default defineConfig({
         desire: 'desire.html',
         gsti: 'gsti.html',
         fpi: 'fpi.html',
+        fsi: 'fsi.html',
       },
     },
   },
