@@ -50,6 +50,12 @@ const VALID_TYPES_BY_TEST = {
     'REDBK','JUDGE','QSLIF','NPC-F',
     '0POST','FEED?'
   ]),
+  'fsi': new Set([
+    'COPYX','REBEL','SAINT','LEAVE','CURE!','SILNT','DADY+','MAMY+',
+    'PICKR','PLEASE','GOLD+','GHOST','SOS!','BANK!','PRNS+','TOOLX',
+    'BRAG+','DUAL!',
+    'BOSSY','FAMX?'
+  ]),
 };
 
 export default async function handler(req, res) {
