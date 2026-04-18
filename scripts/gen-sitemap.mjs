@@ -55,20 +55,32 @@ if (isMain) {
   const __dirname = dirname(fileURLToPath(import.meta.url));
 
   // Merge in type-routes.json if present (populated by gen-type-pages)
-  let extraRoutes = [];
-  const manifestPath = join(__dirname, 'type-routes.json');
-  if (existsSync(manifestPath)) {
+  let typeRoutes = [];
+  const typeManifest = join(__dirname, 'type-routes.json');
+  if (existsSync(typeManifest)) {
     try {
-      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-      if (Array.isArray(manifest)) extraRoutes = manifest;
+      const m = JSON.parse(readFileSync(typeManifest, 'utf8'));
+      if (Array.isArray(m)) typeRoutes = m;
     } catch (e) {
-      console.warn(`WARN: could not parse ${manifestPath}: ${e.message}`);
+      console.warn(`WARN: could not parse ${typeManifest}: ${e.message}`);
     }
   }
 
-  const allRoutes = [...new Set([...ROUTES, ...extraRoutes])];
+  // Merge in article-routes.json if present (populated by gen-articles)
+  let articleRoutes = [];
+  const articleManifest = join(__dirname, 'article-routes.json');
+  if (existsSync(articleManifest)) {
+    try {
+      const m = JSON.parse(readFileSync(articleManifest, 'utf8'));
+      if (Array.isArray(m)) articleRoutes = m;
+    } catch (e) {
+      console.warn(`WARN: could not parse ${articleManifest}: ${e.message}`);
+    }
+  }
+
+  const allRoutes = [...new Set([...ROUTES, ...typeRoutes, ...articleRoutes])];
   const xml = buildSitemap({ origin: ORIGIN, routes: allRoutes, lastmod: today() });
   const outPath = join(__dirname, '..', 'public', 'sitemap.xml');
   writeFileSync(outPath, xml, 'utf8');
-  console.log(`Wrote ${outPath} (${allRoutes.length} routes: ${ROUTES.length} base + ${allRoutes.length - ROUTES.length} type)`);
+  console.log(`Wrote ${outPath} (${allRoutes.length} routes: ${ROUTES.length} base + ${typeRoutes.length} type + ${articleRoutes.length} article)`);
 }

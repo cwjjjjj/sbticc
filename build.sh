@@ -50,7 +50,10 @@ fi
 # 7.6 Generate type pages + hub directly into dist/types/
 npx tsx scripts/gen-type-pages.mts
 
-# 7.7 Regenerate sitemap now that type routes exist, copy final version
+# 7.7 Generate article pages + hub directly into dist/articles/
+npx tsx scripts/gen-articles.mts
+
+# 7.8 Regenerate sitemap now that type + article routes exist, copy final version
 node scripts/gen-sitemap.mjs
 cp public/sitemap.xml dist/sitemap.xml
 
