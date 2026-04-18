@@ -13,14 +13,15 @@ import RevealOverlay from './RevealOverlay';
 import RarityBadge from './RarityBadge';
 import HookMatrix from './HookMatrix';
 import { useRarity } from '../hooks/useRarity';
+import type { ShareCardRarity } from '../utils/shareCard';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
 interface ResultPageProps {
   result: ComputeResultOutput;
   isPaid?: boolean;
-  onShare: () => void;
-  onInviteCompare: () => void;
+  onShare: (rarity?: ShareCardRarity) => void;
+  onInviteCompare: (rarity?: ShareCardRarity) => void;
   onRestart: () => void;
   onHome: () => void;
   onStartPayment?: () => void;
@@ -60,6 +61,14 @@ export default function ResultPage({
   const typeCode = result.finalType.code;
   const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
   const rarity = useRarity(config.id, typeCode);
+
+  // Snapshot for share card (only pass when loaded + has data).
+  const shareRarity: ShareCardRarity | undefined =
+    rarity.loaded && !rarity.error && rarity.totalTests > 0
+      ? { percentile: rarity.percentile, tier: rarity.tier }
+      : undefined;
+  const handleShareClick = () => onShare(shareRarity);
+  const handleInviteClick = () => onInviteCompare(shareRarity);
 
   // Count how many of the 10 tests the user has completed locally (for ContinueJourneyCard).
   const localHistoryCount = useMemo(() => {
@@ -144,13 +153,13 @@ export default function ResultPage({
                   {'🎲'} 换一个人格
                 </button>
                 <button
-                  onClick={onShare}
+                  onClick={handleShareClick}
                   className="text-xs bg-surface border border-border px-3 py-1.5 rounded-lg hover:border-[#444] transition-colors cursor-pointer"
                 >
                   {'🖼️'} 测试分享图
                 </button>
                 <button
-                  onClick={onInviteCompare}
+                  onClick={handleInviteClick}
                   className="text-xs bg-surface border border-border px-3 py-1.5 rounded-lg hover:border-[#444] transition-colors cursor-pointer"
                 >
                   {'📨'} 测试邀请图
@@ -367,7 +376,7 @@ export default function ResultPage({
             <HookMatrix
               testId={config.id}
               localHistoryCount={localHistoryCount}
-              onInviteCompare={onInviteCompare}
+              onInviteCompare={handleInviteClick}
             />
           </motion.div>
 
@@ -378,13 +387,13 @@ export default function ResultPage({
             className="flex gap-3 flex-wrap mt-7 justify-center"
           >
             <button
-              onClick={onShare}
+              onClick={handleShareClick}
               className="bg-white text-black font-bold py-3.5 px-7 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
             >
               生成分享图
             </button>
             <button
-              onClick={onInviteCompare}
+              onClick={handleInviteClick}
               className="bg-white text-black font-bold py-3.5 px-7 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
             >
               邀请好友对比

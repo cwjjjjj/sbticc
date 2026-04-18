@@ -15,7 +15,7 @@ import { useRanking } from './hooks/useRanking';
 import { useLocalHistory } from './hooks/useLocalHistory';
 import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compare';
 import { generateQR } from './utils/qr';
-import { drawShareCard, canvasToBlob } from './utils/shareCard';
+import { drawShareCard, canvasToBlob, type ShareCardRarity } from './utils/shareCard';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { sbtiConfig } from './data/sbti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
@@ -129,25 +129,26 @@ function AppInner() {
     setScreen('quiz');
   }, [quiz]);
 
-  const handleShare = useCallback(async () => {
+  const handleShare = useCallback(async (rarity?: ShareCardRarity) => {
     if (!result) return;
     const typeCode = result.finalType.code;
     const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
-    const pageUrl = `${config.prodBaseUrl}${config.basePath}`;
-    const qrDataUrl = generateQR(pageUrl);
+    // Phase B virality: QR points to the type page (not test home).
+    const typePageUrl = `${config.prodBaseUrl}/types/${config.id}/${typeCode}?s=share`;
+    const qrDataUrl = generateQR(typePageUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share', config);
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share', config, false, rarity);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-${typeCode}.png`);
-      setShareModalUrl(pageUrl);
+      setShareModalUrl(typePageUrl);
       setShowShareModal(true);
     } catch {
       alert('\u5206\u4eab\u56fe\u751f\u6210\u5931\u8d25');
     }
   }, [result, config]);
 
-  const handleInviteCompare = useCallback(async () => {
+  const handleInviteCompare = useCallback(async (rarity?: ShareCardRarity) => {
     if (!result) return;
     const typeCode = result.finalType.code;
     const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
@@ -163,7 +164,7 @@ function AppInner() {
     const compareUrl = `${config.prodBaseUrl}${config.basePath}#compare=${encoded}`;
     const qrDataUrl = generateQR(compareUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config);
+      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'invite', config, false, rarity);
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-invite-${typeCode}.png`);

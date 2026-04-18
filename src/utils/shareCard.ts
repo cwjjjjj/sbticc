@@ -2,6 +2,14 @@ import { PROD_BASE_URL } from '../theme/tokens';
 import type { Gender, TestConfig, TypeDef } from '../data/testConfig';
 import type { ComputeResultOutput } from './matching';
 
+/* ---------- types ---------- */
+
+export interface ShareCardRarity {
+  /** 0-100, lower = rarer (same convention as useRarity). */
+  percentile: number;
+  tier: 'legendary' | 'rare' | 'uncommon' | 'common';
+}
+
 /* ---------- helpers ---------- */
 
 export function loadImage(src: string): Promise<HTMLImageElement | null> {
@@ -57,6 +65,7 @@ export async function drawShareCard(
   mode: 'share' | 'invite',
   config: TestConfig,
   isPaid: boolean = false,
+  rarity?: ShareCardRarity,
 ): Promise<HTMLCanvasElement> {
   const { dimensionOrder, dimensionMeta, shareImages } = config;
   const W = 840;
@@ -92,6 +101,37 @@ export async function drawShareCard(
   if (config.genderLocked) {
     drawSwapBadge(ctx, pad, y, type.code, config);
     y += 68;
+  }
+
+  // -- Rarity banner (Phase B virality) — prominent "前 X% · 稀世/罕见/少见/普通"
+  if (rarity && rarity.percentile < 100) {
+    const tierCfg = {
+      legendary: { cn: '稀世', color: '#ffd700' },
+      rare:      { cn: '罕见', color: '#ff3b3b' },
+      uncommon:  { cn: '少见', color: '#c0c0c0' },
+      common:    { cn: '普通', color: '#888888' },
+    }[rarity.tier];
+    const pctStr = rarity.percentile < 1 ? '< 1' : rarity.percentile.toFixed(1);
+
+    ctx.save();
+    ctx.textAlign = 'center';
+
+    // Big percentile number
+    ctx.font = 'bold 72px "JetBrains Mono", monospace';
+    ctx.fillStyle = tierCfg.color;
+    ctx.shadowColor = tierCfg.color;
+    ctx.shadowBlur = 16;
+    ctx.fillText(`\u524d ${pctStr}%`, W / 2, y + 60);
+
+    // Tier label
+    ctx.shadowBlur = 0;
+    ctx.font = 'bold 28px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = tierCfg.color;
+    ctx.fillText(tierCfg.cn, W / 2, y + 100);
+
+    ctx.restore();
+    ctx.textAlign = 'left';
+    y += 130;
   }
 
   // -- Poster image + type info
