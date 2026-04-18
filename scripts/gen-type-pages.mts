@@ -116,6 +116,85 @@ ${relatedLinks}
 </html>`;
 }
 
+export interface HubTypeItem {
+  testId: string;
+  testName: string;
+  testPath: string;
+  code: string;
+  cn: string;
+  intro: string;
+}
+
+export function renderTypeHubHTML(items: HubTypeItem[], origin: string): string {
+  const grouped = new Map<string, { name: string; path: string; items: HubTypeItem[] }>();
+  for (const it of items) {
+    if (!grouped.has(it.testId)) grouped.set(it.testId, { name: it.testName, path: it.testPath, items: [] });
+    grouped.get(it.testId)!.items.push(it);
+  }
+
+  const groupsHtml = Array.from(grouped.entries()).map(([tid, g]) => {
+    const cards = g.items.map((i) =>
+      `      <li><a href="/types/${escapeHtml(i.testId)}/${escapeHtml(i.code)}"><span class="code">${escapeHtml(i.code)}</span><span class="cn">${escapeHtml(i.cn)}</span></a></li>`
+    ).join('\n');
+    return `  <section class="group">
+    <h2><a href="${escapeHtml(g.path)}">${escapeHtml(g.name)}</a> <span class="count">(${g.items.length})</span></h2>
+    <ul class="types">
+${cards}
+    </ul>
+  </section>`;
+  }).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>类型百科 - 人格实验室 ${items.length} 种人格类型</title>
+  <meta name="description" content="人格实验室所有 ${items.length} 种人格类型的完整索引，覆盖 ${grouped.size} 款测试。从恋爱脑到打工人，从消费人格到朋友圈物种。" />
+  <link rel="canonical" href="${origin}/types/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="类型百科 - 人格实验室" />
+  <meta property="og:description" content="${items.length} 种人格类型的完整索引" />
+  <meta property="og:image" content="${origin}/images/og-sbti.png" />
+  <meta property="og:url" content="${origin}/types/" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #080808; color: #fff; }
+    body { line-height: 1.6; }
+    header { text-align: center; padding: 64px 24px 32px; }
+    header h1 { font-size: 44px; margin-bottom: 12px; }
+    header p { color: #888; }
+    header a { color: #ff3b3b; text-decoration: none; }
+    main { max-width: 960px; margin: 0 auto; padding: 0 24px 64px; }
+    .group { margin-bottom: 48px; }
+    .group h2 { font-size: 22px; margin-bottom: 16px; border-left: 3px solid #ff3b3b; padding-left: 12px; }
+    .group h2 a { color: #fff; text-decoration: none; }
+    .group h2 a:hover { color: #ff3b3b; }
+    .count { font-size: 14px; color: #666; font-weight: 400; }
+    ul.types { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    ul.types li a { display: flex; flex-direction: column; gap: 4px; background: #111; border: 1px solid #222; border-radius: 10px; padding: 14px; text-decoration: none; color: #fff; transition: background 0.2s, border-color 0.2s; }
+    ul.types li a:hover { background: #1a1a1a; border-color: #ff3b3b44; }
+    ul.types .code { font-family: ui-monospace, monospace; font-size: 13px; color: #ff3b3b; font-weight: 700; }
+    ul.types .cn { font-size: 14px; color: #ddd; }
+    footer { text-align: center; color: #666; font-size: 13px; padding: 32px 24px 48px; border-top: 1px solid #222; max-width: 960px; margin: 0 auto; }
+    footer a { color: #888; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>类型百科</h1>
+    <p><a href="/">← 返回首页</a> · 共 ${items.length} 种人格类型，分布在 ${grouped.size} 款测试中</p>
+  </header>
+  <main>
+${groupsHtml}
+  </main>
+  <footer>
+    <p>所有测试仅供娱乐 · <a href="/">人格实验室</a></p>
+  </footer>
+</body>
+</html>`;
+}
+
 // --- Main build logic ---
 
 interface TypeDef { code: string; cn: string; intro: string; desc: string; }
@@ -186,6 +265,15 @@ async function main() {
     writeFileSync(join(typeDir, 'index.html'), html, 'utf8');
     allRoutes.push(`/types/${t.testSpec.id}/${t.code}`);
   }
+
+  // Emit hub page
+  const hubItems: HubTypeItem[] = allTypes.map((t) => ({
+    testId: t.testSpec.id, testName: t.testSpec.name, testPath: t.testSpec.path,
+    code: t.code, cn: t.cn, intro: t.intro,
+  }));
+  const hubHtml = renderTypeHubHTML(hubItems, ORIGIN);
+  writeFileSync(join(outDir, 'index.html'), hubHtml, 'utf8');
+  console.log(`Generated hub page /types/index.html`);
 
   writeFileSync(join(__dirname, 'type-routes.json'), JSON.stringify(allRoutes, null, 2), 'utf8');
 

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderTypePageHTML, type TypePageData } from './gen-type-pages.mts';
+import { renderTypeHubHTML } from './gen-type-pages.mts';
 
 test('renderTypePageHTML produces valid HTML with expected fields', () => {
   const data: TypePageData = {
@@ -60,4 +61,20 @@ test('renderTypePageHTML handles special-char type codes', () => {
   };
   const html = renderTypePageHTML(data);
   assert.match(html, /<link rel="canonical" href="[^"]*\/types\/fpi\/9PIC!" \/>/);
+});
+
+test('renderTypeHubHTML groups types by test and includes count', () => {
+  const items = [
+    { testId: 'gsti', testName: 'GSTI', testPath: '/gsti', code: 'M_GOLD', cn: '挖金壮男', intro: 'x' },
+    { testId: 'gsti', testName: 'GSTI', testPath: '/gsti', code: 'F_PHNX', cn: '凤凰女', intro: 'x' },
+    { testId: 'love', testName: 'Love', testPath: '/love', code: 'BURN', cn: '飞蛾', intro: 'x' },
+  ];
+  const html = renderTypeHubHTML(items, 'https://test.jiligulu.xyz');
+  assert.match(html, /<title>类型百科 - 人格实验室 3 种人格类型<\/title>/);
+  assert.match(html, /GSTI/);
+  assert.match(html, /Love/);
+  assert.match(html, /挖金壮男/);
+  assert.match(html, /href="\/types\/gsti\/M_GOLD"/);
+  assert.match(html, /\(2\)/);
+  assert.match(html, /\(1\)/);
 });
