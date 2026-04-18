@@ -22,14 +22,14 @@ test('renderTypePageHTML produces valid HTML with expected fields', () => {
   assert.match(html, /<!DOCTYPE html>/);
   assert.match(html, /<html lang="zh-CN">/);
   assert.match(html, /<title>挖金壮男是什么人？GSTI 性转人格测试 - 人格实验室<\/title>/);
-  assert.match(html, /<link rel="canonical" href="https:\/\/test\.jiligulu\.xyz\/types\/M_GOLD" \/>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/test\.jiligulu\.xyz\/types\/gsti\/M_GOLD" \/>/);
   assert.match(html, /<meta property="og:image" content="https:\/\/test\.jiligulu\.xyz\/images\/og-gsti\.png" \/>/);
   assert.match(html, /<h1[^>]*>挖金壮男<\/h1>/);
   assert.match(html, /The Gold Digger \(male\)/);
   assert.match(html, /兄弟，你不是找对象/);
   assert.match(html, /href="\/gsti"/);           // CTA link to test
-  assert.match(html, /href="\/types\/M_GTEA"/);  // related type link
-  assert.match(html, /href="\/types\/M_WHIT"/);
+  assert.match(html, /href="\/types\/gsti\/M_GTEA"/);  // related type link
+  assert.match(html, /href="\/types\/gsti\/M_WHIT"/);
   assert.match(html, /人格实验室/);
 });
 
@@ -59,5 +59,5 @@ test('renderTypePageHTML handles special-char type codes', () => {
     relatedTypes: [],
   };
   const html = renderTypePageHTML(data);
-  assert.match(html, /<link rel="canonical" href="[^"]*\/types\/9PIC!" \/>/);
+  assert.match(html, /<link rel="canonical" href="[^"]*\/types\/fpi\/9PIC!" \/>/);
 });

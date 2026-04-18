@@ -28,11 +28,11 @@ export interface TypePageData {
 export function renderTypePageHTML(d: TypePageData): string {
   const title = `${escapeHtml(d.cn)}是什么人？${escapeHtml(d.testName)} - 人格实验室`;
   const descMeta = escapeHtml(d.desc.slice(0, 160).replace(/\s+/g, ' '));
-  const canonical = `${d.origin}/types/${d.code}`;
+  const canonical = `${d.origin}/types/${d.testId}/${d.code}`;
   const ogImage = `${d.origin}/images/og-${d.testId}.png`;
   const descHtml = escapeHtml(d.desc).split(/\n\n+/).map((p) => `      <p>${p}</p>`).join('\n');
   const relatedLinks = d.relatedTypes.map((t) =>
-    `        <li><a href="/types/${escapeHtml(t.code)}"><span class="rcode">${escapeHtml(t.code)}</span><span class="rcn">${escapeHtml(t.cn)}</span></a></li>`
+    `        <li><a href="/types/${escapeHtml(d.testId)}/${escapeHtml(t.code)}"><span class="rcode">${escapeHtml(t.code)}</span><span class="rcn">${escapeHtml(t.cn)}</span></a></li>`
   ).join('\n');
 
   return `<!DOCTYPE html>
@@ -181,10 +181,10 @@ async function main() {
       desc: t.desc,
       relatedTypes: related,
     });
-    const typeDir = join(outDir, t.code);
+    const typeDir = join(outDir, t.testSpec.id, t.code);
     mkdirSync(typeDir, { recursive: true });
     writeFileSync(join(typeDir, 'index.html'), html, 'utf8');
-    allRoutes.push(`/types/${t.code}`);
+    allRoutes.push(`/types/${t.testSpec.id}/${t.code}`);
   }
 
   writeFileSync(join(__dirname, 'type-routes.json'), JSON.stringify(allRoutes, null, 2), 'utf8');
