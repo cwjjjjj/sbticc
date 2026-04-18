@@ -1,11 +1,8 @@
 #!/bin/bash
 set -e
 
-# --- SEO asset generation ---
-# Regenerate sitemap every build (dates stay fresh)
-node scripts/gen-sitemap.mjs
-
-# Only regenerate OG images if any are missing (avoids slow font download per build)
+# --- SEO asset generation (pre-Vite) ---
+# Regenerate OG images if any are missing (slow first time; cached after)
 if [ ! -f public/images/og-gsti.png ] || [ ! -f public/images/og-fpi.png ] || \
    [ ! -f public/images/og-fsi.png ] || [ ! -f public/images/og-mpi.png ]; then
   node scripts/gen-og-images.mjs
@@ -50,7 +47,14 @@ if [ -d dist-temp/images ]; then
   cp -n dist-temp/images/* dist/images/ 2>/dev/null || true
 fi
 
+# 7.6 Generate type pages + hub directly into dist/types/
+npx tsx scripts/gen-type-pages.mts
+
+# 7.7 Regenerate sitemap now that type routes exist, copy final version
+node scripts/gen-sitemap.mjs
+cp public/sitemap.xml dist/sitemap.xml
+
 # 8. Cleanup
 rm -rf dist-temp
 
-echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber/desire/gsti/fpi/fsi/mpi at /new/<test>/"
+echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber/desire/gsti/fpi/fsi/mpi at /new/<test>/, types at /types/"
