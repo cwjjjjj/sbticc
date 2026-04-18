@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -52,9 +52,23 @@ function today() {
 
 const isMain = import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
-  const xml = buildSitemap({ origin: ORIGIN, routes: ROUTES, lastmod: today() });
   const __dirname = dirname(fileURLToPath(import.meta.url));
+
+  // Merge in type-routes.json if present (populated by gen-type-pages)
+  let extraRoutes = [];
+  const manifestPath = join(__dirname, 'type-routes.json');
+  if (existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+      if (Array.isArray(manifest)) extraRoutes = manifest;
+    } catch (e) {
+      console.warn(`WARN: could not parse ${manifestPath}: ${e.message}`);
+    }
+  }
+
+  const allRoutes = [...new Set([...ROUTES, ...extraRoutes])];
+  const xml = buildSitemap({ origin: ORIGIN, routes: allRoutes, lastmod: today() });
   const outPath = join(__dirname, '..', 'public', 'sitemap.xml');
   writeFileSync(outPath, xml, 'utf8');
-  console.log(`Wrote ${outPath} (${ROUTES.length} routes)`);
+  console.log(`Wrote ${outPath} (${allRoutes.length} routes: ${ROUTES.length} base + ${allRoutes.length - ROUTES.length} type)`);
 }
