@@ -52,6 +52,12 @@ const MOCK_TYPES_BY_TEST = {
     'REDBK','JUDGE','QSLIF','NPC-F',
     '0POST','FEED?',
   ],
+  fsi: [
+    'COPYX','REBEL','SAINT','LEAVE','CURE!','SILNT','DADY+','MAMY+',
+    'PICKR','PLEASE','GOLD+','GHOST','SOS!','BANK!','PRNS+','TOOLX',
+    'BRAG+','DUAL!',
+    'BOSSY','FAMX?',
+  ],
 };
 
 const HIDDEN_TYPE_BY_TEST = {
@@ -63,6 +69,7 @@ const HIDDEN_TYPE_BY_TEST = {
   desire: 'XXX',
   gsti: 'UNDEF',
   fpi: '0POST',
+  fsi: 'BOSSY',      // 新增
 };
 
 function hashString(input) {
