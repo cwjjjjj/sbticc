@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow build/dev artifacts that shouldn't be indexed
+Disallow: /api/
+Disallow: /_vercel/
+Disallow: /new/
+
+Sitemap: https://test.jiligulu.xyz/sitemap.xml
