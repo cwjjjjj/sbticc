@@ -10,7 +10,8 @@
     "dev:weapp": "cd packages/taro-app && pnpm dev:weapp",
     "build:h5": "cd packages/taro-app && pnpm build:h5",
     "build:weapp": "cd packages/taro-app && pnpm build:weapp",
-    "fpi:pattern-check": "npx tsx scripts/fpi-pattern-check.ts"
+    "fpi:pattern-check": "npx tsx scripts/fpi-pattern-check.ts",
+    "fsi:pattern-check": "tsx scripts/fsi-pattern-check.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
