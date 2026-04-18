@@ -21,7 +21,7 @@ function stickersForType(code: string): string[] {
   if (code === 'GOLDN')  return [...base, '按克计价'];
   if (code === 'PREMM')  return [...base, '会员权益生效中'];
   if (code === 'BOSSX')  return [...base, '账单稍后送达'];
-  if (code === 'LUXUR')  return [...base, '分期有风险·此处不提供'];
+  if (code === 'LUXUR')  return [...base, '仅供娱乐，不提供消费建议'];
   if (code === 'SETUP')  return [...base, '已开启消费降级模式'];
   if (code === 'FOMO+')  return [...base, '跨零点秒杀'];
   if (code === 'GIFTR')  return [...base, '纪念日自动提醒'];

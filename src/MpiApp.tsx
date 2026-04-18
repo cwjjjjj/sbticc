@@ -357,6 +357,9 @@ function MpiAppInner() {
                   <strong className="text-white">免责：</strong>
                   MPI 所有类型描述都是消费行为的戏谑梳理，仅供娱乐，不构成任何消费建议、投资建议或理财建议。请保持笑一笑就过的心态。
                 </p>
+                <p className="text-xs text-yellow-400/80 mt-2 leading-relaxed text-center">
+                  本测试仅供成年人自嘲娱乐，不构成任何消费、理财、投资建议。
+                </p>
               </div>
             </>
           )}
