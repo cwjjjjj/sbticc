@@ -20,6 +20,8 @@
     { "source": "/new/fpi/(.*)", "destination": "/new/fpi/index.html" },
     { "source": "/new/fsi", "destination": "/new/fsi/index.html" },
     { "source": "/new/fsi/(.*)", "destination": "/new/fsi/index.html" },
+    { "source": "/new/mpi", "destination": "/new/mpi/index.html" },
+    { "source": "/new/mpi/(.*)", "destination": "/new/mpi/index.html" },
     { "source": "/new/((?!assets/).*)", "destination": "/new/index.html" }
   ]
 }
