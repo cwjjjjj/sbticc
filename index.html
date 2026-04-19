@@ -412,5 +412,31 @@
 
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
+
+  <!-- First-party analytics: home_view + test_click -->
+  <script>
+    (function () {
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+      function trk(name, props) {
+        try {
+          var body = JSON.stringify({ event: name, props: props || undefined });
+          var url = '/api/track';
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+          } else if (typeof fetch === 'function') {
+            fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function(){});
+          }
+        } catch (e) { /* noop */ }
+      }
+      trk('home_view');
+      document.addEventListener('click', function (e) {
+        var el = e.target && e.target.closest ? e.target.closest('a.test-card') : null;
+        if (!el) return;
+        var href = el.getAttribute('href') || '';
+        var id = href.replace(/^\//, '').split(/[\/?#]/)[0];
+        if (id) trk('test_click', { testId: id });
+      }, { capture: true });
+    })();
+  </script>
 </body>
 </html>

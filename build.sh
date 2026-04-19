@@ -44,6 +44,12 @@ test -f sw.js && cp sw.js dist/sw.js
 [ -f dist-temp/sitemap.xml ] && cp dist-temp/sitemap.xml dist/sitemap.xml
 [ -f dist-temp/robots.txt ] && cp dist-temp/robots.txt dist/robots.txt
 
+# Copy admin pages (funnel dashboard etc.)
+if [ -d dist-temp/admin ]; then
+  mkdir -p dist/admin
+  cp -R dist-temp/admin/. dist/admin/
+fi
+
 # Merge generated OG images from public/images (dist-temp/images) into dist/images
 # Recursive copy to pick up og-types/ subdirs; no-clobber to preserve repo /images/ originals
 if [ -d dist-temp/images ]; then
