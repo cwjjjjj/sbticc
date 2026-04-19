@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { css } from '@emotion/react';
 import { useTestConfig } from '../data/testConfig';
+import { trackEvent } from '../hooks/useAnalytics';
 
 interface HeroProps {
   onStartTest: () => void;
@@ -38,6 +39,14 @@ export default function Hero({ onStartTest, totalTests }: HeroProps) {
 
   const [ticker, setTicker] = useState(() => pickRandomType());
   const [tickerKey, setTickerKey] = useState(0);
+
+  // Fire hero_view exactly once per mount
+  const heroViewFired = useRef(false);
+  useEffect(() => {
+    if (heroViewFired.current) return;
+    heroViewFired.current = true;
+    trackEvent('hero_view', { testId: config.id });
+  }, [config.id]);
 
   const rotateTicker = useCallback(() => {
     setTicker(pickRandomType());

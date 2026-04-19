@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import ProgressBar from './ProgressBar';
 import QuestionCard from './QuestionCard';
 import type { UseQuizReturn } from '../hooks/useQuiz';
+import { useTestConfig } from '../data/testConfig';
+import { trackEvent } from '../hooks/useAnalytics';
 
 interface QuizOverlayProps {
   quiz: UseQuizReturn;
@@ -10,6 +12,7 @@ interface QuizOverlayProps {
 }
 
 export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps) {
+  const config = useTestConfig();
   const [direction, setDirection] = useState(1);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevQRef = useRef(quiz.currentQ);
@@ -38,6 +41,7 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
       if (currentQuestion && qId !== currentQuestion.id) return;
 
       answer(qId, value);
+      trackEvent('quiz_q', { testId: config.id, qIndex: currentQ });
       // Auto-advance after 500ms for single-select only, not on last question.
       const isMulti = currentQuestion?.multiSelect;
       if (!isMulti) {
@@ -50,7 +54,7 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
         }
       }
     },
-    [answer, goNext, currentQ, totalQuestions, currentQuestion],
+    [answer, goNext, currentQ, totalQuestions, currentQuestion, config.id],
   );
 
   const handlePrev = useCallback(() => {

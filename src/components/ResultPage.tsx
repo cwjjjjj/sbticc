@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
@@ -14,6 +14,7 @@ import RarityBadge from './RarityBadge';
 import HookMatrix from './HookMatrix';
 import { useRarity } from '../hooks/useRarity';
 import type { ShareCardRarity } from '../utils/shareCard';
+import { trackEvent } from '../hooks/useAnalytics';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
@@ -61,6 +62,14 @@ export default function ResultPage({
   const typeCode = result.finalType.code;
   const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
   const rarity = useRarity(config.id, typeCode);
+
+  // Fire result_view exactly once per mount
+  const resultViewFired = useRef(false);
+  useEffect(() => {
+    if (resultViewFired.current) return;
+    resultViewFired.current = true;
+    trackEvent('result_view', { testId: config.id, typeCode });
+  }, [config.id, typeCode]);
 
   // Snapshot for share card (only pass when loaded + has data).
   const shareRarity: ShareCardRarity | undefined =
