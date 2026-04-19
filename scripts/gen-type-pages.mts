@@ -63,6 +63,8 @@ export function renderTypePageHTML(d: TypePageData): string {
   </script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, * { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display: none; width: 0; height: 0; }
     html { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #080808; color: #fff; }
     body { line-height: 1.6; }
     .container { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
@@ -161,6 +163,8 @@ ${cards}
   <meta property="og:url" content="${origin}/types/" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, * { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display: none; width: 0; height: 0; }
     html { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #080808; color: #fff; }
     body { line-height: 1.6; }
     header { text-align: center; padding: 64px 24px 32px; }

@@ -13,6 +13,21 @@ body {
   overflow-x: hidden;
 }
 
+/* Hide scrollbars globally (still scrollable). */
+html,
+body,
+* {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge legacy */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;               /* Chrome/Safari/Webkit */
+  width: 0;
+  height: 0;
+}
+
 /* Noise overlay */
 body::after {
   content: '';
