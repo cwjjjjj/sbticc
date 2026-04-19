@@ -345,6 +345,7 @@ function MpiAppInner() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           onStartTest={handleStartTest}
+          tabs={[{ id: "home", label: "首页" }, { id: "ranking", label: "全站排行" }]}
         />
       )}
 
