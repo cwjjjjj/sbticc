@@ -85,7 +85,7 @@ export interface UseQuizReturn {
   currentQuestion: Question | undefined;
 
   /* actions */
-  startQuiz: (preview?: boolean) => void;
+  startQuiz: (preview?: boolean, seedAnswers?: Record<string, number | number[]>) => void;
   answer: (qId: string, value: number | number[]) => void;
   goNext: () => void;
   goPrev: () => void;
@@ -171,9 +171,24 @@ export function useQuiz(): UseQuizReturn {
   const hiddenTriggered = answers[config.hiddenTriggerQuestionId] === config.hiddenTriggerValue;
 
   /* actions */
-  const startQuiz = useCallback((preview = false) => {
+  const startQuiz = useCallback((preview = false, seedAnswers?: Record<string, number | number[]>) => {
     setPreviewMode(preview);
     setDebugForceType(null);
+
+    // Seed mode (e.g., "先试一题" sample) takes precedence over saved progress.
+    if (seedAnswers && !preview) {
+      const seedIds = Object.keys(seedAnswers);
+      const shuffled = buildShuffledQuestions(config.questions, config.specialQuestions[0]);
+      // Move seeded questions to the front so currentQ lands on the next unanswered one.
+      const seeded = shuffled.filter(q => seedIds.includes(q.id));
+      const rest = shuffled.filter(q => !seedIds.includes(q.id));
+      setAnswers(seedAnswers);
+      setCurrentQ(seeded.length);
+      setShuffledQuestions([...seeded, ...rest]);
+      quizActiveRef.current = true;
+      setHasSavedProgress(false);
+      return;
+    }
 
     // Attempt to restore saved progress
     const saved = loadProgress(config.id);

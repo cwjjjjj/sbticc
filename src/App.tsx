@@ -3,6 +3,7 @@ import Nav, { type TabId } from './components/Nav';
 import Hero from './components/Hero';
 import TypeCardsPreview from './components/TypeCardsPreview';
 import QuizOverlay from './components/QuizOverlay';
+import SampleQuestionModal from './components/SampleQuestionModal';
 import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
 import ComparePage from './components/ComparePage';
@@ -53,6 +54,7 @@ function AppInner() {
   const [shareModalFileName, setShareModalFileName] = useState('sbti-share.png');
   const [shareModalUrl, setShareModalUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showSampleModal, setShowSampleModal] = useState(false);
 
   const quiz = useQuiz();
   const ranking = useRanking();
@@ -100,6 +102,16 @@ function AppInner() {
     quiz.startQuiz();
     setScreen('quiz');
   }, [quiz, config.id]);
+
+  const handleSampleProceed = useCallback(
+    (qId: string, value: number | number[]) => {
+      trackEvent('quiz_start', { testId: config.id, source: 'sample' });
+      setShowSampleModal(false);
+      quiz.startQuiz(false, { [qId]: value });
+      setScreen('quiz');
+    },
+    [quiz, config.id],
+  );
 
   const handleQuizSubmit = useCallback(() => {
     trackEvent('quiz_complete', { testId: config.id });
@@ -251,7 +263,11 @@ function AppInner() {
         <main>
           {activeTab === 'home' && (
             <>
-              <Hero onStartTest={handleStartTest} totalTests={totalTests} />
+              <Hero
+                onStartTest={handleStartTest}
+                onTrySample={() => setShowSampleModal(true)}
+                totalTests={totalTests}
+              />
               <a
                 href="/gsti"
                 className="block mx-auto max-w-2xl -mt-8 mb-14 px-5 py-4 bg-surface border border-accent/40 rounded-lg hover:border-accent hover:bg-surface-2 transition-colors group"
@@ -318,6 +334,15 @@ function AppInner() {
           onHome={handleBackToHome}
           onDebugReroll={handleDebugReroll}
           onDebugForceType={handleDebugForceType}
+        />
+      )}
+
+      {/* Sample question modal */}
+      {showSampleModal && config.questions[0] && (
+        <SampleQuestionModal
+          question={config.questions[0]}
+          onClose={() => setShowSampleModal(false)}
+          onProceed={handleSampleProceed}
         />
       )}
 

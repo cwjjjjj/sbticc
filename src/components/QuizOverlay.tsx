@@ -1,9 +1,15 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ProgressBar from './ProgressBar';
 import QuestionCard from './QuestionCard';
 import type { UseQuizReturn } from '../hooks/useQuiz';
 import { useTestConfig } from '../data/testConfig';
 import { trackEvent } from '../hooks/useAnalytics';
+
+const SEGMENT_CHECKPOINTS = [
+  { ratio: 1 / 3, label: '基础画像完成' },
+  { ratio: 2 / 3, label: '深水区清关' },
+] as const;
 
 interface QuizOverlayProps {
   quiz: UseQuizReturn;
@@ -16,6 +22,9 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
   const [direction, setDirection] = useState(1);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevQRef = useRef(quiz.currentQ);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shownCheckpoints = useRef<Set<number>>(new Set());
 
   const {
     visibleQuestions,
@@ -83,6 +92,27 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
     prevQRef.current = currentQ;
   }, [currentQ]);
 
+  // Segment milestone toast: fire when answeredCount first crosses 1/3 or 2/3
+  useEffect(() => {
+    if (totalQuestions < 6) return; // too short to bother segmenting
+    const ratio = answeredCount / totalQuestions;
+    for (let i = 0; i < SEGMENT_CHECKPOINTS.length; i++) {
+      const cp = SEGMENT_CHECKPOINTS[i];
+      if (ratio >= cp.ratio && !shownCheckpoints.current.has(i)) {
+        shownCheckpoints.current.add(i);
+        setToast(cp.label);
+        if (toastTimer.current) clearTimeout(toastTimer.current);
+        toastTimer.current = setTimeout(() => setToast(null), 1800);
+      }
+    }
+  }, [answeredCount, totalQuestions]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
+
   const isCurrentAnswered = currentQuestion
     ? (() => {
         const a = answers[currentQuestion.id];
@@ -100,6 +130,21 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
 
   return (
     <div className="fixed inset-0 z-[200] bg-bg overflow-y-auto">
+      {/* Segment milestone toast (non-blocking, 1.8s) */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[250] px-4 py-2 rounded-full bg-accent text-white text-xs font-bold shadow-lg pointer-events-none"
+          >
+            ✓ {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-[680px] mx-auto px-4 py-6">
         {/* Top bar: back button + progress */}
         <div className="flex items-center gap-3 mb-2">
