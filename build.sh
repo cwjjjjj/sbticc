@@ -4,7 +4,8 @@ set -e
 # --- SEO asset generation (pre-Vite) ---
 # Regenerate test-level OG images if any are missing
 if [ ! -f public/images/og-gsti.png ] || [ ! -f public/images/og-fpi.png ] || \
-   [ ! -f public/images/og-fsi.png ] || [ ! -f public/images/og-mpi.png ]; then
+   [ ! -f public/images/og-fsi.png ] || [ ! -f public/images/og-mpi.png ] || \
+   [ ! -f public/images/og-xpti.png ]; then
   node scripts/gen-og-images.mjs
 fi
 
@@ -27,7 +28,7 @@ cp dist-temp/new.html dist/new/index.html
 cp -r dist-temp/assets dist/new/assets
 
 # 5. Copy test builds into /new/<test>/
-for test in love work values cyber desire gsti fpi fsi mpi; do
+for test in love work values cyber desire gsti fpi fsi mpi xpti; do
   mkdir -p dist/new/$test
   cp dist-temp/$test.html dist/new/$test/index.html
 done
@@ -75,4 +76,4 @@ cp public/sitemap.xml dist/sitemap.xml
 # 8. Cleanup
 rm -rf dist-temp
 
-echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber/desire/gsti/fpi/fsi/mpi at /new/<test>/, types at /types/"
+echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber/desire/gsti/fpi/fsi/mpi/xpti at /new/<test>/, types at /types/"

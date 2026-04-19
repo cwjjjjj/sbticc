@@ -223,6 +223,7 @@ const TESTS: TestSpec[] = [
   { id: 'fpi',    name: '朋友圈人设诊断',         path: '/fpi',    typesModule: '../src/data/fpi/types.ts' },
   { id: 'fsi',    name: '原生家庭幸存者',         path: '/fsi',    typesModule: '../src/data/fsi/types.ts' },
   { id: 'mpi',    name: '消费人格图鉴',           path: '/mpi',    typesModule: '../src/data/mpi/types.ts' },
+  { id: 'xpti',   name: 'XPTI 性别人格画像',       path: '/xpti',   typesModule: '../src/data/xpti/types.ts' },
 ];
 
 const ORIGIN = 'https://test.jiligulu.xyz';

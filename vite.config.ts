@@ -19,6 +19,7 @@ export default defineConfig({
         fpi: 'fpi.html',
         fsi: 'fsi.html',
         mpi: 'mpi.html',
+        xpti: 'xpti.html',
       },
     },
   },

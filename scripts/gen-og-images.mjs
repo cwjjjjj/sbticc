@@ -33,6 +33,7 @@ const TESTS = [
   { slug: 'fpi',  emoji: '📸', title: '朋友圈人设诊断',       tagline: '你在朋友圈是什么物种',   bg: '#0f1a1f', accent: '#22d3ee' },
   { slug: 'fsi',  emoji: '🏷️', title: '原生家庭幸存者',       tagline: '你被养成了什么形状',     bg: '#1f1510', accent: '#fb923c' },
   { slug: 'mpi',  emoji: '💸', title: '消费人格图鉴',         tagline: '你怎么把钱输给这个世界', bg: '#1f1810', accent: '#facc15' },
+  { slug: 'xpti', emoji: '🎭', title: 'XPTI 性别人格画像',    tagline: '你作为性别化主体是什么气质', bg: '#0a0a0a', accent: '#d4af37' },
 ];
 
 function jsx(test) {

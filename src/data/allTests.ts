@@ -82,4 +82,11 @@ export const ALL_TESTS: TestLink[] = [
     path: '/mpi',
     emoji: '💳',
   },
+  {
+    id: 'xpti',
+    name: 'XPTI 性别人格画像',
+    tagline: '你作为性别化主体是什么气质',
+    path: '/xpti',
+    emoji: '🎭',
+  },
 ];
