@@ -15,7 +15,7 @@ import { join, resolve } from 'node:path';
 
 const REPO = resolve(new URL('..', import.meta.url).pathname);
 
-const TESTS = ['love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi', 'mpi'];
+const TESTS = ['love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi', 'mpi', 'xpti'];
 
 async function convertOne(pngPath) {
   const webpPath = pngPath.replace(/\.png$/i, '.webp');
