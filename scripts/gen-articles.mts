@@ -215,7 +215,19 @@ async function main() {
   writeFileSync(join(outDir, 'index.html'), hubHtml, 'utf8');
 
   writeFileSync(join(__dirname, 'article-routes.json'), JSON.stringify(routes, null, 2), 'utf8');
-  console.log(`Generated ${allArticles.length} articles + hub + routes manifest`);
+
+  // Emit a public manifest so the client can render in-result related-article cards.
+  const manifest = allArticles.map((a) => ({
+    slug: a.slug,
+    title: a.title,
+    description: a.description,
+    relatedTests: a.relatedTests ?? [],
+    publishedAt: a.publishedAt,
+  }));
+  const manifestPath = join(__dirname, '..', 'dist', 'articles.json');
+  writeFileSync(manifestPath, JSON.stringify(manifest), 'utf8');
+
+  console.log(`Generated ${allArticles.length} articles + hub + manifest`);
 }
 
 const scriptPath = process.argv[1];

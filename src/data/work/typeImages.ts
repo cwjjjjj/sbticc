@@ -1,27 +1,27 @@
 // src/data/work/typeImages.ts
 // Auto-generated from src/data/work/images/*.png by tmp/gen-typeimages.mjs
 // Generated 2026-04-19 · 21 types
-import _996 from './images/996.png';
-import bgxia from './images/BGXIA.png';
-import cyfng from './images/CYFNG.png';
-import dgpsa from './images/DGPSA.png';
-import fwzzz from './images/FWZZZ.png';
-import fxlyt from './images/FXLYT.png';
-import guanx from './images/GUANX.png';
-import hsgji from './images/HSGJI.png';
-import jwfdy from './images/JWFDY.png';
-import klxyu from './images/KLXYU.png';
-import msfci from './images/MSFCI.png';
-import myzsn from './images/MYZSN.png';
-import njydj from './images/NJYDJ.png';
-import puash from './images/PUASH.png';
-import sgysj from './images/SGYSJ.png';
-import tpxfg from './images/TPXFG.png';
-import txdgr from './images/TXDGR.png';
-import zchli from './images/ZCHLI.png';
-import zcpnz from './images/ZCPNZ.png';
-import zddsh from './images/ZDDSH.png';
-import zqjqi from './images/ZQJQI.png';
+import _996 from './images/996.webp';
+import bgxia from './images/BGXIA.webp';
+import cyfng from './images/CYFNG.webp';
+import dgpsa from './images/DGPSA.webp';
+import fwzzz from './images/FWZZZ.webp';
+import fxlyt from './images/FXLYT.webp';
+import guanx from './images/GUANX.webp';
+import hsgji from './images/HSGJI.webp';
+import jwfdy from './images/JWFDY.webp';
+import klxyu from './images/KLXYU.webp';
+import msfci from './images/MSFCI.webp';
+import myzsn from './images/MYZSN.webp';
+import njydj from './images/NJYDJ.webp';
+import puash from './images/PUASH.webp';
+import sgysj from './images/SGYSJ.webp';
+import tpxfg from './images/TPXFG.webp';
+import txdgr from './images/TXDGR.webp';
+import zchli from './images/ZCHLI.webp';
+import zcpnz from './images/ZCPNZ.webp';
+import zddsh from './images/ZDDSH.webp';
+import zqjqi from './images/ZQJQI.webp';
 
 export const TYPE_IMAGES: Record<string, string> = {
   "996": _996,

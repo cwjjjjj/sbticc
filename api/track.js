@@ -15,6 +15,7 @@ const ALLOWED_EVENTS = new Set([
   'quiz_complete',
   'result_view',
   'share_click',
+  'article_click',
 ]);
 
 // Normalize props to a stable key: event_name or event_name:k=v:k=v (alphabetical)

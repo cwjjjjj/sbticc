@@ -9,7 +9,8 @@ export type TrackEvent =
   | 'quiz_q'
   | 'quiz_complete'
   | 'result_view'
-  | 'share_click';
+  | 'share_click'
+  | 'article_click';
 
 export type TrackProps = Record<string, string | number | undefined | null>;
 

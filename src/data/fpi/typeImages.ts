@@ -1,28 +1,28 @@
 // src/data/fpi/typeImages.ts
 // 16personalities 风卡通头像，Nano Banana 2 生成，1:1 正方形
 // 特殊字符映射：9PIC!→9PICX, CKIN!→CKINX, BABY!→BABYX, FEED?→FEEDQ
-import filtr from './images/FILTR.png';
-import _9picx from './images/9PICX.png';
-import emo_r from './images/EMO-R.png';
-import flexr from './images/FLEXR.png';
-import ckinx from './images/CKINX.png';
-import _3days from './images/3DAYS.png';
-import submr from './images/SUBMR.png';
-import liker from './images/LIKER.png';
-import ghost from './images/GHOST.png';
-import copyr from './images/COPYR.png';
-import sellr from './images/SELLR.png';
-import babyx from './images/BABYX.png';
-import furry from './images/FURRY.png';
-import mukbg from './images/MUKBG.png';
-import trvl9 from './images/TRVL9.png';
-import block from './images/BLOCK.png';
-import redbk from './images/REDBK.png';
-import judge from './images/JUDGE.png';
-import qslif from './images/QSLIF.png';
-import npc_f from './images/NPC-F.png';
-import _0post from './images/0POST.png';
-import feedq from './images/FEEDQ.png';
+import filtr from './images/FILTR.webp';
+import _9picx from './images/9PICX.webp';
+import emo_r from './images/EMO-R.webp';
+import flexr from './images/FLEXR.webp';
+import ckinx from './images/CKINX.webp';
+import _3days from './images/3DAYS.webp';
+import submr from './images/SUBMR.webp';
+import liker from './images/LIKER.webp';
+import ghost from './images/GHOST.webp';
+import copyr from './images/COPYR.webp';
+import sellr from './images/SELLR.webp';
+import babyx from './images/BABYX.webp';
+import furry from './images/FURRY.webp';
+import mukbg from './images/MUKBG.webp';
+import trvl9 from './images/TRVL9.webp';
+import block from './images/BLOCK.webp';
+import redbk from './images/REDBK.webp';
+import judge from './images/JUDGE.webp';
+import qslif from './images/QSLIF.webp';
+import npc_f from './images/NPC-F.webp';
+import _0post from './images/0POST.webp';
+import feedq from './images/FEEDQ.webp';
 
 export const TYPE_IMAGES: Record<string, string> = {
   'FILTR': filtr,

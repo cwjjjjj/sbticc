@@ -1,27 +1,27 @@
 // src/data/cyber/typeImages.ts
 // Auto-generated from src/data/cyber/images/*.png by tmp/gen-typeimages.mjs
 // Generated 2026-04-19 · 21 types
-import actres from './images/ACTRES.png';
-import blackh from './images/BLACKH.png';
-import bomber from './images/BOMBER.png';
-import bot from './images/BOT.png';
-import cocoon from './images/COCOON.png';
-import fencer from './images/FENCER.png';
-import hermit from './images/HERMIT.png';
-import hoarde from './images/HOARDE.png';
-import ideali from './images/IDEALI.png';
-import jellyf from './images/JELLYF.png';
-import judgex from './images/JUDGEX.png';
-import kbking from './images/KBKING.png';
-import melonx from './images/MELONX.png';
-import mouthx from './images/MOUTHX.png';
-import npcnpc from './images/NPCNPC.png';
-import pickle from './images/PICKLE.png';
-import renasc from './images/RENASC.png';
-import trollx from './images/TROLLX.png';
-import writer from './images/WRITER.png';
-import zenzen from './images/ZENZEN.png';
-import zombie from './images/ZOMBIE.png';
+import actres from './images/ACTRES.webp';
+import blackh from './images/BLACKH.webp';
+import bomber from './images/BOMBER.webp';
+import bot from './images/BOT.webp';
+import cocoon from './images/COCOON.webp';
+import fencer from './images/FENCER.webp';
+import hermit from './images/HERMIT.webp';
+import hoarde from './images/HOARDE.webp';
+import ideali from './images/IDEALI.webp';
+import jellyf from './images/JELLYF.webp';
+import judgex from './images/JUDGEX.webp';
+import kbking from './images/KBKING.webp';
+import melonx from './images/MELONX.webp';
+import mouthx from './images/MOUTHX.webp';
+import npcnpc from './images/NPCNPC.webp';
+import pickle from './images/PICKLE.webp';
+import renasc from './images/RENASC.webp';
+import trollx from './images/TROLLX.webp';
+import writer from './images/WRITER.webp';
+import zenzen from './images/ZENZEN.webp';
+import zombie from './images/ZOMBIE.webp';
 
 export const TYPE_IMAGES: Record<string, string> = {
   "ACTRES": actres,

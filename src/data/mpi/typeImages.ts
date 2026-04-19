@@ -1,26 +1,26 @@
 // src/data/mpi/typeImages.ts
 // 16personalities 风卡通头像，Nano Banana 2 生成，1:1 正方形
 // 特殊字符映射：LIVE!→LIVEX, FOMO+→FOMOP, ZERO$→ZEROS
-import livex from './images/LIVEX.png';
-import _2hand from './images/2HAND.png';
-import haulx from './images/HAULX.png';
-import cheap from './images/CHEAP.png';
-import goldn from './images/GOLDN.png';
-import setup from './images/SETUP.png';
-import nuboy from './images/NUBOY.png';
-import luxur from './images/LUXUR.png';
-import bilib from './images/BILIB.png';
-import fomop from './images/FOMOP.png';
-import giftr from './images/GIFTR.png';
-import retrn from './images/RETRN.png';
-import steal from './images/STEAL.png';
-import premm from './images/PREMM.png';
-import flipr from './images/FLIPR.png';
-import insta from './images/INSTA.png';
-import char0 from './images/CHAR0.png';
-import bossx from './images/BOSSX.png';
-import zeros from './images/ZEROS.png';
-import mixdr from './images/MIXDR.png';
+import livex from './images/LIVEX.webp';
+import _2hand from './images/2HAND.webp';
+import haulx from './images/HAULX.webp';
+import cheap from './images/CHEAP.webp';
+import goldn from './images/GOLDN.webp';
+import setup from './images/SETUP.webp';
+import nuboy from './images/NUBOY.webp';
+import luxur from './images/LUXUR.webp';
+import bilib from './images/BILIB.webp';
+import fomop from './images/FOMOP.webp';
+import giftr from './images/GIFTR.webp';
+import retrn from './images/RETRN.webp';
+import steal from './images/STEAL.webp';
+import premm from './images/PREMM.webp';
+import flipr from './images/FLIPR.webp';
+import insta from './images/INSTA.webp';
+import char0 from './images/CHAR0.webp';
+import bossx from './images/BOSSX.webp';
+import zeros from './images/ZEROS.webp';
+import mixdr from './images/MIXDR.webp';
 
 export const TYPE_IMAGES: Record<string, string> = {
   'LIVE!': livex,

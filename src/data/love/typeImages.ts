@@ -1,27 +1,27 @@
 // src/data/love/typeImages.ts
 // Auto-generated from src/data/love/images/*.png by tmp/gen-typeimages.mjs
 // Generated 2026-04-19 · 21 types
-import badplc from './images/BADPLC.png';
-import badrlc from './images/BADRLC.png';
-import bampfv from './images/BAMPFV.png';
-import bamrlv from './images/BAMRLV.png';
-import bwdpfv from './images/BWDPFV.png';
-import bwdrlv from './images/BWDRLV.png';
-import bwmplc from './images/BWMPLC.png';
-import bwmrfc from './images/BWMRFC.png';
-import ex from './images/EX.png';
-import hadpfc from './images/HADPFC.png';
-import hadrlv from './images/HADRLV.png';
-import hadrpc from './images/HADRPC.png';
-import hamdlc from './images/HAMDLC.png';
-import hamplc from './images/HAMPLC.png';
-import hamrfc from './images/HAMRFC.png';
-import hamrlc from './images/HAMRLC.png';
-import hawrlc from './images/HAWRLC.png';
-import hwdplv from './images/HWDPLV.png';
-import hwdrlc from './images/HWDRLC.png';
-import hwmrfc from './images/HWMRFC.png';
-import hwmrlv from './images/HWMRLV.png';
+import badplc from './images/BADPLC.webp';
+import badrlc from './images/BADRLC.webp';
+import bampfv from './images/BAMPFV.webp';
+import bamrlv from './images/BAMRLV.webp';
+import bwdpfv from './images/BWDPFV.webp';
+import bwdrlv from './images/BWDRLV.webp';
+import bwmplc from './images/BWMPLC.webp';
+import bwmrfc from './images/BWMRFC.webp';
+import ex from './images/EX.webp';
+import hadpfc from './images/HADPFC.webp';
+import hadrlv from './images/HADRLV.webp';
+import hadrpc from './images/HADRPC.webp';
+import hamdlc from './images/HAMDLC.webp';
+import hamplc from './images/HAMPLC.webp';
+import hamrfc from './images/HAMRFC.webp';
+import hamrlc from './images/HAMRLC.webp';
+import hawrlc from './images/HAWRLC.webp';
+import hwdplv from './images/HWDPLV.webp';
+import hwdrlc from './images/HWDRLC.webp';
+import hwmrfc from './images/HWMRFC.webp';
+import hwmrlv from './images/HWMRLV.webp';
 
 export const TYPE_IMAGES: Record<string, string> = {
   "BADPLC": badplc,

@@ -1,26 +1,26 @@
 // src/data/fsi/typeImages.ts
 // 16personalities 风卡通头像，Nano Banana 2 生成，1:1 正方形
 // 特殊字符映射：!→X, ?→Q, +→P
-import copyx from './images/COPYX.png';
-import rebel from './images/REBEL.png';
-import saint from './images/SAINT.png';
-import leave from './images/LEAVE.png';
-import curex from './images/CUREX.png';
-import silnt from './images/SILNT.png';
-import dadyp from './images/DADYP.png';
-import mamyp from './images/MAMYP.png';
-import pickr from './images/PICKR.png';
-import please_img from './images/PLEASE.png';
-import goldp from './images/GOLDP.png';
-import ghost from './images/GHOST.png';
-import sosx from './images/SOSX.png';
-import bankx from './images/BANKX.png';
-import prnsp from './images/PRNSP.png';
-import toolx from './images/TOOLX.png';
-import bragp from './images/BRAGP.png';
-import dualx from './images/DUALX.png';
-import bossy from './images/BOSSY.png';
-import famxq from './images/FAMXQ.png';
+import copyx from './images/COPYX.webp';
+import rebel from './images/REBEL.webp';
+import saint from './images/SAINT.webp';
+import leave from './images/LEAVE.webp';
+import curex from './images/CUREX.webp';
+import silnt from './images/SILNT.webp';
+import dadyp from './images/DADYP.webp';
+import mamyp from './images/MAMYP.webp';
+import pickr from './images/PICKR.webp';
+import please_img from './images/PLEASE.webp';
+import goldp from './images/GOLDP.webp';
+import ghost from './images/GHOST.webp';
+import sosx from './images/SOSX.webp';
+import bankx from './images/BANKX.webp';
+import prnsp from './images/PRNSP.webp';
+import toolx from './images/TOOLX.webp';
+import bragp from './images/BRAGP.webp';
+import dualx from './images/DUALX.webp';
+import bossy from './images/BOSSY.webp';
+import famxq from './images/FAMXQ.webp';
 
 export const TYPE_IMAGES: Record<string, string> = {
   'COPYX': copyx,

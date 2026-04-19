@@ -1,27 +1,27 @@
 // src/data/values/typeImages.ts
 // Auto-generated from src/data/values/images/*.png by tmp/gen-typeimages.mjs
 // Generated 2026-04-19 · 21 types
-import chuang from './images/CHUANG.png';
-import cungou from './images/CUNGOU.png';
-import dulanr from './images/DULANR.png';
-import foxian from './images/FOXIAN.png';
-import gangjn from './images/GANGJN.png';
-import gaofei from './images/GAOFEI.png';
-import jiaoqi from './images/JIAOQI.png';
-import jiupin from './images/JIUPIN.png';
-import jizhua from './images/JIZHUA.png';
-import juanzh from './images/JUANZH.png';
-import kaogon from './images/KAOGON.png';
-import kuaife from './images/KUAIFE.png';
-import mlc from './images/MLC.png';
-import mogui from './images/MOGUI.png';
-import momahu from './images/MOMAHU.png';
-import noreur from './images/NOREUR.png';
-import qingxn from './images/QINGXN.png';
-import runxue from './images/RUNXUE.png';
-import shouhu from './images/SHOUHU.png';
-import wenzhu from './images/WENZHU.png';
-import xiaosa from './images/XIAOSA.png';
+import chuang from './images/CHUANG.webp';
+import cungou from './images/CUNGOU.webp';
+import dulanr from './images/DULANR.webp';
+import foxian from './images/FOXIAN.webp';
+import gangjn from './images/GANGJN.webp';
+import gaofei from './images/GAOFEI.webp';
+import jiaoqi from './images/JIAOQI.webp';
+import jiupin from './images/JIUPIN.webp';
+import jizhua from './images/JIZHUA.webp';
+import juanzh from './images/JUANZH.webp';
+import kaogon from './images/KAOGON.webp';
+import kuaife from './images/KUAIFE.webp';
+import mlc from './images/MLC.webp';
+import mogui from './images/MOGUI.webp';
+import momahu from './images/MOMAHU.webp';
+import noreur from './images/NOREUR.webp';
+import qingxn from './images/QINGXN.webp';
+import runxue from './images/RUNXUE.webp';
+import shouhu from './images/SHOUHU.webp';
+import wenzhu from './images/WENZHU.webp';
+import xiaosa from './images/XIAOSA.webp';
 
 export const TYPE_IMAGES: Record<string, string> = {
   "CHUANG": chuang,

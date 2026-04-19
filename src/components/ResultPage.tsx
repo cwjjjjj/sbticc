@@ -12,6 +12,7 @@ import type { Gender } from '../data/testConfig';
 import RevealOverlay from './RevealOverlay';
 import RarityBadge from './RarityBadge';
 import HookMatrix from './HookMatrix';
+import RelatedArticles from './RelatedArticles';
 import { useRarity } from '../hooks/useRarity';
 import type { ShareCardRarity } from '../utils/shareCard';
 import { trackEvent } from '../hooks/useAnalytics';
@@ -387,6 +388,11 @@ export default function ResultPage({
               localHistoryCount={localHistoryCount}
               onInviteCompare={handleInviteClick}
             />
+          </motion.div>
+
+          {/* 7.6 Related articles — bridges test flow to article system */}
+          <motion.div variants={staggerItem} transition={{ duration: 0.4 }}>
+            <RelatedArticles testId={config.id} />
           </motion.div>
 
           {/* 8. Action buttons */}
