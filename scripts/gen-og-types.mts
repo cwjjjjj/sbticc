@@ -11,21 +11,24 @@ import { dirname, join } from 'node:path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_ROOT = join(__dirname, '..', 'public', 'images', 'og-types');
 
-// Font path: reuse the Noto Sans SC TTF downloaded by gen-og-images.mjs
-const FONT_PATHS = [
-  join(__dirname, 'fonts', 'NotoSansSC-Bold.ttf'),
-  '/System/Library/Fonts/PingFang.ttc', // fallback (may fail on Satori)
-];
-let fontData: Buffer | null = null;
-for (const p of FONT_PATHS) {
-  if (existsSync(p)) {
-    try { fontData = readFileSync(p); break; } catch {}
-  }
+// Noto Sans SC TTF (Satori doesn't accept TTC).
+const FONT_DIR = join(__dirname, 'fonts');
+const FONT_PATH = join(FONT_DIR, 'NotoSansSC-Bold.ttf');
+const FONT_URL = 'https://fonts.gstatic.com/s/notosanssc/v40/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaGzjCnYw.ttf';
+
+async function ensureFont(): Promise<Buffer> {
+  if (existsSync(FONT_PATH)) return readFileSync(FONT_PATH);
+  if (!existsSync(FONT_DIR)) mkdirSync(FONT_DIR, { recursive: true });
+  console.log(`Fetching font from ${FONT_URL}`);
+  const res = await fetch(FONT_URL);
+  if (!res.ok) throw new Error(`Font download failed: ${res.status}`);
+  const buf = Buffer.from(await res.arrayBuffer());
+  writeFileSync(FONT_PATH, buf);
+  console.log(`Saved font to ${FONT_PATH} (${(buf.length / 1024 / 1024).toFixed(1)} MB)`);
+  return buf;
 }
-if (!fontData) {
-  console.error('ERROR: No usable font. Run `node scripts/gen-og-images.mjs` first to fetch Noto Sans SC.');
-  process.exit(1);
-}
+
+const fontData = await ensureFont();
 
 interface TypeDef { code: string; cn: string; intro: string; desc: string }
 
