@@ -32,14 +32,18 @@ export default function Nav({ activeTab, onTabChange, onStartTest }: NavProps) {
       className="fixed top-0 left-0 right-0 z-50 border-b border-border"
     >
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-        {/* Brand */}
-        <div className="font-mono font-extrabold text-lg tracking-tight text-white select-none">
+        {/* Brand (clickable → hub) */}
+        <a
+          href="/"
+          className="font-mono font-extrabold text-lg tracking-tight text-white select-none hover:text-accent transition-colors"
+          title="回到人格实验室首页"
+        >
           {config.id === 'gsti' ? (
             <>G<span className="text-accent">S</span>TI</>
           ) : (
             <>S<span className="text-accent">[B]</span>TI</>
           )}
-        </div>
+        </a>
 
         {/* Tab buttons - hidden on mobile */}
         <div className="hidden sm:flex items-center gap-1">

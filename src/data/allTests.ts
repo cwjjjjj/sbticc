@@ -16,7 +16,7 @@ export const ALL_TESTS: TestLink[] = [
     id: 'sbti',
     name: 'SBTI 人格测试',
     tagline: '15维度深度人格扫描',
-    path: '/new',
+    path: '/sbti',
     emoji: '🧠',
   },
   {
@@ -60,5 +60,26 @@ export const ALL_TESTS: TestLink[] = [
     tagline: '性转后你是什么鬼',
     path: '/gsti',
     emoji: '🪞',
+  },
+  {
+    id: 'fpi',
+    name: '朋友圈人设诊断',
+    tagline: '朋友圈里的你是几个人',
+    path: '/fpi',
+    emoji: '📸',
+  },
+  {
+    id: 'fsi',
+    name: '原生家庭幸存者',
+    tagline: '你是哪种家庭叙事里的角色',
+    path: '/fsi',
+    emoji: '🏠',
+  },
+  {
+    id: 'mpi',
+    name: '消费人格图鉴',
+    tagline: '你花钱的姿势很难看',
+    path: '/mpi',
+    emoji: '💳',
   },
 ];
