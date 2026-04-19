@@ -262,7 +262,7 @@ export async function drawShareCard(
   // URL (prominent)
   ctx.font = 'bold 16px "JetBrains Mono", monospace';
   ctx.fillStyle = '#ff3b82';
-  ctx.fillText('sbti.jiligulu.xyz', ctaTextX, y + 90);
+  ctx.fillText('test.jiligulu.xyz', ctaTextX, y + 90);
 
   // Watermark path (only if not paid)
   if (!isPaid) {

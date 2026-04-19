@@ -17,4 +17,4 @@ export const fonts = {
     sans: '"Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif',
 } as const
 
-export const PROD_BASE_URL = 'https://sbti.jiligulu.xyz'
+export const PROD_BASE_URL = 'https://test.jiligulu.xyz'

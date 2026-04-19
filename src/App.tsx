@@ -248,7 +248,7 @@ function AppInner() {
             <>
               <Hero onStartTest={handleStartTest} totalTests={totalTests} />
               <a
-                href="/new/gsti"
+                href="/gsti"
                 className="block mx-auto max-w-2xl -mt-8 mb-14 px-5 py-4 bg-surface border border-accent/40 rounded-lg hover:border-accent hover:bg-surface-2 transition-colors group"
               >
                 <div className="flex items-center gap-3 mb-2">

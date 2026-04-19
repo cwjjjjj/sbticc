@@ -54,8 +54,8 @@ export const fpiConfig: TestConfig = {
   similarityThreshold: 55,
 
   // URLs & Storage
-  prodBaseUrl: 'https://sbti.jiligulu.xyz',
-  basePath: '/new/fpi',
+  prodBaseUrl: 'https://test.jiligulu.xyz',
+  basePath: '/fpi',
   localHistoryKey: 'fpi_history',
   localStatsKey: 'fpi_local_stats',
   apiTestParam: 'fpi',

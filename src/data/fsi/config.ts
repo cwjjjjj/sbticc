@@ -98,8 +98,8 @@ export const fsiConfig: TestConfig = {
   similarityThreshold: 55,
 
   // URLs & Storage
-  prodBaseUrl: 'https://sbti.jiligulu.xyz',
-  basePath: '/new/fsi',
+  prodBaseUrl: 'https://test.jiligulu.xyz',
+  basePath: '/fsi',
   localHistoryKey: 'fsi_history',
   localStatsKey: 'fsi_local_stats',
   apiTestParam: 'fsi',

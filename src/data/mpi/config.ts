@@ -87,8 +87,8 @@ export const mpiConfig: TestConfig = {
   similarityThreshold: 55,
 
   // URLs & Storage
-  prodBaseUrl: 'https://sbti.jiligulu.xyz',
-  basePath: '/new/mpi',
+  prodBaseUrl: 'https://test.jiligulu.xyz',
+  basePath: '/mpi',
   localHistoryKey: 'mpi_history',
   localStatsKey: 'mpi_local_stats',
   apiTestParam: 'mpi',
