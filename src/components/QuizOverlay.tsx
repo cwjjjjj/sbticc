@@ -30,8 +30,15 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
 
   const handleAnswer = useCallback(
     (qId: string, value: number | number[]) => {
+      // Guard: ignore stale clicks. Framer-motion's AnimatePresence keeps the
+      // exiting QuestionCard mounted during its exit animation (~250ms), so a
+      // rapid click lands on the OLD question's options. Without this guard,
+      // the stale answer would reset the auto-advance timer and cause the
+      // current question to be skipped. See BUG1 (2026-04-19).
+      if (currentQuestion && qId !== currentQuestion.id) return;
+
       answer(qId, value);
-      // Auto-advance after 300ms for single-select only, not on last question
+      // Auto-advance after 500ms for single-select only, not on last question.
       const isMulti = currentQuestion?.multiSelect;
       if (!isMulti) {
         if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
@@ -39,7 +46,7 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
           autoAdvanceTimer.current = setTimeout(() => {
             setDirection(1);
             goNext();
-          }, 300);
+          }, 500);
         }
       }
     },
