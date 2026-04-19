@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { css } from '@emotion/react';
 import Nav, { type TabId } from './components/Nav';
+import ProfilesGallery from './components/ProfilesGallery';
 import QuizOverlay from './components/QuizOverlay';
 import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
@@ -25,7 +26,7 @@ import { computeResult, type ComputeResultOutput } from './utils/matching';
 import { randomAnswerForQuestion } from './utils/quiz';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
-type FsiTabId = 'home' | 'ranking';
+type FsiTabId = 'home' | 'profiles' | 'ranking';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
@@ -351,7 +352,7 @@ function FsiAppInner() {
   }, [result, compareData, config]);
 
   const handleTabChange = useCallback((tab: TabId) => {
-    if (tab === 'home' || tab === 'ranking') setActiveTab(tab as FsiTabId);
+    if (tab === 'home' || tab === 'profiles' || tab === 'ranking') setActiveTab(tab as FsiTabId);
   }, []);
 
   const totalTests = ranking.data?.total ?? 0;
@@ -364,7 +365,7 @@ function FsiAppInner() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           onStartTest={handleStartTest}
-          tabs={[{ id: "home", label: "首页" }, { id: "ranking", label: "全站排行" }]}
+          tabs={[{ id: "home", label: "首页" }, { id: "profiles", label: "人格介绍" }, { id: "ranking", label: "全站排行" }]}
         />
       )}
 
@@ -384,6 +385,11 @@ function FsiAppInner() {
                 </p>
               </div>
             </>
+          )}
+          {activeTab === 'profiles' && (
+            <div className="pt-28">
+              <ProfilesGallery rankingData={ranking.data} />
+            </div>
           )}
           {activeTab === 'ranking' && (
             <RankingPage

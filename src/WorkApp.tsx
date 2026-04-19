@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { css } from '@emotion/react';
 import Nav, { type TabId } from './components/Nav';
+import ProfilesGallery from './components/ProfilesGallery';
 import QuizOverlay from './components/QuizOverlay';
 import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
@@ -121,7 +122,7 @@ function WorkHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
 
 /* ---------- Work Nav (simpler: only home + ranking) ---------- */
 
-type WorkTabId = 'home' | 'ranking';
+type WorkTabId = 'home' | 'profiles' | 'ranking';
 
 const workTabs: { id: WorkTabId; label: string }[] = [
   { id: 'home', label: '首页' },
@@ -311,7 +312,7 @@ function WorkAppInner() {
 
   // Adapt WorkTabId to Nav's TabId
   const handleTabChange = useCallback((tab: TabId) => {
-    if (tab === 'home' || tab === 'ranking') {
+    if (tab === 'home' || tab === 'profiles' || tab === 'ranking') {
       setActiveTab(tab as WorkTabId);
     }
   }, []);
@@ -327,7 +328,7 @@ function WorkAppInner() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           onStartTest={handleStartTest}
-          tabs={[{ id: "home", label: "首页" }, { id: "ranking", label: "全站排行" }]}
+          tabs={[{ id: "home", label: "首页" }, { id: "profiles", label: "人格介绍" }, { id: "ranking", label: "全站排行" }]}
         />
       )}
 
@@ -336,6 +337,11 @@ function WorkAppInner() {
         <main>
           {activeTab === 'home' && (
             <WorkHero onStartTest={handleStartTest} totalTests={totalTests} />
+          )}
+          {activeTab === 'profiles' && (
+            <div className="pt-28">
+              <ProfilesGallery rankingData={ranking.data} />
+            </div>
           )}
           {activeTab === 'ranking' && (
             <RankingPage

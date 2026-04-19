@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { css } from '@emotion/react';
 import Nav, { type TabId } from './components/Nav';
+import ProfilesGallery from './components/ProfilesGallery';
 import QuizOverlay from './components/QuizOverlay';
 import Interstitial from './components/Interstitial';
 import ResultPage from './components/ResultPage';
@@ -123,7 +124,7 @@ function FpiHero({ onStartTest, totalTests }: { onStartTest: () => void; totalTe
 
 /* ---------- FPI Nav (home + ranking; no compat MVP) ---------- */
 
-type FpiTabId = 'home' | 'ranking';
+type FpiTabId = 'home' | 'profiles' | 'ranking';
 
 function FpiAppInner() {
   const config = useTestConfig();
@@ -293,7 +294,7 @@ function FpiAppInner() {
   }, [result, compareData, config]);
 
   const handleTabChange = useCallback((tab: TabId) => {
-    if (tab === 'home' || tab === 'ranking') setActiveTab(tab as FpiTabId);
+    if (tab === 'home' || tab === 'profiles' || tab === 'ranking') setActiveTab(tab as FpiTabId);
   }, []);
 
   const totalTests = ranking.data?.total ?? 0;
@@ -306,7 +307,7 @@ function FpiAppInner() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           onStartTest={handleStartTest}
-          tabs={[{ id: "home", label: "首页" }, { id: "ranking", label: "全站排行" }]}
+          tabs={[{ id: "home", label: "首页" }, { id: "profiles", label: "人格介绍" }, { id: "ranking", label: "全站排行" }]}
         />
       )}
 
@@ -322,6 +323,11 @@ function FpiAppInner() {
                 </p>
               </div>
             </>
+          )}
+          {activeTab === 'profiles' && (
+            <div className="pt-28">
+              <ProfilesGallery rankingData={ranking.data} />
+            </div>
           )}
           {activeTab === 'ranking' && (
             <RankingPage
