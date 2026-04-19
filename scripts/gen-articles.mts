@@ -134,11 +134,11 @@ export function renderArticleHubHTML(items: ArticleFrontmatter[], origin: string
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>所有文章 - 人格实验室</title>
-  <meta name="description" content="人格实验室文章中心：${items.length} 篇关于人格、心理、测试设计的深度文章。每日更新。" />
+  <title>人格阅读室 - 人格实验室</title>
+  <meta name="description" content="人格阅读室：${items.length} 篇关于人格、心理、测试设计的深度文章。每日更新。" />
   <link rel="canonical" href="${origin}/articles/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="人格实验室 · 文章中心" />
+  <meta property="og:title" content="人格阅读室 · 人格实验室" />
   <meta property="og:description" content="${items.length} 篇关于人格与测试的文章" />
   <meta property="og:image" content="${origin}/images/og-sbti.png" />
   <meta property="og:url" content="${origin}/articles/" />
@@ -166,13 +166,17 @@ export function renderArticleHubHTML(items: ArticleFrontmatter[], origin: string
 </head>
 <body>
   <header>
-    <h1>文章中心</h1>
-    <p><a href="/">← 返回首页</a> · ${items.length} 篇关于人格、心理、测试设计的文章</p>
+    <h1>人格阅读室</h1>
+    <p><a href="/">← 返回首页</a> · ${items.length} 篇关于人格、心理、测试设计的文章 · 每日 7 点更新</p>
   </header>
   <main>
     <ul class="articles">
 ${listHtml}
     </ul>
+    <div style="margin-top: 48px; padding: 24px; background: #111; border: 1px solid #222; border-radius: 12px; text-align: center;">
+      <p style="color: #aaa; margin-bottom: 12px;">读完还不过瘾？</p>
+      <a href="/" style="display: inline-block; background: #fff; color: #000; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700;">去做个测试 →</a>
+    </div>
   </main>
   <footer><p>每日更新 · <a href="/">人格实验室</a></p></footer>
 </body>

@@ -14,9 +14,19 @@ export default function RelatedArticles({ testId }: RelatedArticlesProps) {
 
   return (
     <section className="mt-12 px-4 max-w-3xl mx-auto">
-      <h2 className="text-sm font-mono text-muted mb-4 uppercase tracking-wider">
-        想看更多相关解读
-      </h2>
+      <div className="flex items-baseline justify-between mb-4">
+        <h2 className="text-sm font-mono text-muted uppercase tracking-wider">
+          来自人格阅读室
+        </h2>
+        <a
+          href="/articles/"
+          target="_blank"
+          rel="noopener"
+          className="text-xs text-muted hover:text-white transition-colors"
+        >
+          查看全部 →
+        </a>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((a) => (
           <a
