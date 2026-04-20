@@ -43,6 +43,33 @@ const fadeIn = {
   visible: { opacity: 1, y: 0 },
 };
 
+function MbtiLetterCompare({ myCode, theirCode }: { myCode: string; theirCode: string }) {
+  const myLetters = myCode.replace('-', '').split('');   // ['I','N','T','J','A']
+  const theirLetters = theirCode.replace('-', '').split('');
+  const labels = ['E/I', 'S/N', 'T/F', 'J/P', 'A/T'];
+  return (
+    <div className="grid grid-cols-5 gap-2">
+      {labels.map((label, i) => {
+        const same = myLetters[i] === theirLetters[i];
+        return (
+          <div key={i} className="bg-surface border border-border rounded-xl p-3 text-center">
+            <p className="text-xs text-muted mb-1">{label}</p>
+            <div className="flex flex-col gap-1">
+              <span className={`font-mono font-extrabold text-xl ${same ? 'text-green-400' : 'text-white'}`}>
+                {myLetters[i]}
+              </span>
+              <span className="text-xs text-muted">vs</span>
+              <span className={`font-mono font-extrabold text-xl ${same ? 'text-green-400' : 'text-accent'}`}>
+                {theirLetters[i]}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const BADGE_STYLES: Record<string, string> = {
   soulmate: 'bg-accent/10 text-accent border-accent/20',
   rival: 'bg-warm/10 text-warm border-warm/20',
@@ -177,9 +204,13 @@ export default function ComparePage({
               </div>
             </div>
 
-            {/* Radar chart */}
+            {/* Radar chart / MBTI letter compare */}
             <div className="flex justify-center my-4">
-              <RadarChart labelsArr={labelsArr} dataA={dataA} dataB={dataB} />
+              {config.id === 'mbti' ? (
+                <MbtiLetterCompare myCode={myData.code} theirCode={theirData.code} />
+              ) : (
+                <RadarChart labelsArr={labelsArr} dataA={dataA} dataB={dataB} />
+              )}
             </div>
 
             {/* Similarity */}
