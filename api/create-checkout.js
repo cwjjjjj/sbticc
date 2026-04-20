@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  var origin = req.headers.origin || req.headers.referer || 'https://sbti.jiligulu.xyz';
+  var origin = req.headers.origin || req.headers.referer || 'https://test.jiligulu.xyz';
   origin = origin.replace(/\/$/, '');
 
   try {

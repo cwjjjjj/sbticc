@@ -1,6 +1,6 @@
 /* ===== 旧域名跳转到新域名 ===== */
 if (window.location.hostname === 'sbticc.vercel.app') {
-    window.location.replace('https://sbti.jiligulu.xyz' + window.location.pathname + window.location.search + window.location.hash);
+    window.location.replace('https://test.jiligulu.xyz' + window.location.pathname + window.location.search + window.location.hash);
 }
 
 /* ===== vConsole for test domain ===== */
@@ -1630,7 +1630,7 @@ var SHARE_IMAGES = {
     "IMFW": "./images/IMFW.jpg", "Dior-s": "./images/Dior-s.jpg", "JOKE-R": "./images/JOKE-R.jpg"
 };
 
-var PROD_BASE_URL = 'https://sbti.jiligulu.xyz';
+var PROD_BASE_URL = 'https://test.jiligulu.xyz';
 
 window._shareRenderId = 0;
 window._inviteRenderId = 0;
@@ -1824,7 +1824,7 @@ window._inviteRenderId = 0;
                 ctx.font = '12px -apple-system, sans-serif';
                 ctx.fillStyle = '#999';
                 ctx.textAlign = 'center';
-                ctx.fillText('SBTI\u4eba\u683c\u6d4b\u8bd5 \u2192 sbti.jiligulu.xyz', W / 2, curY + 14);
+                ctx.fillText('SBTI\u4eba\u683c\u6d4b\u8bd5 \u2192 test.jiligulu.xyz', W / 2, curY + 14);
                 curY += 24;
             }
 

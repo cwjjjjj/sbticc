@@ -17,7 +17,7 @@
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/sbti", "destination": "/new/index.html" },
+    { "source": "/sbti", "destination": "/new/sbti/index.html" },
     { "source": "/love", "destination": "/new/love/index.html" },
     { "source": "/love/(.*)", "destination": "/new/love/index.html" },
     { "source": "/work", "destination": "/new/work/index.html" },
@@ -40,6 +40,6 @@
     { "source": "/xpti/(.*)", "destination": "/new/xpti/index.html" },
     { "source": "/mbti", "destination": "/new/mbti/index.html" },
     { "source": "/mbti/(.*)", "destination": "/new/mbti/index.html" },
-    { "source": "/new/((?!assets/).*)", "destination": "/new/index.html" }
+    { "source": "/new/((?!assets/).*)", "destination": "/new/sbti/index.html" }
   ]
 }

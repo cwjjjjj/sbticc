@@ -10,6 +10,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
+        sbti: 'sbti.html',
         love: 'love.html',
         work: 'work.html',
         values: 'values.html',

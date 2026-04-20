@@ -76,7 +76,7 @@ function generate(test) {
   // --- Domain at bottom ---
   ctx.font = '26px "PingFang SC", "Noto Sans SC", "Microsoft YaHei", monospace';
   ctx.fillStyle = '#ff3b3b';
-  ctx.fillText('sbti.jiligulu.xyz', WIDTH / 2, 530);
+  ctx.fillText('test.jiligulu.xyz', WIDTH / 2, 530);
 
   // --- Write PNG ---
   const outPath = path.join(OUT_DIR, `og-${test.key}.png`);

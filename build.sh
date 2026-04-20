@@ -27,7 +27,7 @@ cp dist-temp/index.html dist/index.html
 cp -r dist-temp/assets dist/assets
 
 # 5. Copy test builds into /new/<test>/
-for test in love work values cyber desire gsti fpi fsi mpi xpti mbti; do
+for test in sbti love work values cyber desire gsti fpi fsi mpi xpti mbti; do
   mkdir -p dist/new/$test
   cp dist-temp/$test.html dist/new/$test/index.html
 done

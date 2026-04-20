@@ -31,7 +31,7 @@ export const mbtiConfig: TestConfig = {
   similarityThreshold: 0,
   directTypeResolver: (levels) =>
     `${levels.EI}${levels.SN}${levels.TF}${levels.JP}-${levels.AT}`,
-  prodBaseUrl: 'https://sbti.jiligulu.xyz',
+  prodBaseUrl: 'https://test.jiligulu.xyz',
   basePath: '/mbti',
   localHistoryKey: 'mbti_history',
   localStatsKey: 'mbti_local_stats',
