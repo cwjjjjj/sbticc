@@ -38,6 +38,12 @@ const MOCK_TYPES_BY_TEST = {
     'MOBFER','MCBFER','SCPFEH','SCPGLH','SOBGLH','MCPFEH','MOBGLH','MCBGLH',
     'SOPFER','MCPGLH','SOBGLR','MCBFEH','XXX',
   ],
+  mbti: [
+    'INTJ-A','INTJ-T','INTP-A','INTP-T','ENTJ-A','ENTJ-T','ENTP-A','ENTP-T',
+    'INFJ-A','INFJ-T','INFP-A','INFP-T','ENFJ-A','ENFJ-T','ENFP-A','ENFP-T',
+    'ISTJ-A','ISTJ-T','ISFJ-A','ISFJ-T','ESTJ-A','ESTJ-T','ESFJ-A','ESFJ-T',
+    'ISTP-A','ISTP-T','ISFP-A','ISFP-T','ESTP-A','ESTP-T','ESFP-A','ESFP-T',
+  ],
 };
 
 const HIDDEN_TYPE_BY_TEST = {

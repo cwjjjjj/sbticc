@@ -36,6 +36,12 @@ const VALID_TYPES_BY_TEST = {
     'MOBFEH','MOBFER','MCBFER','SCPFEH','SCPGLH','SOBGLH','MCPFEH',
     'MOBGLH','MCBGLH','SOPFER','MCPGLH','SOBGLR','MCBFEH','XXX'
   ]),
+  'mbti': new Set([
+    'INTJ-A','INTJ-T','INTP-A','INTP-T','ENTJ-A','ENTJ-T','ENTP-A','ENTP-T',
+    'INFJ-A','INFJ-T','INFP-A','INFP-T','ENFJ-A','ENFJ-T','ENFP-A','ENFP-T',
+    'ISTJ-A','ISTJ-T','ISFJ-A','ISFJ-T','ESTJ-A','ESTJ-T','ESFJ-A','ESFJ-T',
+    'ISTP-A','ISTP-T','ISFP-A','ISFP-T','ESTP-A','ESTP-T','ESFP-A','ESFP-T',
+  ]),
 };
 
 export default async function handler(req, res) {
