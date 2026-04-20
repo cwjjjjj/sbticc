@@ -54,4 +54,11 @@ export const ALL_TESTS: TestLink[] = [
     path: '/new/desire',
     emoji: '🔥',
   },
+  {
+    id: 'mbti',
+    name: 'MBTI 16 型人格测试 · 完整版',
+    tagline: '72 题完整版 · 16 种人格 × A/T 亚型',
+    path: '/new/mbti',
+    emoji: '🧬',
+  },
 ];
