@@ -78,6 +78,31 @@ export function computeResult(
     levels[dim] = config.sumToLevel(score);
   });
 
+  // 2.5. Direct type resolver path (e.g., MBTI)
+  if (config.directTypeResolver) {
+    const code = config.directTypeResolver(levels);
+    const typeDefBase = typeLibrary[code] ?? typeLibrary[fallbackTypeCode];
+    const finalType: RankedType = {
+      ...typeDefBase,
+      pattern: code,
+      distance: 0,
+      exact: dimCount,
+      similarity: 100,
+    };
+    return {
+      rawScores,
+      levels,
+      ranked: [finalType],
+      bestNormal: finalType,
+      finalType,
+      modeKicker: '\u4f60\u7684\u4eba\u683c\u7c7b\u578b',
+      badge: code,
+      sub: '',
+      special: false,
+      secondaryType: null,
+    };
+  }
+
   // 3. Build user vector
   const userVector = dimensionOrder.map(dim => levelNum(levels[dim]));
 
