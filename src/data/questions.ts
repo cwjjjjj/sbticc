@@ -1,7 +1,7 @@
 // Extracted verbatim from main.js (lines 33-328, 705)
 
 export interface QuestionOption { label: string; value: number }
-export interface Question { id: string; dim?: string; text: string; options: QuestionOption[]; special?: boolean; kind?: string }
+export interface Question { id: string; dim?: string; text: string; options: QuestionOption[]; special?: boolean; kind?: 'single' | 'multi' | 'likert' | 'drink_gate' | 'drink_trigger' }
 
 export const questions: Question[] = [
     {

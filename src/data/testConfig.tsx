@@ -17,7 +17,7 @@ export interface Question {
   options: QuestionOption[];
   multiSelect?: boolean;
   special?: boolean;
-  kind?: string;
+  kind?: 'single' | 'multi' | 'likert' | 'drink_gate' | 'drink_trigger';
 }
 
 export interface TypeDef {
@@ -77,6 +77,9 @@ export interface TestConfig {
   getCompatibility: (a: string, b: string) => CompatResult;
 
   // Matching params
+  // Optional: bypass pattern matching — map levels directly to a type code.
+  // When provided, computeResult uses this to resolve finalType.
+  directTypeResolver?: (levels: Record<string, string>) => string;
   sumToLevel: (score: number) => string;
   maxDistance: number;
   fallbackTypeCode: string;
