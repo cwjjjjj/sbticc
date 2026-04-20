@@ -252,7 +252,11 @@ export default function MbtiShareCardView({
       marginBottom: 4,
     },
     taglineBlock: {
-      padding: '20px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 80,
+      padding: '16px 24px',
       marginBottom: 28,
       background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 59, 59, 0.08))',
       border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -263,8 +267,9 @@ export default function MbtiShareCardView({
       fontSize: 22,
       fontWeight: 800,
       color: '#fff',
-      lineHeight: 1.4,
+      lineHeight: 1.2,
       letterSpacing: '0.01em',
+      margin: 0,
     },
   };
 
