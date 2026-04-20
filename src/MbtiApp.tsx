@@ -14,6 +14,7 @@ import { useLocalHistory } from './hooks/useLocalHistory';
 import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compare';
 import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob } from './utils/shareCard';
+import { captureMbtiShareCard } from './utils/mbtiShareCapture';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { mbtiConfig } from './data/mbti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
@@ -216,11 +217,15 @@ function MbtiAppInner() {
   const handleShare = useCallback(async () => {
     if (!result) return;
     const typeCode = result.finalType.code;
-    const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     const pageUrl = `${config.prodBaseUrl}${config.basePath}`;
     const qrDataUrl = generateQR(pageUrl);
     try {
-      const canvas = await drawShareCard(typeDef, result, qrDataUrl, 'share', config);
+      const canvas = await captureMbtiShareCard({
+        result,
+        config,
+        qrDataUrl,
+        shareUrl: pageUrl,
+      });
       const blob = await canvasToBlob(canvas);
       setShareModalBlob(blob);
       setShareModalFileName(`${config.id}-${typeCode}.png`);
