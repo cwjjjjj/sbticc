@@ -50,6 +50,10 @@ export function getVisibleQuestions(
 }
 
 export function randomAnswerForQuestion(question: Question): number | number[] {
+  if (question.kind === 'likert') {
+    // Return a random integer in [-3, 3]
+    return Math.floor(Math.random() * 7) - 3;
+  }
   if (question.multiSelect) {
     const maxCount = Math.min(3, question.options.length);
     const count = Math.floor(Math.random() * maxCount) + 1;
