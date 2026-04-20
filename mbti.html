@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MBTI 16 型人格测试 · 完整版</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+    import MbtiApp from './src/MbtiApp.tsx'
+    import './src/index.css'
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      React.createElement(React.StrictMode, null,
+        React.createElement(MbtiApp)
+      )
+    )
+  </script>
+</body>
+</html>

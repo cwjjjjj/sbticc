@@ -15,6 +15,7 @@ export default defineConfig({
         values: 'values.html',
         cyber: 'cyber.html',
         desire: 'desire.html',
+        mbti: 'mbti.html',
       },
     },
   },

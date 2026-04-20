@@ -12,6 +12,7 @@
     { "source": "/values", "destination": "/values/index.html" },
     { "source": "/cyber", "destination": "/cyber/index.html" },
     { "source": "/desire", "destination": "/desire/index.html" },
-    { "source": "/((?!api|assets|images|love|work|values|cyber|desire|sw\\.js).*)", "destination": "/index.html" }
+    { "source": "/mbti", "destination": "/mbti/index.html" },
+    { "source": "/((?!api|assets|images|love|work|values|cyber|desire|mbti|sw\\.js).*)", "destination": "/index.html" }
   ]
 }
