@@ -126,7 +126,7 @@ export default function ShareModal({
               onClick={handleNativeShare}
               className="w-full bg-white text-black font-bold py-3.5 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>\u2197</span>
+              <span>{'\u2197'}</span>
               <span>{'\u5206\u4eab\u5230\u5fae\u4fe1 / \u5176\u4ed6\u5e94\u7528'}</span>
             </button>
           )}
