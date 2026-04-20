@@ -157,34 +157,40 @@ export async function drawShareCard(
   }
   y += 10;
 
-  // -- Dimension tags
-  const tagH = 30;
-  const tagGap = 8;
-  let tagX = pad;
-  let tagY = y;
+  // -- Dimension tags / MBTI bars
+  if (config.id === 'mbti') {
+    const barsH = 200;
+    drawMbtiBars(ctx, result, pad, y, contentW, barsH);
+    y += barsH + 10;
+  } else {
+    const tagH = 30;
+    const tagGap = 8;
+    let tagX = pad;
+    let tagY = y;
 
-  ctx.font = '13px "Noto Sans SC", sans-serif';
-  for (const dimKey of dimensionOrder) {
-    const level = result.levels[dimKey] || 'M';
-    const dimInfo = dimensionMeta[dimKey];
-    const shortName = dimInfo ? dimInfo.name.replace(/^[A-Za-z]+\d*\s*/, '') : dimKey;
-    const label = `${shortName} ${level}`;
-    const tw = ctx.measureText(label).width + 16;
+    ctx.font = '13px "Noto Sans SC", sans-serif';
+    for (const dimKey of dimensionOrder) {
+      const level = result.levels[dimKey] || 'M';
+      const dimInfo = dimensionMeta[dimKey];
+      const shortName = dimInfo ? dimInfo.name.replace(/^[A-Za-z]+\d*\s*/, '') : dimKey;
+      const label = `${shortName} ${level}`;
+      const tw = ctx.measureText(label).width + 16;
 
-    if (tagX + tw > W - pad) {
-      tagX = pad;
-      tagY += tagH + tagGap;
+      if (tagX + tw > W - pad) {
+        tagX = pad;
+        tagY += tagH + tagGap;
+      }
+
+      ctx.fillStyle = '#1a1a1a';
+      roundRect(ctx, tagX, tagY, tw, tagH, 6);
+      ctx.fill();
+
+      ctx.fillStyle = '#888';
+      ctx.fillText(label, tagX + 8, tagY + 20);
+      tagX += tw + tagGap;
     }
-
-    ctx.fillStyle = '#1a1a1a';
-    roundRect(ctx, tagX, tagY, tw, tagH, 6);
-    ctx.fill();
-
-    ctx.fillStyle = '#888';
-    ctx.fillText(label, tagX + 8, tagY + 20);
-    tagX += tw + tagGap;
+    y = tagY + tagH + 30;
   }
-  y = tagY + tagH + 30;
 
   // -- Separator
   ctx.strokeStyle = '#333';
@@ -237,6 +243,52 @@ export async function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob | nu
 }
 
 /* ---------- internal ---------- */
+
+function drawMbtiBars(
+  ctx: CanvasRenderingContext2D,
+  result: ComputeResultOutput,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+) {
+  const maxAbs: Record<string, number> = { EI: 45, SN: 45, TF: 45, JP: 45, AT: 36 };
+  const dims = [
+    { key: 'EI', left: 'I', right: 'E' },
+    { key: 'SN', left: 'N', right: 'S' },
+    { key: 'TF', left: 'T', right: 'F' },
+    { key: 'JP', left: 'J', right: 'P' },
+    { key: 'AT', left: 'A', right: 'T' },
+  ];
+  const rowH = h / dims.length;
+  dims.forEach((d, i) => {
+    const score = result.rawScores[d.key] ?? 0;
+    const max = maxAbs[d.key];
+    const pct = Math.max(0, Math.min(100, Math.round(50 + (score / max) * 50)));
+    const rowY = y + i * rowH + rowH / 2;
+    // Left letter
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(d.left, x, rowY + 6);
+    // Bar background
+    const barX = x + 30;
+    const barW = w - 80;
+    const barY = rowY - 5;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(barX, barY, barW, 10);
+    // Fill
+    ctx.fillStyle = '#8b5cf6';
+    ctx.fillRect(barX, barY, (barW * pct) / 100, 10);
+    // Right letter
+    ctx.fillStyle = '#fff';
+    ctx.fillText(d.right, barX + barW + 10, rowY + 6);
+    // Pct text
+    ctx.fillStyle = '#999';
+    ctx.font = '12px sans-serif';
+    ctx.fillText(`${pct}%`, barX + barW + 30, rowY + 6);
+  });
+}
 
 function roundRect(
   ctx: CanvasRenderingContext2D,
