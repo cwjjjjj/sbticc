@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import RadarChart from './RadarChart';
+import TypeCard from './TypeCard';
 import { useTestConfig } from '../data/testConfig';
 import { levelNum } from '../utils/matching';
 
@@ -154,18 +155,8 @@ export default function ComparePage({
             <div className="flex justify-center items-center gap-10 max-sm:gap-5 mb-6">
               {/* Person A */}
               <div className="text-center">
-                <div className="w-[100px] h-[100px] bg-surface-2 border-2 border-border rounded-2xl overflow-hidden mx-auto">
-                  {config.typeImages[myData.code] ? (
-                    <img
-                      src={config.typeImages[myData.code]}
-                      alt={myData.code}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center font-mono text-lg font-bold text-muted">
-                      {myData.code}
-                    </div>
-                  )}
+                <div className="mx-auto w-fit">
+                  <TypeCard typeCode={myData.code} size="sm" />
                 </div>
                 <p className="font-mono text-xl font-extrabold text-white mt-3">
                   {myData.code}
@@ -182,18 +173,8 @@ export default function ComparePage({
 
               {/* Person B */}
               <div className="text-center">
-                <div className="w-[100px] h-[100px] bg-surface-2 border-2 border-border rounded-2xl overflow-hidden mx-auto">
-                  {config.typeImages[theirData.code] ? (
-                    <img
-                      src={config.typeImages[theirData.code]}
-                      alt={theirData.code}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center font-mono text-lg font-bold text-muted">
-                      {theirData.code}
-                    </div>
-                  )}
+                <div className="mx-auto w-fit">
+                  <TypeCard typeCode={theirData.code} size="sm" />
                 </div>
                 <p className="font-mono text-xl font-extrabold text-white mt-3">
                   {theirData.code}

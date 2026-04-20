@@ -38,6 +38,32 @@ const MOCK_TYPES_BY_TEST = {
     'MOBFER','MCBFER','SCPFEH','SCPGLH','SOBGLH','MCPFEH','MOBGLH','MCBGLH',
     'SOPFER','MCPGLH','SOBGLR','MCBFEH','XXX',
   ],
+  gsti: [
+    'M_GOLD','M_HUBY','M_GTEA','M_WHIT','M_FBRO','M_SAIN','M_MALK','M_TEAM',
+    'M_BABY','M_CTRL','M_MOON','M_PRNC','M_DRAM','M_SOFT','M_PHNX','M_FANC',
+    'M_HOTG','M_SCHM','M_WLOT','M_HOOK','F_PHNX','F_MGIR','F_PCON','F_LICK',
+    'F_OCEA','F_TOOL','F_DADY','F_IRON','F_ROUG','F_STRG','F_NICE','F_BACK',
+    'F_ACGR','F_WILD','F_DARK','F_BOSS','F_KBGR','F_DADG','F_PART','F_BRIC',
+    'UNDEF','HWDP',
+  ],
+  fpi: [
+    'FILTR','9PIC!','EMO-R','FLEXR','CKIN!','3DAYS','SUBMR','LIKER',
+    'GHOST','COPYR','SELLR','BABY!','FURRY','MUKBG','TRVL9','BLOCK',
+    'REDBK','JUDGE','QSLIF','NPC-F',
+    '0POST','FEED?',
+  ],
+  fsi: [
+    'COPYX','REBEL','SAINT','LEAVE','CURE!','SILNT','DADY+','MAMY+',
+    'PICKR','PLEASE','GOLD+','GHOST','SOS!','BANK!','PRNS+','TOOLX',
+    'BRAG+','DUAL!',
+    'BOSSY','FAMX?',
+  ],
+  mpi: [
+    'LIVE!','2HAND','HAULX','CHEAP','GOLDN','SETUP','NUBOY','LUXUR',
+    'BILIB','FOMO+','GIFTR','RETRN','STEAL','PREMM','FLIPR','INSTA',
+    'CHAR0','BOSSX',
+    'ZERO$','MIXDR',
+  ],
   mbti: [
     'INTJ-A','INTJ-T','INTP-A','INTP-T','ENTJ-A','ENTJ-T','ENTP-A','ENTP-T',
     'INFJ-A','INFJ-T','INFP-A','INFP-T','ENFJ-A','ENFJ-T','ENFP-A','ENFP-T',
@@ -53,6 +79,10 @@ const HIDDEN_TYPE_BY_TEST = {
   values: 'MLC',
   cyber: 'BOT',
   desire: 'XXX',
+  gsti: 'UNDEF',
+  fpi: '0POST',
+  fsi: 'BOSSY',
+  mpi: 'ZERO$',      // 新增
 };
 
 function hashString(input) {

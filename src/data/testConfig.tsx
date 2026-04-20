@@ -1,5 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
+export type Gender = 'male' | 'female' | 'unspecified';
+
 export interface DimensionInfo {
   name: string;
   model: string;
@@ -17,7 +19,7 @@ export interface Question {
   options: QuestionOption[];
   multiSelect?: boolean;
   special?: boolean;
-  kind?: 'single' | 'multi' | 'likert' | 'drink_gate' | 'drink_trigger';
+  kind?: 'single' | 'multi' | 'likert' | 'drink_gate' | 'drink_trigger' | 'gate';
 }
 
 export interface TypeDef {
@@ -81,6 +83,13 @@ export interface TestConfig {
   // When provided, computeResult uses this to resolve finalType.
   directTypeResolver?: (levels: Record<string, string>) => string;
   sumToLevel: (score: number) => string;
+  /**
+   * Optional per-dimension override for sumToLevel. When provided and it
+   * returns a non-undefined value for the given dim, matching.ts will use it
+   * in place of the flat `sumToLevel`. Used by tests whose dims have varying
+   * question counts (e.g. FSI: 2 题 GNDR / 3 题 ECHO / 4 题 others).
+   */
+  sumToLevelByDim?: (score: number, dim: string) => string | undefined;
   maxDistance: number;
   fallbackTypeCode: string;
   hiddenTypeCode: string;
@@ -96,6 +105,14 @@ export interface TestConfig {
   // Display text
   dimSectionTitle: string;
   questionCountLabel: string;
+
+  // GSTI-only: 性别锁定支持
+  genderLocked?: boolean;                  // true → UI 触发性别选择器
+  typePoolByGender?: {                      // 按性别过滤匹配的类型池
+    male: string[];                         // 男性用户可匹配的类型代号
+    female: string[];                       // 女性用户可匹配的类型代号
+    both: string[];                         // 选"不透露"时，可匹配的类型代号（通常 = male + female）
+  };
 }
 
 const TestConfigContext = createContext<TestConfig | null>(null);

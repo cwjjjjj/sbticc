@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Funnel · 人格实验室后台</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; background: #080808; color: #e7e7e7; padding: 24px; }
+    h1 { font-size: 18px; margin-bottom: 4px; }
+    .sub { color: #888; font-size: 13px; margin-bottom: 20px; }
+    .card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    .row { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+    input, button { background: #0a0a0a; color: #fff; border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; }
+    button { background: #ff3b3b; border-color: #ff3b3b; cursor: pointer; font-weight: 600; }
+    button:hover { background: #ff5555; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #1f1f1f; }
+    th { color: #888; font-weight: 500; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
+    td.num { font-family: "JetBrains Mono", monospace; text-align: right; color: #fff; font-weight: 600; }
+    td.ev { font-family: "JetBrains Mono", monospace; color: #ddd; font-size: 12px; }
+    .muted { color: #666; }
+    .funnel-row { display: grid; grid-template-columns: 160px 1fr 80px 80px; gap: 12px; padding: 6px 0; border-bottom: 1px solid #1f1f1f; font-size: 13px; }
+    .bar { height: 14px; background: linear-gradient(90deg, #ff3b3b, #ffaa00); border-radius: 4px; }
+    .bar-wrap { background: #1a1a1a; border-radius: 4px; height: 14px; }
+    .pct { font-family: "JetBrains Mono", monospace; color: #88dd88; text-align: right; }
+    .err { color: #ff6b6b; margin: 12px 0; }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: #888; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Funnel</h1>
+  <div class="sub">人格实验室埋点看板 · 数据来自 /api/funnel</div>
+
+  <div class="card">
+    <div class="row">
+      <input id="key" type="password" placeholder="ADMIN_KEY" autocomplete="off" />
+      <input id="days" type="number" value="7" min="1" max="30" />
+      <button id="load">加载</button>
+      <span class="muted" id="status"></span>
+    </div>
+    <div id="err" class="err" style="display:none"></div>
+  </div>
+
+  <div class="card" id="funnel-card" style="display:none">
+    <h2 style="font-size:14px;margin-bottom:12px">漏斗（所选区间聚合）</h2>
+    <div id="funnel-body"></div>
+  </div>
+
+  <div class="card" id="totals-card" style="display:none">
+    <h2 style="font-size:14px;margin-bottom:12px">事件累计</h2>
+    <table id="totals-tbl">
+      <thead><tr><th>Event</th><th style="text-align:right">Count</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card" id="daily-card" style="display:none">
+    <h2 style="font-size:14px;margin-bottom:12px">按天展开</h2>
+    <div id="daily-body"></div>
+  </div>
+
+  <script>
+    // Store key in sessionStorage for convenience
+    var keyEl = document.getElementById('key');
+    var daysEl = document.getElementById('days');
+    var btn = document.getElementById('load');
+    var statusEl = document.getElementById('status');
+    var errEl = document.getElementById('err');
+
+    var saved = sessionStorage.getItem('funnel_key');
+    if (saved) keyEl.value = saved;
+
+    // Prefill from query ?key=
+    var qs = new URLSearchParams(location.search);
+    if (qs.get('key')) keyEl.value = qs.get('key');
+    if (qs.get('days')) daysEl.value = qs.get('days');
+
+    // Funnel stages (left-to-right order)
+    var FUNNEL_STAGES = [
+      { key: 'home_view', label: 'home_view' },
+      { key: 'test_click', label: 'test_click' },
+      { key: 'hero_view', label: 'hero_view' },
+      { key: 'quiz_start', label: 'quiz_start' },
+      { key: 'quiz_complete', label: 'quiz_complete' },
+      { key: 'result_view', label: 'result_view' },
+      { key: 'share_click', label: 'share_click' },
+    ];
+
+    function sumMatching(obj, prefix) {
+      var total = 0;
+      for (var k in obj) {
+        if (!obj.hasOwnProperty(k)) continue;
+        if (k === prefix || k.indexOf(prefix + ':') === 0) {
+          total += Number(obj[k]) || 0;
+        }
+      }
+      return total;
+    }
+
+    function render(data) {
+      var totals = data.totals || {};
+      var days = data.days || [];
+
+      // Funnel
+      var funnelBody = document.getElementById('funnel-body');
+      funnelBody.innerHTML = '';
+      var maxCount = 0;
+      var stageCounts = FUNNEL_STAGES.map(function (s) {
+        var n = sumMatching(totals, s.key);
+        if (n > maxCount) maxCount = n;
+        return { label: s.label, n: n };
+      });
+      stageCounts.forEach(function (s, i) {
+        var pctFromTop = maxCount ? (s.n / maxCount * 100) : 0;
+        var pctFromPrev = i === 0 ? 100 : (stageCounts[i-1].n ? (s.n / stageCounts[i-1].n * 100) : 0);
+        var row = document.createElement('div');
+        row.className = 'funnel-row';
+        row.innerHTML =
+          '<div style="color:#aaa">' + s.label + '</div>' +
+          '<div class="bar-wrap"><div class="bar" style="width:' + pctFromTop.toFixed(1) + '%"></div></div>' +
+          '<div class="pct">' + s.n.toLocaleString() + '</div>' +
+          '<div class="pct">' + (i === 0 ? '—' : pctFromPrev.toFixed(1) + '%') + '</div>';
+        funnelBody.appendChild(row);
+      });
+      document.getElementById('funnel-card').style.display = '';
+
+      // Totals table
+      var tbody = document.querySelector('#totals-tbl tbody');
+      tbody.innerHTML = '';
+      var totalsArr = Object.keys(totals).map(function (k) { return [k, totals[k]]; });
+      totalsArr.sort(function (a, b) { return b[1] - a[1]; });
+      totalsArr.forEach(function (pair) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td class="ev">' + pair[0] + '</td><td class="num">' + Number(pair[1]).toLocaleString() + '</td>';
+        tbody.appendChild(tr);
+      });
+      document.getElementById('totals-card').style.display = '';
+
+      // Per-day breakdown
+      var dailyBody = document.getElementById('daily-body');
+      dailyBody.innerHTML = '';
+      days.forEach(function (d) {
+        var block = document.createElement('details');
+        var eventKeys = Object.keys(d.events || {}).sort();
+        var totalToday = eventKeys.reduce(function (sum, k) { return sum + (Number(d.events[k]) || 0); }, 0);
+        var summary = '<summary>' + d.date + ' · ' + totalToday.toLocaleString() + ' events</summary>';
+        var rows = eventKeys.map(function (k) {
+          return '<tr><td class="ev">' + k + '</td><td class="num">' + Number(d.events[k]).toLocaleString() + '</td></tr>';
+        }).join('');
+        block.innerHTML = summary +
+          '<table><tbody>' + (rows || '<tr><td class="muted" colspan="2">(无数据)</td></tr>') + '</tbody></table>';
+        dailyBody.appendChild(block);
+      });
+      document.getElementById('daily-card').style.display = '';
+    }
+
+    function load() {
+      var key = keyEl.value.trim();
+      var days = parseInt(daysEl.value, 10) || 7;
+      if (!key) { errEl.textContent = '请填入 ADMIN_KEY'; errEl.style.display = ''; return; }
+      errEl.style.display = 'none';
+      statusEl.textContent = '加载中…';
+      sessionStorage.setItem('funnel_key', key);
+      fetch('/api/funnel?key=' + encodeURIComponent(key) + '&days=' + days)
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          statusEl.textContent = '已加载 ' + (data.days || []).length + ' 天';
+          render(data);
+        })
+        .catch(function (e) {
+          statusEl.textContent = '';
+          errEl.textContent = String(e && e.message || e);
+          errEl.style.display = '';
+        });
+    }
+
+    btn.addEventListener('click', load);
+    keyEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') load(); });
+
+    if (keyEl.value) load();
+  </script>
+</body>
+</html>

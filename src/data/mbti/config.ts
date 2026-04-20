@@ -32,7 +32,7 @@ export const mbtiConfig: TestConfig = {
   directTypeResolver: (levels) =>
     `${levels.EI}${levels.SN}${levels.TF}${levels.JP}-${levels.AT}`,
   prodBaseUrl: 'https://sbti.jiligulu.xyz',
-  basePath: '/new/mbti',
+  basePath: '/mbti',
   localHistoryKey: 'mbti_history',
   localStatsKey: 'mbti_local_stats',
   apiTestParam: 'mbti',

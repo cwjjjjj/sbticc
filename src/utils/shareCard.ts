@@ -1,6 +1,14 @@
 import { PROD_BASE_URL } from '../theme/tokens';
-import type { TestConfig, TypeDef } from '../data/testConfig';
+import type { Gender, TestConfig, TypeDef } from '../data/testConfig';
 import type { ComputeResultOutput } from './matching';
+
+/* ---------- types ---------- */
+
+export interface ShareCardRarity {
+  /** 0-100, lower = rarer (same convention as useRarity). */
+  percentile: number;
+  tier: 'legendary' | 'rare' | 'uncommon' | 'common';
+}
 
 /* ---------- helpers ---------- */
 
@@ -57,6 +65,7 @@ export async function drawShareCard(
   mode: 'share' | 'invite',
   config: TestConfig,
   isPaid: boolean = false,
+  rarity?: ShareCardRarity,
 ): Promise<HTMLCanvasElement> {
   const { dimensionOrder, dimensionMeta, shareImages } = config;
   const W = 840;
@@ -87,6 +96,43 @@ export async function drawShareCard(
   ctx.fillStyle = '#666';
   ctx.fillText(config.name, pad, y + 18);
   y += 50;
+
+  // GSTI-only: make the swap direction visible on generated posters.
+  if (config.genderLocked) {
+    drawSwapBadge(ctx, pad, y, type.code, config);
+    y += 68;
+  }
+
+  // -- Rarity banner (Phase B virality) — prominent "前 X% · 稀世/罕见/少见/普通"
+  if (rarity && rarity.percentile < 100) {
+    const tierCfg = {
+      legendary: { cn: '稀世', color: '#ffd700' },
+      rare:      { cn: '罕见', color: '#ff3b3b' },
+      uncommon:  { cn: '少见', color: '#c0c0c0' },
+      common:    { cn: '普通', color: '#888888' },
+    }[rarity.tier];
+    const pctStr = rarity.percentile < 1 ? '< 1' : rarity.percentile.toFixed(1);
+
+    ctx.save();
+    ctx.textAlign = 'center';
+
+    // Big percentile number
+    ctx.font = 'bold 72px "JetBrains Mono", monospace';
+    ctx.fillStyle = tierCfg.color;
+    ctx.shadowColor = tierCfg.color;
+    ctx.shadowBlur = 16;
+    ctx.fillText(`\u524d ${pctStr}%`, W / 2, y + 60);
+
+    // Tier label
+    ctx.shadowBlur = 0;
+    ctx.font = 'bold 28px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = tierCfg.color;
+    ctx.fillText(tierCfg.cn, W / 2, y + 100);
+
+    ctx.restore();
+    ctx.textAlign = 'left';
+    y += 130;
+  }
 
   // -- Poster image + type info
   const posterSize = 200;
@@ -201,29 +247,53 @@ export async function drawShareCard(
   ctx.stroke();
   y += 30;
 
-  // -- Watermark (only if not paid)
-  if (!isPaid) {
-    ctx.font = '14px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#444';
-    ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, pad, y);
-    y += 30;
-  }
-
   // -- QR + CTA footer
-  const qrSize = 120;
-  if (qrImg) {
-    // White background for QR
-    ctx.fillStyle = '#ffffff';
-    roundRect(ctx, W - pad - qrSize - 10, y - 5, qrSize + 20, qrSize + 20, 8);
-    ctx.fill();
-    ctx.drawImage(qrImg, W - pad - qrSize, y + 5, qrSize, qrSize);
+  const qrSize = 140;
+  const qrPadding = 12;
+  const qrBlockW = qrSize + qrPadding * 2;
+  const qrBlockH = qrSize + qrPadding * 2;
+  const qrBlockX = W - pad - qrBlockW;
+  const ctaTextX = pad;
+
+  // Test name
+  ctx.font = 'bold 22px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#ffaa00';
+  ctx.fillText(config.name, ctaTextX, y + 24);
+
+  // Call-to-action
+  ctx.font = '18px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#ccc';
+  ctx.fillText('扫码测测你是什么人格 →', ctaTextX, y + 58);
+
+  // URL (prominent)
+  ctx.font = 'bold 16px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#ff3b82';
+  ctx.fillText('test.jiligulu.xyz', ctaTextX, y + 90);
+
+  // Watermark path (only if not paid)
+  if (!isPaid) {
+    ctx.font = '13px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#444';
+    ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, ctaTextX, y + 115);
   }
 
-  ctx.font = '16px "Noto Sans SC", sans-serif';
-  ctx.fillStyle = '#666';
-  ctx.fillText('\u626b\u7801\u6216\u70b9\u51fb\u94fe\u63a5', pad, y + 20);
-  ctx.fillText('\u6d4b\u8bd5\u4f60\u7684\u4eba\u683c', pad, y + 44);
-  y += qrSize + 40;
+  // QR code
+  if (qrImg) {
+    // White background for QR readability
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, qrBlockX, y, qrBlockW, qrBlockH, 10);
+    ctx.fill();
+    ctx.drawImage(qrImg, qrBlockX + qrPadding, y + qrPadding, qrSize, qrSize);
+
+    // URL label below QR
+    ctx.font = '12px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#666';
+    ctx.textAlign = 'center';
+    ctx.fillText('扫码参加测试', qrBlockX + qrBlockW / 2, y + qrBlockH + 20);
+    ctx.textAlign = 'left';
+  }
+
+  y += Math.max(qrBlockH + 30, 130) + 20;
 
   // -- Trim canvas to actual height
   const finalH = y + pad;
@@ -309,4 +379,55 @@ function roundRect(
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
+}
+
+function drawSwapBadge(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  typeCode: string,
+  config: TestConfig,
+) {
+  const gender = readStoredGender(config);
+  const genderLabel: Record<Gender, string> = {
+    male: '男',
+    female: '女',
+    unspecified: '?',
+  };
+  const poolLabel = typeCode.startsWith('M_')
+    ? '女性物种'
+    : typeCode.startsWith('F_')
+      ? '男性物种'
+      : '无池';
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(220, 38, 38, 0.16)';
+  ctx.strokeStyle = 'rgba(220, 38, 38, 0.72)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, x, y, 330, 52, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 18px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('GSTI · SWAP', x + 18, y + 26);
+
+  ctx.font = '16px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#fca5a5';
+  ctx.fillText(`${genderLabel[gender]} → ${poolLabel}`, x + 170, y + 26);
+  ctx.restore();
+}
+
+function readStoredGender(config: TestConfig): Gender {
+  if (typeof window === 'undefined') return 'unspecified';
+  try {
+    const stored = window.localStorage.getItem(`${config.id}_gender`);
+    if (stored === 'male' || stored === 'female' || stored === 'unspecified') {
+      return stored;
+    }
+  } catch {
+    // Ignore storage failures and fall back to the neutral label.
+  }
+  return 'unspecified';
 }

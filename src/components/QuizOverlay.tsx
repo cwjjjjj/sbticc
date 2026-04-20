@@ -1,8 +1,15 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ProgressBar from './ProgressBar';
 import QuestionCard from './QuestionCard';
-import AdSlot from './AdSlot';
 import type { UseQuizReturn } from '../hooks/useQuiz';
+import { useTestConfig } from '../data/testConfig';
+import { trackEvent } from '../hooks/useAnalytics';
+
+const SEGMENT_CHECKPOINTS = [
+  { ratio: 1 / 3, label: '基础画像完成' },
+  { ratio: 2 / 3, label: '深水区清关' },
+] as const;
 
 interface QuizOverlayProps {
   quiz: UseQuizReturn;
@@ -11,9 +18,13 @@ interface QuizOverlayProps {
 }
 
 export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps) {
+  const config = useTestConfig();
   const [direction, setDirection] = useState(1);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevQRef = useRef(quiz.currentQ);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shownCheckpoints = useRef<Set<number>>(new Set());
 
   const {
     visibleQuestions,
@@ -31,8 +42,16 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
 
   const handleAnswer = useCallback(
     (qId: string, value: number | number[]) => {
+      // Guard: ignore stale clicks. Framer-motion's AnimatePresence keeps the
+      // exiting QuestionCard mounted during its exit animation (~250ms), so a
+      // rapid click lands on the OLD question's options. Without this guard,
+      // the stale answer would reset the auto-advance timer and cause the
+      // current question to be skipped. See BUG1 (2026-04-19).
+      if (currentQuestion && qId !== currentQuestion.id) return;
+
       answer(qId, value);
-      // Auto-advance after 300ms for single-select only, not on last question
+      trackEvent('quiz_q', { testId: config.id, qIndex: currentQ });
+      // Auto-advance after 500ms for single-select only, not on last question.
       const isMulti = currentQuestion?.multiSelect;
       if (!isMulti) {
         if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
@@ -40,11 +59,11 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
           autoAdvanceTimer.current = setTimeout(() => {
             setDirection(1);
             goNext();
-          }, 300);
+          }, 500);
         }
       }
     },
-    [answer, goNext, currentQ, totalQuestions, currentQuestion],
+    [answer, goNext, currentQ, totalQuestions, currentQuestion, config.id],
   );
 
   const handlePrev = useCallback(() => {
@@ -73,6 +92,27 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
     prevQRef.current = currentQ;
   }, [currentQ]);
 
+  // Segment milestone toast: fire when answeredCount first crosses 1/3 or 2/3
+  useEffect(() => {
+    if (totalQuestions < 6) return; // too short to bother segmenting
+    const ratio = answeredCount / totalQuestions;
+    for (let i = 0; i < SEGMENT_CHECKPOINTS.length; i++) {
+      const cp = SEGMENT_CHECKPOINTS[i];
+      if (ratio >= cp.ratio && !shownCheckpoints.current.has(i)) {
+        shownCheckpoints.current.add(i);
+        setToast(cp.label);
+        if (toastTimer.current) clearTimeout(toastTimer.current);
+        toastTimer.current = setTimeout(() => setToast(null), 1800);
+      }
+    }
+  }, [answeredCount, totalQuestions]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
+
   const isCurrentAnswered = currentQuestion
     ? (() => {
         const a = answers[currentQuestion.id];
@@ -90,6 +130,21 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
 
   return (
     <div className="fixed inset-0 z-[200] bg-bg overflow-y-auto">
+      {/* Segment milestone toast (non-blocking, 1.8s) */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[250] px-4 py-2 rounded-full bg-accent text-white text-xs font-bold shadow-lg pointer-events-none"
+          >
+            ✓ {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-[680px] mx-auto px-4 py-6">
         {/* Top bar: back button + progress */}
         <div className="flex items-center gap-3 mb-2">
@@ -157,13 +212,6 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
             <div className="w-[72px]" /> /* spacer to keep layout balanced */
           )}
         </div>
-
-        {/* Bottom ad during the quiz flow */}
-        <AdSlot
-          zone="10859606"
-          src="https://nap5k.com/tag.min.js"
-          className="mt-5 mb-2 rounded-lg border border-border/60 bg-surface-2/40 overflow-hidden"
-        />
 
         {/* Submit area */}
         {isLastQuestion && (

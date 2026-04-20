@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { TYPE_LIBRARY, TYPE_RARITY } from '../data/types';
-import { TYPE_IMAGES } from '../data/typeImages';
+import { useTestConfig } from '../data/testConfig';
 import type { RankingData } from '../hooks/useRanking';
 
 interface ProfilesGalleryProps {
   rankingData: RankingData | null;
 }
-
-const ALL_TYPES = Object.keys(TYPE_LIBRARY);
 
 function rarityBadgeStyle(stars: number): { bg: string; text: string } {
   switch (stars) {
@@ -25,15 +22,18 @@ function rarityBadgeStyle(stars: number): { bg: string; text: string } {
   }
 }
 
-function rarityIcon(code: string, stars: number): string {
+function rarityIcon(code: string, stars: number, hiddenTypeCode: string): string {
   if (code === 'DRUNK') return '\ud83c\udf7a';
+  if (code === hiddenTypeCode) return '?';
   if (stars === 5) return '\ud83d\udc8e';
   return '\u2605'.repeat(stars);
 }
 
 export default function ProfilesGallery({ rankingData }: ProfilesGalleryProps) {
+  const config = useTestConfig();
   const [useRealData, setUseRealData] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const allTypes = Object.keys(config.typeLibrary);
 
   const toggleExpand = (code: string) => {
     setExpandedCards((prev) => ({ ...prev, [code]: !prev[code] }));
@@ -56,7 +56,7 @@ export default function ProfilesGallery({ rankingData }: ProfilesGalleryProps) {
             {'\u4eba\u683c\u56fe\u9274'}
           </h2>
           <p className="text-sm text-muted mt-1">
-            {'\u5168\u90e8 29 \u79cd\u4eba\u683c\u7c7b\u578b'}
+            {`全部 ${allTypes.length} 种人格类型`}
           </p>
         </div>
 
@@ -83,17 +83,17 @@ export default function ProfilesGallery({ rankingData }: ProfilesGalleryProps) {
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ALL_TYPES.map((code) => {
-          const typeDef = TYPE_LIBRARY[code];
-          const rarity = TYPE_RARITY[code];
-          const imgSrc = TYPE_IMAGES[code];
+        {allTypes.map((code) => {
+          const typeDef = config.typeLibrary[code];
+          const rarity = config.typeRarity[code];
+          const imgSrc = config.typeImages[code];
           const isExpanded = expandedCards[code] ?? false;
 
           if (!typeDef) return null;
 
           const stars = rarity?.stars ?? 1;
           const badgeStyle = rarityBadgeStyle(stars);
-          const icon = rarityIcon(code, stars);
+          const icon = rarityIcon(code, stars, config.hiddenTypeCode);
 
           let pctDisplay: string;
           let labelDisplay: string;

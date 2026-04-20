@@ -1,8 +1,67 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import type { Question, TestConfig } from '../data/testConfig';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import type { Question, Gender } from '../data/testConfig';
 import { useTestConfig } from '../data/testConfig';
 import { buildShuffledQuestions, getVisibleQuestions } from '../utils/quiz';
 import { computeResult, type ComputeResultOutput } from '../utils/matching';
+
+/** How long saved progress remains valid (2 hours). */
+const PROGRESS_TTL_MS = 2 * 60 * 60 * 1000;
+
+interface SavedProgress {
+  answers: Record<string, number | number[]>;
+  currentQ: number;
+  shuffledQuestions: Question[];
+  timestamp: number;
+}
+
+function getStorageKey(testId: string): string {
+  return `${testId}_quiz_progress`;
+}
+
+function loadProgress(testId: string): SavedProgress | null {
+  try {
+    const raw = localStorage.getItem(getStorageKey(testId));
+    if (!raw) return null;
+    const parsed: SavedProgress = JSON.parse(raw);
+    if (
+      typeof parsed.timestamp !== 'number' ||
+      Date.now() - parsed.timestamp > PROGRESS_TTL_MS
+    ) {
+      localStorage.removeItem(getStorageKey(testId));
+      return null;
+    }
+    // Basic shape validation
+    if (
+      !parsed.answers ||
+      typeof parsed.currentQ !== 'number' ||
+      !Array.isArray(parsed.shuffledQuestions)
+    ) {
+      localStorage.removeItem(getStorageKey(testId));
+      return null;
+    }
+    return parsed;
+  } catch {
+    // Corrupted data — discard
+    try { localStorage.removeItem(getStorageKey(testId)); } catch { /* ignore */ }
+    return null;
+  }
+}
+
+function saveProgress(testId: string, data: SavedProgress): void {
+  try {
+    localStorage.setItem(getStorageKey(testId), JSON.stringify(data));
+  } catch {
+    // Storage full or unavailable — silently ignore
+  }
+}
+
+function clearProgress(testId: string): void {
+  try {
+    localStorage.removeItem(getStorageKey(testId));
+  } catch {
+    // ignore
+  }
+}
 
 export interface UseQuizReturn {
   /* state */
@@ -11,6 +70,11 @@ export interface UseQuizReturn {
   currentQ: number;
   previewMode: boolean;
   debugForceType: string | null;
+  hasSavedProgress: boolean;
+
+  /* gender (GSTI) */
+  gender: Gender;
+  setGender: (g: Gender) => void;
 
   /* derived */
   visibleQuestions: Question[];
@@ -21,21 +85,15 @@ export interface UseQuizReturn {
   currentQuestion: Question | undefined;
 
   /* actions */
-  startQuiz: (preview?: boolean) => void;
+  startQuiz: (preview?: boolean, seedAnswers?: Record<string, number | number[]>) => void;
   answer: (qId: string, value: number | number[]) => void;
   goNext: () => void;
   goPrev: () => void;
   setDebugForceType: (code: string | null) => void;
   getResult: () => ComputeResultOutput;
-
-  /* draft */
-  checkDraft: () => { exists: boolean; answered: number; total: number } | null;
-  resumeDraft: (config: TestConfig) => boolean;
-  clearDraft: () => void;
 }
 
-export function useQuiz(options?: { draftKey?: string }): UseQuizReturn {
-  const draftKey = options?.draftKey;
+export function useQuiz(): UseQuizReturn {
   const config = useTestConfig();
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<string, number | number[]>>({});
@@ -43,27 +101,49 @@ export function useQuiz(options?: { draftKey?: string }): UseQuizReturn {
   const [previewMode, setPreviewMode] = useState(false);
   const [debugForceType, setDebugForceType] = useState<string | null>(null);
 
-  // -- Draft: debounced save effect
-  useEffect(() => {
-    if (!draftKey) return;
-    const t = setTimeout(() => {
-      const draft = {
-        version: 1,
-        answers,
-        questionOrder: shuffledQuestions.map(q => q.id),
-        currentIndex: currentQ,
-        savedAt: Date.now(),
-      };
-      try {
-        localStorage.setItem(draftKey, JSON.stringify(draft));
-      } catch {}
-    }, 300);
-    return () => clearTimeout(t);
-  }, [draftKey, answers, shuffledQuestions, currentQ]);
+  /* GSTI: gender selection, persisted per-test to localStorage */
+  const [gender, setGenderState] = useState<Gender>(() => {
+    if (typeof window === 'undefined') return 'unspecified';
+    try {
+      const stored = window.localStorage.getItem(`${config.id}_gender`);
+      if (stored === 'male' || stored === 'female' || stored === 'unspecified') {
+        return stored;
+      }
+    } catch { /* ignore */ }
+    return 'unspecified';
+  });
+
+  const setGender = useCallback((g: Gender) => {
+    setGenderState(g);
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(`${config.id}_gender`, g);
+      }
+    } catch { /* ignore storage failures */ }
+  }, [config.id]);
+
+  // Whether there is valid saved progress the user could resume
+  const [hasSavedProgress, setHasSavedProgress] = useState<boolean>(
+    () => loadProgress(config.id) !== null,
+  );
+
+  // Track whether quiz is active so we only auto-save while in progress
+  const quizActiveRef = useRef(false);
 
   // Love test: gate and trigger are the same question (ex_gate, value 3)
   // SBTI: gate is drink_gate_q1 (value 3), trigger is drink_gate_q2 (value 2)
   const hasFollowUp = config.gateQuestionId !== config.hiddenTriggerQuestionId;
+
+  /* Auto-save progress whenever answers, currentQ, or shuffledQuestions change */
+  useEffect(() => {
+    if (!quizActiveRef.current || shuffledQuestions.length === 0) return;
+    saveProgress(config.id, {
+      answers,
+      currentQ,
+      shuffledQuestions,
+      timestamp: Date.now(),
+    });
+  }, [answers, currentQ, shuffledQuestions, config.id]);
 
   /* derived */
   const visibleQuestions = useMemo(
@@ -91,14 +171,41 @@ export function useQuiz(options?: { draftKey?: string }): UseQuizReturn {
   const hiddenTriggered = answers[config.hiddenTriggerQuestionId] === config.hiddenTriggerValue;
 
   /* actions */
-  const startQuiz = useCallback((preview = false) => {
+  const startQuiz = useCallback((preview = false, seedAnswers?: Record<string, number | number[]>) => {
     setPreviewMode(preview);
-    setAnswers({});
-    setCurrentQ(0);
     setDebugForceType(null);
-    setShuffledQuestions(
-      buildShuffledQuestions(config.questions, config.specialQuestions[0]),
-    );
+
+    // Seed mode (e.g., "先试一题" sample) takes precedence over saved progress.
+    if (seedAnswers && !preview) {
+      const seedIds = Object.keys(seedAnswers);
+      const shuffled = buildShuffledQuestions(config.questions, config.specialQuestions[0]);
+      // Move seeded questions to the front so currentQ lands on the next unanswered one.
+      const seeded = shuffled.filter(q => seedIds.includes(q.id));
+      const rest = shuffled.filter(q => !seedIds.includes(q.id));
+      setAnswers(seedAnswers);
+      setCurrentQ(seeded.length);
+      setShuffledQuestions([...seeded, ...rest]);
+      quizActiveRef.current = true;
+      setHasSavedProgress(false);
+      return;
+    }
+
+    // Attempt to restore saved progress
+    const saved = loadProgress(config.id);
+    if (saved && !preview) {
+      setAnswers(saved.answers);
+      setCurrentQ(saved.currentQ);
+      setShuffledQuestions(saved.shuffledQuestions);
+    } else {
+      setAnswers({});
+      setCurrentQ(0);
+      setShuffledQuestions(
+        buildShuffledQuestions(config.questions, config.specialQuestions[0]),
+      );
+    }
+
+    quizActiveRef.current = true;
+    setHasSavedProgress(false);
   }, [config]);
 
   const answer = useCallback((qId: string, value: number | number[]) => {
@@ -125,61 +232,14 @@ export function useQuiz(options?: { draftKey?: string }): UseQuizReturn {
 
   const getResult = useCallback(
     (): ComputeResultOutput => {
-      const res = computeResult(answers, hiddenTriggered, config, debugForceType);
-      // Clear draft on quiz completion
-      if (draftKey) {
-        try { localStorage.removeItem(draftKey); } catch {}
-      }
-      return res;
+      const result = computeResult(answers, hiddenTriggered, config, debugForceType, gender);
+      // Quiz complete — clear saved progress
+      clearProgress(config.id);
+      quizActiveRef.current = false;
+      return result;
     },
-    [answers, hiddenTriggered, config, debugForceType, draftKey],
+    [answers, hiddenTriggered, config, debugForceType, gender],
   );
-
-  // -- Draft helpers
-  const checkDraft = useCallback((): { exists: boolean; answered: number; total: number } | null => {
-    if (!draftKey) return null;
-    try {
-      const raw = localStorage.getItem(draftKey);
-      if (!raw) return null;
-      const d = JSON.parse(raw);
-      const ageMs = Date.now() - (d.savedAt || 0);
-      if (ageMs > 7 * 24 * 60 * 60 * 1000) {
-        localStorage.removeItem(draftKey);
-        return null;
-      }
-      return {
-        exists: true,
-        answered: Object.keys(d.answers || {}).length,
-        total: (d.questionOrder || []).length,
-      };
-    } catch {
-      return null;
-    }
-  }, [draftKey]);
-
-  const resumeDraft = useCallback((cfg: TestConfig): boolean => {
-    if (!draftKey) return false;
-    try {
-      const raw = localStorage.getItem(draftKey);
-      if (!raw) return false;
-      const d = JSON.parse(raw);
-      const allQs = [...cfg.questions, ...cfg.specialQuestions];
-      const byId = Object.fromEntries(allQs.map(q => [q.id, q]));
-      const restored = (d.questionOrder as string[]).map((id: string) => byId[id]).filter(Boolean);
-      setShuffledQuestions(restored);
-      setAnswers(d.answers || {});
-      setCurrentQ(d.currentIndex || 0);
-      return true;
-    } catch {
-      return false;
-    }
-  }, [draftKey]);
-
-  const clearDraft = useCallback(() => {
-    if (draftKey) {
-      try { localStorage.removeItem(draftKey); } catch {}
-    }
-  }, [draftKey]);
 
   return {
     shuffledQuestions,
@@ -187,6 +247,10 @@ export function useQuiz(options?: { draftKey?: string }): UseQuizReturn {
     currentQ,
     previewMode,
     debugForceType,
+    hasSavedProgress,
+
+    gender,
+    setGender,
 
     visibleQuestions,
     totalQuestions,
@@ -201,9 +265,5 @@ export function useQuiz(options?: { draftKey?: string }): UseQuizReturn {
     goPrev,
     setDebugForceType,
     getResult,
-
-    checkDraft,
-    resumeDraft,
-    clearDraft,
   };
 }

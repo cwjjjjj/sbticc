@@ -3,14 +3,574 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SBTI 人格测试</title>
-  <!-- Monetag: In-Page Push -->
-  <script>(function(s){s.dataset.zone='10859606',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  <meta name="theme-color" content="#080808" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/images/icon-192.png" />
+  <title>人格实验室 — 11个测试，N种人格，0个正确答案</title>
+  <meta name="description" content="人格实验室：11款趣味人格测试，从 MBTI 到恋爱脑、从打工人到朋友圈人设，测出你从未认识的自己。" />
+  <link rel="canonical" href="https://test.jiligulu.xyz/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="人格实验室 — 11个测试，N种人格，0个正确答案" />
+  <meta property="og:description" content="人格实验室：11款趣味人格测试，从 MBTI 到恋爱脑、从打工人到朋友圈人设，测出你从未认识的自己。" />
+  <meta property="og:image" content="https://test.jiligulu.xyz/images/og-sbti.png" />
+  <meta property="og:url" content="https://test.jiligulu.xyz/" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="人格实验室" />
+  <meta name="twitter:description" content="11款趣味人格测试，测出你从未认识的自己。" />
+  <meta name="twitter:image" content="https://test.jiligulu.xyz/images/og-sbti.png" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #080808;
+      --card: #111111;
+      --card-hover: #181818;
+      --border: #222222;
+      --accent: #ff3b3b;
+      --accent-glow: rgba(255, 59, 59, 0.15);
+      --text: #ffffff;
+      --text-secondary: #999999;
+      --text-muted: #666666;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Hide scrollbars globally (still scrollable). */
+    html, body, * { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Hero ─────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .hero-brand {
+      font-size: clamp(32px, 7vw, 56px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(16px, 3.5vw, 22px);
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .hero-tagline {
+      font-size: clamp(13px, 2.5vw, 15px);
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .hero-counter {
+      margin-top: 28px;
+      font-size: 14px;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .hero-counter.visible {
+      opacity: 1;
+    }
+
+    .hero-counter .count-number {
+      color: var(--accent);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Grid ─────────────────────────────────── */
+    .tests-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+    }
+
+    .tests-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (min-width: 640px) {
+      .tests-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+    }
+
+    /* ── Card ─────────────────────────────────── */
+    .test-card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      overflow: hidden;
+    }
+
+    .test-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .test-card:hover {
+      transform: translateY(-4px);
+      background: var(--card-hover);
+      border-color: #333333;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .test-card:hover::before {
+      opacity: 1;
+    }
+
+    .test-card:active {
+      transform: translateY(-2px);
+    }
+
+    .card-emoji {
+      font-size: 36px;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-name {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.3;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-tagline {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-cta {
+      margin-top: auto;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      position: relative;
+      z-index: 1;
+      transition: letter-spacing 0.2s ease;
+    }
+
+    .test-card:hover .card-cta {
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Footer ───────────────────────────────── */
+    .site-footer {
+      text-align: center;
+      padding: 40px 24px 48px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.8;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .site-footer .divider {
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto 20px;
+    }
+
+    /* ── Articles section ────────────────────── */
+    .articles-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px 20px 56px;
+    }
+    .articles-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .articles-head h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .articles-head a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .articles-head a:hover { color: var(--accent); }
+    .articles-list { display: grid; gap: 10px; }
+    .article-card {
+      display: block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .article-card:hover {
+      border-color: rgba(255, 59, 59, 0.35);
+      background: var(--card-hover);
+    }
+    .article-date {
+      display: block;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .article-title {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .article-desc {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .articles-empty {
+      display: none;
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* ── Animations ───────────────────────────── */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.5s ease both;
+    }
+
+    .test-card:nth-child(1) { animation-delay: 0.05s; }
+    .test-card:nth-child(2) { animation-delay: 0.10s; }
+    .test-card:nth-child(3) { animation-delay: 0.15s; }
+    .test-card:nth-child(4) { animation-delay: 0.20s; }
+    .test-card:nth-child(5) { animation-delay: 0.25s; }
+    .test-card:nth-child(6) { animation-delay: 0.30s; }
+    .test-card:nth-child(7) { animation-delay: 0.35s; }
+    .test-card:nth-child(8) { animation-delay: 0.40s; }
+    .test-card:nth-child(9) { animation-delay: 0.45s; }
+    .test-card:nth-child(10) { animation-delay: 0.50s; }
+    .test-card:nth-child(11) { animation-delay: 0.55s; }
+  </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+
+  <section class="hero">
+    <div class="hero-content fade-in-up">
+      <h1 class="hero-brand">人格实验室</h1>
+      <p class="hero-subtitle">11个测试，N种人格，0个正确答案</p>
+      <p class="hero-tagline">别太当真，也别不当回事。</p>
+      <div class="hero-counter" id="heroCounter">
+        已有 <span class="count-number" id="totalCount">0</span> 人参与测试
+      </div>
+    </div>
+  </section>
+
+  <section class="tests-section">
+    <div class="tests-grid">
+
+      <a class="test-card fade-in-up" href="/sbti">
+        <div class="card-emoji">🧠</div>
+        <div class="card-name">SBTI 人格测试</div>
+        <div class="card-tagline">15维度深度人格扫描</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/love">
+        <div class="card-emoji">💘</div>
+        <div class="card-name">恋爱脑浓度检测</div>
+        <div class="card-tagline">你谈恋爱是什么德性</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/work">
+        <div class="card-emoji">💼</div>
+        <div class="card-name">打工人鉴定</div>
+        <div class="card-tagline">你是哪种打工人</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/values">
+        <div class="card-emoji">🌏</div>
+        <div class="card-name">活法检测报告</div>
+        <div class="card-tagline">你到底在活什么</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/cyber">
+        <div class="card-emoji">📱</div>
+        <div class="card-name">赛博基因检测</div>
+        <div class="card-tagline">你是什么品种的网民</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/desire">
+        <div class="card-emoji">🔥</div>
+        <div class="card-name">欲望图谱</div>
+        <div class="card-tagline">关上门之后你是谁</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/gsti">
+        <div class="card-emoji">🪞</div>
+        <div class="card-name">GSTI 性转人格测试</div>
+        <div class="card-tagline">性转后你是什么鬼</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/fpi">
+        <div class="card-emoji">📸</div>
+        <div class="card-name">朋友圈人设诊断</div>
+        <div class="card-tagline">你在朋友圈是什么物种</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/fsi">
+        <div class="card-emoji">🏷️</div>
+        <div class="card-name">原生家庭幸存者</div>
+        <div class="card-tagline">你被养成了什么形状</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/mpi">
+        <div class="card-emoji">💸</div>
+        <div class="card-name">消费人格图鉴</div>
+        <div class="card-tagline">你是怎么把钱输给这个世界的</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/xpti">
+        <div class="card-emoji">🎭</div>
+        <div class="card-name">XPTI 性别人格画像</div>
+        <div class="card-tagline">你作为性别化主体是什么气质</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+      <a class="test-card fade-in-up" href="/mbti">
+        <div class="card-emoji">🧬</div>
+        <div class="card-name">MBTI 16 型人格测试 · 完整版</div>
+        <div class="card-tagline">72 题完整版 · 16 种人格 × A/T 亚型</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="articles-section" id="articles-section" hidden>
+    <div class="articles-head">
+      <h2>人格阅读室</h2>
+      <a href="/articles/">查看全部 →</a>
+    </div>
+    <div class="articles-list" id="articles-list"></div>
+    <div class="articles-empty" id="articles-empty">暂无文章，明早 7 点见 🤖</div>
+  </section>
+
+  <footer class="site-footer">
+    <span class="divider"></span>
+    <p>所有测试仅供娱乐，不构成任何专业建议</p>
+    <p style="margin-top: 4px; opacity: 0.5;">&copy; 人格实验室</p>
+  </footer>
+
+  <script>
+    // Shuffle test card order on each visit (Fisher-Yates)
+    (function () {
+      var grid = document.querySelector('.tests-grid');
+      if (!grid) return;
+      var cards = Array.prototype.slice.call(grid.children);
+      for (var i = cards.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+      }
+      cards.forEach(function (c) { grid.appendChild(c); });
+    })();
+  </script>
+
+  <script>
+    // Fetch total test count across all tests and display social proof
+    (function () {
+      var tests = ['', 'love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi', 'mpi', 'mbti'];
+      var total = 0;
+      var done = 0;
+
+      function check() {
+        done++;
+        if (done < tests.length) return;
+        if (total > 0) {
+          document.getElementById('totalCount').textContent = total.toLocaleString('zh-CN');
+          document.getElementById('heroCounter').classList.add('visible');
+        }
+      }
+
+      tests.forEach(function (t) {
+        var url = '/api/ranking' + (t ? '?test=' + t : '');
+        fetch(url)
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data && typeof data.total === 'number') {
+              total += data.total;
+            }
+            check();
+          })
+          .catch(function () { check(); });
+      });
+    })();
+  </script>
+
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
+
+  <!-- First-party analytics: home_view + test_click -->
+  <script>
+    (function () {
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+      function trk(name, props) {
+        try {
+          var body = JSON.stringify({ event: name, props: props || undefined });
+          var url = '/api/track';
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+          } else if (typeof fetch === 'function') {
+            fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true }).catch(function(){});
+          }
+        } catch (e) { /* noop */ }
+      }
+      trk('home_view');
+      document.addEventListener('click', function (e) {
+        var el = e.target && e.target.closest ? e.target.closest('a.test-card') : null;
+        if (!el) return;
+        var href = el.getAttribute('href') || '';
+        var id = href.replace(/^\//, '').split(/[\/?#]/)[0];
+        if (id) trk('test_click', { testId: id });
+      }, { capture: true });
+    })();
+  </script>
+
+  <script>
+    // Fetch /articles.json and render the 3 most recent articles on the homepage.
+    (function () {
+      var section = document.getElementById('articles-section');
+      var list = document.getElementById('articles-list');
+      var empty = document.getElementById('articles-empty');
+      if (!section || !list) return;
+
+      fetch('/articles.json', { cache: 'force-cache' })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .catch(function () { return []; })
+        .then(function (articles) {
+          if (!Array.isArray(articles)) articles = [];
+          articles.sort(function (a, b) { return (b.publishedAt || '').localeCompare(a.publishedAt || ''); });
+          section.hidden = false;
+          if (articles.length === 0) { empty.style.display = 'block'; return; }
+          var top = articles.slice(0, 3);
+          top.forEach(function (a) {
+            var card = document.createElement('a');
+            card.className = 'article-card';
+            card.href = '/articles/' + a.slug;
+            card.innerHTML =
+              '<span class="article-date">' + (a.publishedAt || '') + '</span>' +
+              '<span class="article-title"></span>' +
+              '<span class="article-desc"></span>';
+            card.querySelector('.article-title').textContent = a.title || '';
+            card.querySelector('.article-desc').textContent = a.description || '';
+            list.appendChild(card);
+          });
+        });
+    })();
+  </script>
 </body>
 </html>

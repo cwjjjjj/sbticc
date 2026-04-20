@@ -1,4 +1,4 @@
-import type { TestConfig, TypeDef } from '../data/testConfig';
+import type { TestConfig, TypeDef, Gender } from '../data/testConfig';
 
 /* ---------- helpers ---------- */
 
@@ -45,6 +45,7 @@ export function computeResult(
   hiddenTriggered: boolean,
   config: TestConfig,
   debugForceType?: string | null,
+  gender?: Gender,
 ): ComputeResultOutput {
   const { dimensionOrder, dimensionMeta, questions, typeLibrary, normalTypes, maxDistance, fallbackTypeCode, hiddenTypeCode, similarityThreshold } = config;
   const dimCount = dimensionOrder.length;
@@ -72,10 +73,11 @@ export function computeResult(
     }
   });
 
-  // 2. Convert to levels using config's sumToLevel
+  // 2. Convert to levels using config's sumToLevel (with optional per-dim override)
   const levels: Record<string, string> = {};
   Object.entries(rawScores).forEach(([dim, score]) => {
-    levels[dim] = config.sumToLevel(score);
+    const overridden = config.sumToLevelByDim?.(score, dim);
+    levels[dim] = overridden ?? config.sumToLevel(score);
   });
 
   // 2.5. Direct type resolver path (e.g., MBTI)
@@ -106,8 +108,25 @@ export function computeResult(
   // 3. Build user vector
   const userVector = dimensionOrder.map(dim => levelNum(levels[dim]));
 
-  // 4. Compare against each NORMAL_TYPE pattern
-  const ranked: RankedType[] = normalTypes.map(type => {
+  // 4. Apply pool filter if genderLocked
+  let pool = normalTypes;
+  if (config.genderLocked && gender) {
+    if (!config.typePoolByGender) {
+      throw new Error('[matching] genderLocked=true but typePoolByGender is missing in config');
+    }
+    const allowedCodes = new Set(
+      gender === 'male' ? config.typePoolByGender.male :
+      gender === 'female' ? config.typePoolByGender.female :
+      config.typePoolByGender.both
+    );
+    pool = normalTypes.filter(t => allowedCodes.has(t.code));
+    if (pool.length === 0) {
+      throw new Error(`[matching] pool is empty for gender=${gender} — check that typePoolByGender codes match NORMAL_TYPES codes`);
+    }
+  }
+
+  // 5. Compare against each pool type pattern
+  const ranked: RankedType[] = pool.map(type => {
     const vector = parsePattern(type.pattern).map(levelNum);
     let distance = 0;
     let exact = 0;
@@ -130,7 +149,7 @@ export function computeResult(
     return b.similarity - a.similarity;
   });
 
-  // 5. Pick best and apply special cases
+  // 6. Pick best and apply special cases
   const bestNormal = ranked[0];
 
   let finalType: RankedType | TypeDef;

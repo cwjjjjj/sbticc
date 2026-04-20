@@ -6,7 +6,7 @@ import './index.css'
 // Domain redirect
 if (window.location.hostname === 'sbticc.vercel.app') {
   window.location.replace(
-    'https://sbti.jiligulu.xyz' + window.location.pathname + window.location.search + window.location.hash
+    'https://test.jiligulu.xyz' + window.location.pathname + window.location.search + window.location.hash
   )
 }
 

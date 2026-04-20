@@ -62,6 +62,8 @@ export function randomAnswerForQuestion(question: Question): number | number[] {
       .sort((a, b) => a - b);
   }
 
-  const maxVal = question.options[question.options.length - 1].value;
+  // Use max of all option values so question ordering (asc vs desc) doesn't
+  // collapse the random range to 1 (e.g. FPI uses H→L ordering).
+  const maxVal = Math.max(...question.options.map((o) => o.value));
   return Math.floor(Math.random() * maxVal) + 1;
 }

@@ -1,23 +1,40 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import DimList from './DimList';
+import DescriptionBlock from './DescriptionBlock';
 import OtherTests from './OtherTests';
+import TypeCard from './TypeCard';
 import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
+import GSTIHeroBadge from './GSTIHeroBadge';
+import type { Gender } from '../data/testConfig';
+import RevealOverlay from './RevealOverlay';
+import RarityBadge from './RarityBadge';
+import HookMatrix from './HookMatrix';
+import RelatedArticles from './RelatedArticles';
+import { useRarity } from '../hooks/useRarity';
+import type { ShareCardRarity } from '../utils/shareCard';
+import { trackEvent } from '../hooks/useAnalytics';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
 interface ResultPageProps {
   result: ComputeResultOutput;
   isPaid?: boolean;
-  onShare: () => void;
-  onInviteCompare: () => void;
+  onShare: (rarity?: ShareCardRarity) => void;
+  onInviteCompare: (rarity?: ShareCardRarity) => void;
   onRestart: () => void;
   onHome: () => void;
   onStartPayment?: () => void;
   onAlreadyPaid?: () => void;
   onDebugReroll?: () => void;
   onDebugForceType?: (code: string) => void;
+  gender?: Gender;
+  /** Optional test-specific badge shown above the main type title (e.g. FPI feed stickers). */
+  testBadge?: ReactNode;
+  /** Optional test-specific footer rendered after action buttons (e.g. FSI support block). */
+  testFooter?: ReactNode;
 }
 
 const staggerItem = {
@@ -36,12 +53,52 @@ export default function ResultPage({
   onAlreadyPaid = () => undefined,
   onDebugReroll,
   onDebugForceType,
+  gender,
+  testBadge,
+  testFooter,
 }: ResultPageProps) {
   const config = useTestConfig();
   const [debugSelectedType, setDebugSelectedType] = useState('');
+  const [revealed, setRevealed] = useState(false);
   const typeCode = result.finalType.code;
   const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
-  const imgSrc = config.typeImages[typeCode];
+  const rarity = useRarity(config.id, typeCode);
+
+  // Fire result_view exactly once per mount
+  const resultViewFired = useRef(false);
+  useEffect(() => {
+    if (resultViewFired.current) return;
+    resultViewFired.current = true;
+    trackEvent('result_view', { testId: config.id, typeCode });
+  }, [config.id, typeCode]);
+
+  // Snapshot for share card (only pass when loaded + has data).
+  const shareRarity: ShareCardRarity | undefined =
+    rarity.loaded && !rarity.error && rarity.totalTests > 0
+      ? { percentile: rarity.percentile, tier: rarity.tier }
+      : undefined;
+  const handleShareClick = () => onShare(shareRarity);
+  const handleInviteClick = () => onInviteCompare(shareRarity);
+
+  // Count how many of the 10 tests the user has completed locally (for ContinueJourneyCard).
+  const localHistoryCount = useMemo(() => {
+    const keys = [
+      'sbti_history', 'love_history', 'work_history', 'values_history',
+      'cyber_history', 'desire_history', 'gsti_history', 'fpi_history',
+      'fsi_history', 'mpi_history',
+    ];
+    let n = 0;
+    for (const k of keys) {
+      try {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr) && arr.length > 0) n++;
+        }
+      } catch {}
+    }
+    return n;
+  }, []);
 
   // Find soulmates and rivals for this type
   const { soulmates, rivals } = useMemo(() => {
@@ -74,6 +131,14 @@ export default function ResultPage({
 
   return (
     <div className="fixed inset-0 z-[200] bg-bg overflow-y-auto">
+      {!revealed && (
+        <RevealOverlay
+          rarity={rarity}
+          typeCn={typeDef.cn}
+          typeCode={typeCode}
+          onComplete={() => setRevealed(true)}
+        />
+      )}
       <div className="max-w-[680px] mx-auto px-4 py-8">
         <motion.div
           initial="hidden"
@@ -98,13 +163,13 @@ export default function ResultPage({
                   {'🎲'} 换一个人格
                 </button>
                 <button
-                  onClick={onShare}
+                  onClick={handleShareClick}
                   className="text-xs bg-surface border border-border px-3 py-1.5 rounded-lg hover:border-[#444] transition-colors cursor-pointer"
                 >
                   {'🖼️'} 测试分享图
                 </button>
                 <button
-                  onClick={onInviteCompare}
+                  onClick={handleInviteClick}
                   className="text-xs bg-surface border border-border px-3 py-1.5 rounded-lg hover:border-[#444] transition-colors cursor-pointer"
                 >
                   {'📨'} 测试邀请图
@@ -138,6 +203,18 @@ export default function ResultPage({
             </motion.div>
           )}
 
+          {/* FPI 专属贴纸（如果传入） — 与 GSTIHeroBadge 并列，但只渲染一个 */}
+          {testBadge && !config.genderLocked && testBadge}
+
+          {/* GSTI HeroBadge（现有代码，保持不变） */}
+          {config.genderLocked && gender && (
+            <GSTIHeroBadge
+              gender={gender}
+              typeCode={result.finalType.code}
+              typeCn={result.finalType.cn}
+            />
+          )}
+
           {/* 1. Result top */}
           <motion.div
             variants={staggerItem}
@@ -145,19 +222,7 @@ export default function ResultPage({
             className="flex gap-8 items-center mb-8 flex-col sm:flex-row"
           >
             {/* Poster */}
-            <div className="w-[200px] h-[200px] bg-surface border border-border rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center">
-              {imgSrc ? (
-                <img
-                  src={imgSrc}
-                  alt={typeCode}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="font-mono text-4xl font-bold text-muted">
-                  {typeCode}
-                </span>
-              )}
-            </div>
+            <TypeCard typeCode={typeCode} size="lg" />
 
             {/* Info */}
             <div className="text-center sm:text-left">
@@ -174,6 +239,15 @@ export default function ResultPage({
             </div>
           </motion.div>
 
+          {/* Rarity badge — live percentile from /api/ranking */}
+          <motion.div
+            variants={staggerItem}
+            transition={{ duration: 0.4 }}
+            className="flex justify-center sm:justify-start mb-6"
+          >
+            <RarityBadge rarity={rarity} />
+          </motion.div>
+
           {/* 2. Description */}
           <motion.div
             variants={staggerItem}
@@ -184,9 +258,7 @@ export default function ResultPage({
               <span className="w-[3px] h-4 bg-accent rounded-sm" />
               该人格的简单解读
             </h3>
-            <p className="text-sm text-[#aaa] leading-relaxed">
-              {typeDef.desc}
-            </p>
+            <DescriptionBlock desc={typeDef.desc} />
           </motion.div>
 
           {/* 3. Dimensions */}
@@ -331,6 +403,20 @@ export default function ResultPage({
             <OtherTests />
           </motion.div>
 
+          {/* 7.5 Hook Matrix — invite compare + recommend tests + journey progress */}
+          <motion.div variants={staggerItem} transition={{ duration: 0.4 }}>
+            <HookMatrix
+              testId={config.id}
+              localHistoryCount={localHistoryCount}
+              onInviteCompare={handleInviteClick}
+            />
+          </motion.div>
+
+          {/* 7.6 Related articles — bridges test flow to article system */}
+          <motion.div variants={staggerItem} transition={{ duration: 0.4 }}>
+            <RelatedArticles testId={config.id} />
+          </motion.div>
+
           {/* 8. Action buttons */}
           <motion.div
             variants={staggerItem}
@@ -338,13 +424,13 @@ export default function ResultPage({
             className="flex gap-3 flex-wrap mt-7 justify-center"
           >
             <button
-              onClick={onShare}
+              onClick={handleShareClick}
               className="bg-white text-black font-bold py-3.5 px-7 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
             >
               生成分享图
             </button>
             <button
-              onClick={onInviteCompare}
+              onClick={handleInviteClick}
               className="bg-white text-black font-bold py-3.5 px-7 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
             >
               邀请好友对比
@@ -362,6 +448,21 @@ export default function ResultPage({
               回到首页
             </button>
           </motion.div>
+
+          {config.genderLocked && (
+            <motion.div
+              variants={staggerItem}
+              transition={{ duration: 0.4 }}
+              className="mt-8 px-5 py-4 bg-surface/40 border border-border/50 rounded-lg text-center"
+            >
+              <p className="text-xs text-muted leading-relaxed">
+                这只是个反串梗，你的人格不由任何测试决定，也不由任何性别标签决定。
+              </p>
+            </motion.div>
+          )}
+
+          {/* FSI 专属页脚（如心理支持兜底） — 只渲染当上游传入且非 genderLocked 测试 */}
+          {testFooter && !config.genderLocked && testFooter}
 
           {/* Bottom spacer */}
           <div className="h-12" />
