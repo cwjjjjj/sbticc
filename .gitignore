@@ -6,3 +6,5 @@ dist
 .worktrees
 tmp
 scripts/fonts/
+scripts/*-routes.json
+.playwright-mcp/
