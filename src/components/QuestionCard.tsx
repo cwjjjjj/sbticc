@@ -68,6 +68,8 @@ export default function QuestionCard({
     [onAnswer, question.id, selectedValue],
   );
 
+  const isLikert = question.kind === 'likert';
+
   const badgeText = previewMode
     ? `# ${questionIndex + 1} · ${question.dim ?? '特殊题'}`
     : `# ${questionIndex + 1}`;
@@ -96,41 +98,95 @@ export default function QuestionCard({
         <p className="text-lg font-semibold text-gray-200 leading-relaxed mb-6">
           {question.text}
         </p>
-        <div className="grid gap-2.5">
-          {question.options.map((opt, i) => {
-            const isSelected = isMulti
-              ? selectedSet.has(i)
-              : selectedValue === opt.value;
+        {isLikert ? (
+          <LikertScale
+            selectedValue={typeof selectedValue === 'number' ? selectedValue : undefined}
+            onAnswer={handleSingleSelect}
+          />
+        ) : (
+          <div className="grid gap-2.5">
+            {question.options.map((opt, i) => {
+              const isSelected = isMulti
+                ? selectedSet.has(i)
+                : selectedValue === opt.value;
 
-            return (
-              <button
-                key={`${i}-${opt.value}`}
-                onClick={() =>
-                  isMulti
-                    ? handleMultiToggle(i)
-                    : handleSingleSelect(opt.value)
-                }
-                className={`flex items-center gap-3.5 p-4 rounded-xl border text-left transition-colors cursor-pointer
-                  ${
-                    isSelected
-                      ? 'border-accent bg-accent/[0.08] text-white'
-                      : 'bg-surface-2 border-border text-gray-400 hover:border-[#444] hover:text-white'
-                  }`}
-              >
-                <span
-                  className={`font-mono text-xs font-bold w-6 h-6 flex items-center justify-center rounded-md flex-shrink-0
-                    ${isSelected ? 'bg-accent/20 text-accent' : 'bg-accent/10 text-accent'}`}
+              return (
+                <button
+                  key={`${i}-${opt.value}`}
+                  onClick={() =>
+                    isMulti
+                      ? handleMultiToggle(i)
+                      : handleSingleSelect(opt.value)
+                  }
+                  className={`flex items-center gap-3.5 p-4 rounded-xl border text-left transition-colors cursor-pointer
+                    ${
+                      isSelected
+                        ? 'border-accent bg-accent/[0.08] text-white'
+                        : 'bg-surface-2 border-border text-gray-400 hover:border-[#444] hover:text-white'
+                    }`}
                 >
-                  {isMulti
-                    ? (isSelected ? '✓' : optionCodes[i])
-                    : optionCodes[i]}
-                </span>
-                <span className="text-sm leading-relaxed">{opt.label}</span>
-              </button>
-            );
-          })}
-        </div>
+                  <span
+                    className={`font-mono text-xs font-bold w-6 h-6 flex items-center justify-center rounded-md flex-shrink-0
+                      ${isSelected ? 'bg-accent/20 text-accent' : 'bg-accent/10 text-accent'}`}
+                  >
+                    {isMulti
+                      ? (isSelected ? '✓' : optionCodes[i])
+                      : optionCodes[i]}
+                  </span>
+                  <span className="text-sm leading-relaxed">{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+interface LikertScaleProps {
+  selectedValue: number | undefined;
+  onAnswer: (value: number) => void;
+}
+
+function LikertScale({ selectedValue, onAnswer }: LikertScaleProps) {
+  // Values left→right: agree (3) to disagree (-3)
+  const values = [3, 2, 1, 0, -1, -2, -3];
+  // Circle sizes: large at ends, small in middle
+  const sizes = [44, 40, 34, 28, 34, 40, 44];
+
+  return (
+    <div className="mt-4">
+      <div className="flex justify-between text-xs text-muted mb-3 px-1">
+        <span>同意</span>
+        <span>不同意</span>
+      </div>
+      <div className="flex items-center justify-between gap-1 sm:gap-2">
+        {values.map((v, i) => {
+          const size = sizes[i];
+          const isSelected = selectedValue === v;
+          const isPositive = v > 0;
+          const isNegative = v < 0;
+          const colorClass = isSelected
+            ? (isPositive
+                ? 'bg-green-500 border-green-400'
+                : isNegative
+                  ? 'bg-red-500 border-red-400'
+                  : 'bg-white border-white')
+            : 'bg-transparent border-border hover:border-white';
+
+          return (
+            <button
+              key={v}
+              type="button"
+              onClick={() => onAnswer(v)}
+              className={`rounded-full border-2 transition-all cursor-pointer ${colorClass}`}
+              style={{ width: size, height: size }}
+              aria-label={`value ${v}`}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }
