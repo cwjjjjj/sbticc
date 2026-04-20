@@ -4,7 +4,7 @@ import { css } from '@emotion/react';
 import Nav, { type TabId } from './components/Nav';
 import QuizOverlay from './components/QuizOverlay';
 import Interstitial from './components/Interstitial';
-import ResultPage from './components/ResultPage';
+import MbtiResultPage from './components/MbtiResultPage';
 import ComparePage from './components/ComparePage';
 import ShareModal from './components/ShareModal';
 import RankingPage from './components/RankingPage';
@@ -361,7 +361,7 @@ function MbtiAppInner() {
 
       {/* Result overlay */}
       {screen === 'result' && result && (
-        <ResultPage
+        <MbtiResultPage
           result={result}
           onShare={handleShare}
           onInviteCompare={handleInviteCompare}
