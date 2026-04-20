@@ -1,35 +1,28 @@
-type Temperament = 'NT' | 'NF' | 'SJ' | 'SP';
+// src/data/mbti/typeImages.ts
+// 16 主类型图片。32 亚型（-A / -T）共用对应主类型的图片。
+import intj from './images/INTJ.png';
+import intp from './images/INTP.png';
+import entj from './images/ENTJ.png';
+import entp from './images/ENTP.png';
+import infj from './images/INFJ.png';
+import infp from './images/INFP.png';
+import enfj from './images/ENFJ.png';
+import enfp from './images/ENFP.png';
+import istj from './images/ISTJ.png';
+import isfj from './images/ISFJ.png';
+import estj from './images/ESTJ.png';
+import esfj from './images/ESFJ.png';
+import istp from './images/ISTP.png';
+import isfp from './images/ISFP.png';
+import estp from './images/ESTP.png';
+import esfp from './images/ESFP.png';
 
-function temperamentOf(main: string): Temperament {
-  const s = main[1]; // 'N' 或 'S'
-  const t = main[2]; // 'T' 或 'F'
-  const j = main[3]; // 'J' 或 'P'
-  if (s === 'N' && t === 'T') return 'NT';
-  if (s === 'N' && t === 'F') return 'NF';
-  if (s === 'S' && j === 'J') return 'SJ';
-  return 'SP';
-}
-
-const TEMP_COLORS: Record<Temperament, { bg: string; fg: string; accent: string }> = {
-  NT: { bg: '#2a1b4a', fg: '#ffffff', accent: '#8b5cf6' },
-  NF: { bg: '#1a3a2e', fg: '#ffffff', accent: '#10b981' },
-  SJ: { bg: '#1a2a4a', fg: '#ffffff', accent: '#3b82f6' },
-  SP: { bg: '#3a2a1a', fg: '#ffffff', accent: '#f59e0b' },
+const BY_MAIN: Record<string, string> = {
+  INTJ: intj, INTP: intp, ENTJ: entj, ENTP: entp,
+  INFJ: infj, INFP: infp, ENFJ: enfj, ENFP: enfp,
+  ISTJ: istj, ISFJ: isfj, ESTJ: estj, ESFJ: esfj,
+  ISTP: istp, ISFP: isfp, ESTP: estp, ESFP: esfp,
 };
-
-function generateMbtiTypeSvg(code: string): string {
-  const [main, suffix] = code.split('-') as [string, 'A' | 'T'];
-  const colors = TEMP_COLORS[temperamentOf(main)];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">
-  <rect width="320" height="320" fill="${colors.bg}"/>
-  <rect x="20" y="20" width="280" height="280" rx="20" fill="none" stroke="${colors.accent}" stroke-width="2" opacity="0.5"/>
-  <text x="160" y="180" fill="${colors.fg}" font-family="-apple-system, SF Pro Display, system-ui, sans-serif" font-size="72" font-weight="800" text-anchor="middle" letter-spacing="4">${main}</text>
-  <circle cx="258" cy="258" r="28" fill="${colors.accent}"/>
-  <text x="258" y="268" fill="${colors.fg}" font-family="-apple-system, SF Pro Display, system-ui, sans-serif" font-size="28" font-weight="800" text-anchor="middle">${suffix}</text>
-</svg>`;
-  const b64 = btoa(unescape(encodeURIComponent(svg)));
-  return `data:image/svg+xml;base64,${b64}`;
-}
 
 const ALL_CODES = [
   'INTJ-A','INTJ-T','INTP-A','INTP-T','ENTJ-A','ENTJ-T','ENTP-A','ENTP-T',
@@ -40,8 +33,11 @@ const ALL_CODES = [
 
 export const TYPE_IMAGES: Record<string, string> = (() => {
   const m: Record<string, string> = {};
-  ALL_CODES.forEach(code => { m[code] = generateMbtiTypeSvg(code); });
+  ALL_CODES.forEach((code) => {
+    const main = code.split('-')[0];
+    m[code] = BY_MAIN[main];
+  });
   return m;
 })();
 
-export const SHARE_IMAGES: Record<string, string> = TYPE_IMAGES;
+export const SHARE_IMAGES: Record<string, string> = { ...TYPE_IMAGES };
