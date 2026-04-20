@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
-import type { Question } from '../data/testConfig';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import type { Question, TestConfig } from '../data/testConfig';
 import { useTestConfig } from '../data/testConfig';
 import { buildShuffledQuestions, getVisibleQuestions } from '../utils/quiz';
 import { computeResult, type ComputeResultOutput } from '../utils/matching';
@@ -27,15 +27,39 @@ export interface UseQuizReturn {
   goPrev: () => void;
   setDebugForceType: (code: string | null) => void;
   getResult: () => ComputeResultOutput;
+
+  /* draft */
+  checkDraft: () => { exists: boolean; answered: number; total: number } | null;
+  resumeDraft: (config: TestConfig) => boolean;
+  clearDraft: () => void;
 }
 
-export function useQuiz(): UseQuizReturn {
+export function useQuiz(options?: { draftKey?: string }): UseQuizReturn {
+  const draftKey = options?.draftKey;
   const config = useTestConfig();
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<string, number | number[]>>({});
   const [currentQ, setCurrentQ] = useState(0);
   const [previewMode, setPreviewMode] = useState(false);
   const [debugForceType, setDebugForceType] = useState<string | null>(null);
+
+  // -- Draft: debounced save effect
+  useEffect(() => {
+    if (!draftKey) return;
+    const t = setTimeout(() => {
+      const draft = {
+        version: 1,
+        answers,
+        questionOrder: shuffledQuestions.map(q => q.id),
+        currentIndex: currentQ,
+        savedAt: Date.now(),
+      };
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+      } catch {}
+    }, 300);
+    return () => clearTimeout(t);
+  }, [draftKey, answers, shuffledQuestions, currentQ]);
 
   // Love test: gate and trigger are the same question (ex_gate, value 3)
   // SBTI: gate is drink_gate_q1 (value 3), trigger is drink_gate_q2 (value 2)
@@ -100,9 +124,62 @@ export function useQuiz(): UseQuizReturn {
   }, []);
 
   const getResult = useCallback(
-    (): ComputeResultOutput => computeResult(answers, hiddenTriggered, config, debugForceType),
-    [answers, hiddenTriggered, config, debugForceType],
+    (): ComputeResultOutput => {
+      const res = computeResult(answers, hiddenTriggered, config, debugForceType);
+      // Clear draft on quiz completion
+      if (draftKey) {
+        try { localStorage.removeItem(draftKey); } catch {}
+      }
+      return res;
+    },
+    [answers, hiddenTriggered, config, debugForceType, draftKey],
   );
+
+  // -- Draft helpers
+  const checkDraft = useCallback((): { exists: boolean; answered: number; total: number } | null => {
+    if (!draftKey) return null;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return null;
+      const d = JSON.parse(raw);
+      const ageMs = Date.now() - (d.savedAt || 0);
+      if (ageMs > 7 * 24 * 60 * 60 * 1000) {
+        localStorage.removeItem(draftKey);
+        return null;
+      }
+      return {
+        exists: true,
+        answered: Object.keys(d.answers || {}).length,
+        total: (d.questionOrder || []).length,
+      };
+    } catch {
+      return null;
+    }
+  }, [draftKey]);
+
+  const resumeDraft = useCallback((cfg: TestConfig): boolean => {
+    if (!draftKey) return false;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return false;
+      const d = JSON.parse(raw);
+      const allQs = [...cfg.questions, ...cfg.specialQuestions];
+      const byId = Object.fromEntries(allQs.map(q => [q.id, q]));
+      const restored = (d.questionOrder as string[]).map((id: string) => byId[id]).filter(Boolean);
+      setShuffledQuestions(restored);
+      setAnswers(d.answers || {});
+      setCurrentQ(d.currentIndex || 0);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [draftKey]);
+
+  const clearDraft = useCallback(() => {
+    if (draftKey) {
+      try { localStorage.removeItem(draftKey); } catch {}
+    }
+  }, [draftKey]);
 
   return {
     shuffledQuestions,
@@ -124,5 +201,9 @@ export function useQuiz(): UseQuizReturn {
     goPrev,
     setDebugForceType,
     getResult,
+
+    checkDraft,
+    resumeDraft,
+    clearDraft,
   };
 }

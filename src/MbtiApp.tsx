@@ -141,7 +141,7 @@ function MbtiAppInner() {
   const [shareModalUrl, setShareModalUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const quiz = useQuiz();
+  const quiz = useQuiz({ draftKey: 'mbti_draft' });
   const ranking = useRanking();
   const localHistory = useLocalHistory();
 
@@ -181,9 +181,21 @@ function MbtiAppInner() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStartTest = useCallback(() => {
+    const draft = quiz.checkDraft?.();
+    if (draft && draft.exists && draft.answered > 0) {
+      const ok = window.confirm(`继续上次测试（已答 ${draft.answered}/${draft.total}）？`);
+      if (ok) {
+        const resumed = quiz.resumeDraft?.(config);
+        if (resumed) {
+          setScreen('quiz');
+          return;
+        }
+      }
+      quiz.clearDraft?.();
+    }
     quiz.startQuiz();
     setScreen('quiz');
-  }, [quiz]);
+  }, [quiz, config]);
 
   const handleQuizSubmit = useCallback(() => {
     const res = quiz.getResult();
