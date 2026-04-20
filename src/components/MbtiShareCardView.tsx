@@ -1,6 +1,6 @@
 import type { ComputeResultOutput } from '../utils/matching';
 import type { TestConfig } from '../data/testConfig';
-import { MBTI_CONTENT, AT_FLAVOR } from '../data/mbti/content';
+import { MBTI_CONTENT, AT_FLAVOR, TAGLINES } from '../data/mbti/content';
 import { COMPATIBILITY } from '../data/mbti/compatibility';
 
 interface DimSpec {
@@ -38,6 +38,13 @@ export interface MbtiShareCardViewProps {
   config: TestConfig;
   qrDataUrl: string;
   shareUrl: string;
+  /**
+   * 'compact' (default): optimized for social sharing — header + tagline +
+   *   dim bars + strengths + compat + famous + footer (~1800px tall)
+   * 'full': includes overview, weaknesses, relationships, careers, growth,
+   *   and A/T flavor (~3200px tall)
+   */
+  variant?: 'compact' | 'full';
 }
 
 /**
@@ -52,10 +59,13 @@ export default function MbtiShareCardView({
   config,
   qrDataUrl,
   shareUrl,
+  variant = 'compact',
 }: MbtiShareCardViewProps) {
+  const isCompact = variant === 'compact';
   const code = result.finalType.code;
   const [mainCode, suffix] = code.split('-') as [string, 'A' | 'T'];
   const content = MBTI_CONTENT[mainCode];
+  const tagline = TAGLINES[mainCode] ?? '';
   const typeDef = config.typeLibrary[code];
   const image = config.typeImages[code];
   const rarity = config.typeRarity[code];
@@ -241,6 +251,21 @@ export default function MbtiShareCardView({
       color: '#fff',
       marginBottom: 4,
     },
+    taglineBlock: {
+      padding: '20px 24px',
+      marginBottom: 28,
+      background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 59, 59, 0.08))',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      borderRadius: 12,
+      textAlign: 'center' as const,
+    },
+    tagline: {
+      fontSize: 22,
+      fontWeight: 800,
+      color: '#fff',
+      lineHeight: 1.4,
+      letterSpacing: '0.01em',
+    },
   };
 
   if (!content) {
@@ -263,11 +288,20 @@ export default function MbtiShareCardView({
         </div>
       </div>
 
-      {/* Overview */}
-      <section style={S.section}>
-        <div style={S.sectionTitle}>核心特征</div>
-        <div style={S.paragraph}>{content.overview}</div>
-      </section>
+      {/* Tagline — hero quote */}
+      {tagline && (
+        <div style={S.taglineBlock}>
+          <div style={S.tagline}>"{tagline}"</div>
+        </div>
+      )}
+
+      {/* Overview — full variant only */}
+      {!isCompact && (
+        <section style={S.section}>
+          <div style={S.sectionTitle}>核心特征</div>
+          <div style={S.paragraph}>{content.overview}</div>
+        </section>
+      )}
 
       {/* Dimension bars */}
       <section style={S.section}>
@@ -316,37 +350,38 @@ export default function MbtiShareCardView({
         </ul>
       </section>
 
-      {/* Weaknesses */}
-      <section style={S.section}>
-        <div style={S.sectionTitle}>劣势</div>
-        <ul style={S.bulletList}>
-          {content.weaknesses.map((s, i) => (
-            <li key={i} style={S.bulletItem}>{s}</li>
-          ))}
-        </ul>
-      </section>
+      {/* Weaknesses / Relationships / Careers / Growth — full variant only */}
+      {!isCompact && (
+        <>
+          <section style={S.section}>
+            <div style={S.sectionTitle}>劣势</div>
+            <ul style={S.bulletList}>
+              {content.weaknesses.map((s, i) => (
+                <li key={i} style={S.bulletItem}>{s}</li>
+              ))}
+            </ul>
+          </section>
 
-      {/* Relationships */}
-      <section style={S.section}>
-        <div style={S.sectionTitle}>恋爱与人际</div>
-        <div style={S.paragraph}>{content.relationships}</div>
-      </section>
+          <section style={S.section}>
+            <div style={S.sectionTitle}>恋爱与人际</div>
+            <div style={S.paragraph}>{content.relationships}</div>
+          </section>
 
-      {/* Careers */}
-      <section style={S.section}>
-        <div style={S.sectionTitle}>职业建议</div>
-        <ul style={S.bulletList}>
-          {content.careers.map((c, i) => (
-            <li key={i} style={S.bulletItem}>{c}</li>
-          ))}
-        </ul>
-      </section>
+          <section style={S.section}>
+            <div style={S.sectionTitle}>职业建议</div>
+            <ul style={S.bulletList}>
+              {content.careers.map((c, i) => (
+                <li key={i} style={S.bulletItem}>{c}</li>
+              ))}
+            </ul>
+          </section>
 
-      {/* Growth */}
-      <section style={S.section}>
-        <div style={S.sectionTitle}>成长建议</div>
-        <div style={S.paragraph}>{content.growth}</div>
-      </section>
+          <section style={S.section}>
+            <div style={S.sectionTitle}>成长建议</div>
+            <div style={S.paragraph}>{content.growth}</div>
+          </section>
+        </>
+      )}
 
       {/* Famous */}
       <section style={S.section}>
@@ -402,13 +437,15 @@ export default function MbtiShareCardView({
         </div>
       </section>
 
-      {/* A/T flavor */}
-      <section style={S.section}>
-        <div style={S.sectionTitle}>
-          {suffix === 'A' ? '自信型' : '动荡型'}的你
-        </div>
-        <div style={S.paragraph}>{AT_FLAVOR[suffix]}</div>
-      </section>
+      {/* A/T flavor — full variant only */}
+      {!isCompact && (
+        <section style={S.section}>
+          <div style={S.sectionTitle}>
+            {suffix === 'A' ? '自信型' : '动荡型'}的你
+          </div>
+          <div style={S.paragraph}>{AT_FLAVOR[suffix]}</div>
+        </section>
+      )}
 
       {/* Footer with QR */}
       <div style={S.footer}>

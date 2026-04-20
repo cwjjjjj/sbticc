@@ -11,6 +11,26 @@ export interface MbtiTypeContent {
   famous: { name: string; role: string }[]; // 著名人物
 }
 
+// One-line shareable tagline per main type (for the compact share card)
+export const TAGLINES: Record<string, string> = {
+  INTJ: '冷静地规划十年后的自己',
+  INTP: '用逻辑解剖世界，用怀疑防御一切',
+  ENTJ: '先定目标，再让世界给我让路',
+  ENTP: '拆解一切共识，为辩论而活',
+  INFJ: '看穿你，但选择温柔不说破',
+  INFP: '世界再糙也要留一块柔软',
+  ENFJ: '把每个人都当作值得点亮的人',
+  ENFP: '在三件事之间兴奋地横跳',
+  ISTJ: '靠谱是我的底线，也是我的上限',
+  ISFJ: '默默操心所有人，最后忘了自己',
+  ESTJ: '秩序是我最高的审美',
+  ESFJ: '团体和谐比我自己的情绪更重要',
+  ISTP: '不解释，只动手搞定',
+  ISFP: '美感优先，规则靠边',
+  ESTP: '想到就去做，失败再说',
+  ESFP: '此刻的快乐就是全部答案',
+};
+
 // A/T layered flavor text appended to any main type's full report
 export const AT_FLAVOR: Record<'A' | 'T', string> = {
   A: '自信型的你在情绪上相对稳定，不容易被外界的评价或压力轻易动摇。你倾向于接受自己当前的状态，遇到挫折时能较快恢复，也很少陷入反复的自我怀疑。这份平静是真实的力量，但偶尔也会让你对自身盲点视而不见——当周围人提出改善建议时，不妨多停留几秒，先把对方的话真正听完，再决定要不要采纳。适度的不满足感是成长的燃料；偶尔允许自己"有点不够好"，并不会动摇你根本的稳定。',
