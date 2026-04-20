@@ -45,6 +45,11 @@ test -f sw.js && cp sw.js dist/sw.js
 [ -f dist-temp/sitemap.xml ] && cp dist-temp/sitemap.xml dist/sitemap.xml
 [ -f dist-temp/robots.txt ] && cp dist-temp/robots.txt dist/robots.txt
 
+# Copy any site-ownership verification txt files (e.g. ad/search-engine verification)
+for f in dist-temp/*.txt; do
+  [ -f "$f" ] && cp "$f" dist/
+done
+
 # Copy admin pages (funnel dashboard etc.)
 if [ -d dist-temp/admin ]; then
   mkdir -p dist/admin
