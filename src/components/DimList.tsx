@@ -11,6 +11,11 @@ const levelWidth: Record<string, string> = {
   H: '100%',
   A: '33%',
   B: '100%',
+  // MBTI dimensions (simplified mapping to show full bar for the dominant side)
+  E: '100%', I: '100%',
+  S: '100%', N: '100%',
+  T: '100%', F: '100%',
+  J: '100%', P: '100%',
 };
 
 const levelColor: Record<string, string> = {
@@ -19,6 +24,11 @@ const levelColor: Record<string, string> = {
   H: '#44ff88',
   A: '#ff3b3b',
   B: '#44ff88',
+  // MBTI colors (using a consistent theme color)
+  E: '#a855f7', I: '#a855f7',
+  S: '#a855f7', N: '#a855f7',
+  T: '#a855f7', F: '#a855f7',
+  J: '#a855f7', P: '#a855f7',
 };
 
 export default function DimList({ levels, rawScores }: DimListProps) {
