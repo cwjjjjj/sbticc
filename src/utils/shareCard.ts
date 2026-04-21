@@ -127,7 +127,9 @@ export async function drawShareCard(
   y += 50;
 
   // GSTI-only: make the swap direction visible on generated posters.
-  if (config.genderLocked) {
+  // SWAP badge is GSTI-specific (shows which opposite-gender pool you swapped
+  // into). Other gender-locked tests like XPTI don't have swap semantics.
+  if (config.id === 'gsti') {
     drawSwapBadge(ctx, pad, y, type.code, config);
     y += 68;
   }
