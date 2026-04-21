@@ -338,12 +338,16 @@ export async function drawShareCard(
       const partnerType = config.typeLibrary[partnerCode];
       const say = config.compatibility[soulmateKey].say;
 
-      const cardPad = 16;
-      const badgeH = 26;
-      const pairLineH = 26;
-      const sayLineH = 24;
-      const sayLines = estimateLineCount(ctx, say, contentW - cardPad * 2, 14, sayLineH);
-      const cardH = cardPad * 2 + badgeH + 8 + pairLineH + 6 + sayLines * sayLineH;
+      const cardPad = 18;
+      const badgeH = 28;
+      const pairLineH = 28;
+      const sayLineH = 28;
+      const badgeToPair = 12;
+      const pairToSay = 18;
+      // Measure with the actual say font so line-count math is accurate
+      ctx.font = '15px "Noto Sans SC", sans-serif';
+      const sayLines = estimateLineCount(ctx, say, contentW - cardPad * 2, 15, sayLineH);
+      const cardH = cardPad * 2 + badgeH + badgeToPair + pairLineH + pairToSay + sayLines * sayLineH;
 
       ctx.fillStyle = 'rgba(255, 59, 130, 0.08)';
       roundRect(ctx, pad, y, contentW, cardH, 12);
@@ -363,30 +367,32 @@ export async function drawShareCard(
       roundRect(ctx, pad + cardPad, cy, badgeW, badgeH, 6);
       ctx.fill();
       ctx.fillStyle = '#ff6b9d';
-      ctx.fillText(badgeText, pad + cardPad + 10, cy + 18);
-      cy += badgeH + 8;
+      ctx.fillText(badgeText, pad + cardPad + 10, cy + 19);
+      cy += badgeH + badgeToPair;
 
-      // Pair
-      ctx.font = 'bold 16px "JetBrains Mono", monospace';
+      // Pair — pairText in bold mono, partner CN in smaller sans
+      ctx.font = 'bold 17px "JetBrains Mono", monospace';
       ctx.fillStyle = '#fff';
       const pairText = `${type.code} \u00d7 ${partnerCode}`;
-      ctx.fillText(pairText, pad + cardPad, cy + 18);
+      ctx.fillText(pairText, pad + cardPad, cy + 20);
+      // Measure pairText with the mono font STILL set (fix: previously measured
+      // with the 13px sans font, which reported a smaller width and caused the
+      // partner CN name to overlap the pair text).
+      const pairW = ctx.measureText(pairText).width;
       if (partnerType?.cn) {
         ctx.font = '13px "Noto Sans SC", sans-serif';
         ctx.fillStyle = '#999';
-        const pairW = ctx.measureText(pairText).width;
-        ctx.font = 'bold 16px "JetBrains Mono", monospace';
-        ctx.font = '13px "Noto Sans SC", sans-serif';
-        ctx.fillText(` \u00b7 ${partnerType.cn}`, pad + cardPad + pairW + 4, cy + 18);
+        ctx.fillText(` \u00b7 ${partnerType.cn}`, pad + cardPad + pairW + 6, cy + 20);
       }
-      cy += pairLineH + 6;
+      cy += pairLineH + pairToSay;
 
-      // Say
-      ctx.font = '14px "Noto Sans SC", sans-serif';
+      // Say — larger font (15px) and line-height (28px) so lines no longer
+      // touch the pair line above
+      ctx.font = '15px "Noto Sans SC", sans-serif';
       ctx.fillStyle = '#bbb';
-      wrapText(ctx, say, pad + cardPad, cy, contentW - cardPad * 2, sayLineH);
+      wrapText(ctx, say, pad + cardPad, cy + 16, contentW - cardPad * 2, sayLineH);
 
-      y += cardH + 20;
+      y += cardH + 24;
     }
   }
 
