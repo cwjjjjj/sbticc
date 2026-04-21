@@ -24,7 +24,19 @@ export const mbtiConfig: TestConfig = {
   shareImages: SHARE_IMAGES,
   compatibility: COMPATIBILITY,
   getCompatibility,
-  sumToLevel: () => 'A', // stub - directTypeResolver short-circuits before this is used
+  // sumToLevel never fires — sumToLevelByDim below takes precedence in matching.ts
+  sumToLevel: () => 'A',
+  // Map per-dim score to MBTI letter (matching.ts uses this BEFORE
+  // directTypeResolver to build the levels map, which directTypeResolver
+  // then concatenates into the final 32-type code).
+  sumToLevelByDim: (score: number, dim: string): string | undefined => {
+    if (dim === 'EI') return score >= 0 ? 'E' : 'I';
+    if (dim === 'SN') return score >= 0 ? 'S' : 'N';
+    if (dim === 'TF') return score >= 0 ? 'F' : 'T';
+    if (dim === 'JP') return score >= 0 ? 'P' : 'J';
+    if (dim === 'AT') return score >= 0 ? 'T' : 'A';
+    return undefined;
+  },
   maxDistance: 5,
   fallbackTypeCode: 'INTJ-A',
   hiddenTypeCode: '',
