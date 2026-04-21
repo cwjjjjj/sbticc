@@ -132,35 +132,69 @@ export async function drawShareCard(
     y += 68;
   }
 
-  // -- Rarity banner (Phase B virality) — prominent "前 X% · 稀世/罕见/少见/普通"
+  // -- Rarity slab — compact editorial strip (replaces oversized 72px banner)
   if (rarity && rarity.percentile < 100) {
     const tierCfg = {
-      legendary: { cn: '稀世', color: '#ffd700' },
-      rare:      { cn: '罕见', color: '#ff3b3b' },
-      uncommon:  { cn: '少见', color: '#c0c0c0' },
-      common:    { cn: '普通', color: '#888888' },
+      legendary: { cn: '稀世', color: '#fbbf24' },
+      rare:      { cn: '罕见', color: '#f43f5e' },
+      uncommon:  { cn: '少见', color: '#38bdf8' },
+      common:    { cn: '普通', color: '#a3a3a3' },
     }[rarity.tier];
     const pctStr = rarity.percentile < 1 ? '< 1' : rarity.percentile.toFixed(1);
+    const slabH = 46;
 
+    // Subtle gradient background
+    const grad = ctx.createLinearGradient(pad, y, W - pad, y);
+    grad.addColorStop(0, 'rgba(255,255,255,0.02)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.06)');
+    grad.addColorStop(1, 'rgba(255,255,255,0.02)');
+    ctx.fillStyle = grad;
+    roundRect(ctx, pad, y, contentW, slabH, 10);
+    ctx.fill();
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 1;
+    roundRect(ctx, pad, y, contentW, slabH, 10);
+    ctx.stroke();
+
+    // Three-column layout: label | ◆ tier | pct
+    const cx1 = pad + 20;
+    const cx2 = W / 2;
+    const cx3 = W - pad - 20;
+    const cyMid = y + slabH / 2;
+
+    // "稀有度" mono label (left)
     ctx.save();
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#888';
+    ctx.fillText('RARITY \u2022 \u7a00\u6709\u5ea6', cx1, cyMid);
+
+    // Hairline dividers at ~33% and ~66%
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.beginPath();
+    ctx.moveTo(pad + contentW * 0.32, y + 14);
+    ctx.lineTo(pad + contentW * 0.32, y + slabH - 14);
+    ctx.moveTo(pad + contentW * 0.68, y + 14);
+    ctx.lineTo(pad + contentW * 0.68, y + slabH - 14);
+    ctx.stroke();
+
+    // ◆ tier (center)
     ctx.textAlign = 'center';
-
-    // Big percentile number
-    ctx.font = 'bold 72px "JetBrains Mono", monospace';
+    ctx.font = 'bold 15px "Noto Sans SC", sans-serif';
     ctx.fillStyle = tierCfg.color;
-    ctx.shadowColor = tierCfg.color;
-    ctx.shadowBlur = 16;
-    ctx.fillText(`\u524d ${pctStr}%`, W / 2, y + 60);
+    ctx.fillText(`\u25c6  ${tierCfg.cn}`, cx2, cyMid);
 
-    // Tier label
-    ctx.shadowBlur = 0;
-    ctx.font = 'bold 28px "Noto Sans SC", sans-serif';
-    ctx.fillStyle = tierCfg.color;
-    ctx.fillText(tierCfg.cn, W / 2, y + 100);
+    // pct (right)
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 16px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#e5e5e5';
+    ctx.fillText(`\u524d ${pctStr}%`, cx3, cyMid);
 
     ctx.restore();
     ctx.textAlign = 'left';
-    y += 130;
+    ctx.textBaseline = 'alphabetic';
+    y += slabH + 20;
   }
 
   // -- Poster image + type info

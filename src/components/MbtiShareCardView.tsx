@@ -129,11 +129,11 @@ export default function MbtiShareCardView({
       marginBottom: 4,
     },
     cn: { fontSize: 20, color: '#aaa' },
-    // editorial-style rarity slab (replaces the red pill)
+    // editorial-style rarity slab: three balanced columns (no asymmetric auto-margin)
     raritySlab: {
-      display: 'flex',
+      display: 'grid',
+      gridTemplateColumns: '1fr 1px 2fr 1px 1fr',
       alignItems: 'center',
-      gap: 14,
       padding: '14px 20px',
       marginBottom: 20,
       background:
@@ -147,29 +147,35 @@ export default function MbtiShareCardView({
       fontWeight: 700,
       letterSpacing: '0.22em',
       textTransform: 'uppercase' as const,
-      color: '#666',
+      color: '#888',
+      textAlign: 'left' as const,
     },
     rarityDivider: {
-      width: 1,
-      height: 16,
+      height: 18,
       background: '#2a2a2a',
     },
+    rarityCenter: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+    },
     rarityGlyph: {
-      fontSize: 14,
+      fontSize: 15,
       lineHeight: 1,
     },
     rarityTier: {
-      fontSize: 16,
+      fontSize: 17,
       fontWeight: 800,
-      letterSpacing: '0.03em',
+      letterSpacing: '0.04em',
     },
     rarityPct: {
-      marginLeft: 'auto',
       fontFamily: 'ui-monospace, "SF Mono", "Menlo", monospace',
       fontSize: 17,
       fontWeight: 800,
       color: '#e5e5e5',
       letterSpacing: '0.02em',
+      textAlign: 'right' as const,
     },
     sectionTitle: {
       fontSize: 20,
@@ -222,15 +228,25 @@ export default function MbtiShareCardView({
       overflow: 'hidden' as const,
       position: 'relative' as const,
     },
-    bulletList: {
-      listStyle: 'disc',
-      paddingLeft: 22,
-      margin: 0,
-    },
-    bulletItem: {
+    // Custom bullet rows — html2canvas doesn't render CSS list-style markers
+    // cleanly (they render as asterisks), so we draw our own dot span.
+    bulletRow: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 10,
       fontSize: 14,
-      lineHeight: 1.9,
+      lineHeight: 1.7,
       color: '#ccc',
+      marginBottom: 4,
+    },
+    bulletDot: {
+      display: 'inline-block',
+      width: 4,
+      height: 4,
+      borderRadius: '50%',
+      background: '#f43f5e',
+      marginTop: 9,
+      flexShrink: 0,
     },
     famousGrid: {
       display: 'grid',
@@ -343,15 +359,18 @@ export default function MbtiShareCardView({
         </div>
       </div>
 
-      {/* Rarity slab — editorial scarcity indicator */}
+      {/* Rarity slab — 3 balanced columns separated by hairlines */}
       {rarity && (
         <div style={S.raritySlab}>
           <span style={S.rarityLabel}>稀有度</span>
           <span style={S.rarityDivider} />
-          <span style={{ ...S.rarityGlyph, color: rarityAccent(rarity.label) }}>◆</span>
-          <span style={{ ...S.rarityTier, color: rarityAccent(rarity.label) }}>
-            {rarity.label}
+          <span style={S.rarityCenter}>
+            <span style={{ ...S.rarityGlyph, color: rarityAccent(rarity.label) }}>◆</span>
+            <span style={{ ...S.rarityTier, color: rarityAccent(rarity.label) }}>
+              {rarity.label}
+            </span>
           </span>
+          <span style={S.rarityDivider} />
           <span style={S.rarityPct}>{rarity.pct.toFixed(1)}%</span>
         </div>
       )}
@@ -413,11 +432,14 @@ export default function MbtiShareCardView({
       {/* Strengths */}
       <section style={S.section}>
         <div style={S.sectionTitle}>优势</div>
-        <ul style={S.bulletList}>
+        <div>
           {content.strengths.map((s, i) => (
-            <li key={i} style={S.bulletItem}>{s}</li>
+            <div key={i} style={S.bulletRow}>
+              <span style={S.bulletDot} />
+              <span>{s}</span>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
 
       {/* Weaknesses / Relationships / Careers / Growth — full variant only */}
@@ -425,11 +447,14 @@ export default function MbtiShareCardView({
         <>
           <section style={S.section}>
             <div style={S.sectionTitle}>劣势</div>
-            <ul style={S.bulletList}>
+            <div>
               {content.weaknesses.map((s, i) => (
-                <li key={i} style={S.bulletItem}>{s}</li>
+                <div key={i} style={S.bulletRow}>
+                  <span style={S.bulletDot} />
+                  <span>{s}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
 
           <section style={S.section}>
@@ -439,11 +464,14 @@ export default function MbtiShareCardView({
 
           <section style={S.section}>
             <div style={S.sectionTitle}>职业建议</div>
-            <ul style={S.bulletList}>
+            <div>
               {content.careers.map((c, i) => (
-                <li key={i} style={S.bulletItem}>{c}</li>
+                <div key={i} style={S.bulletRow}>
+                  <span style={S.bulletDot} />
+                  <span>{c}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
 
           <section style={S.section}>
@@ -457,7 +485,7 @@ export default function MbtiShareCardView({
       <section style={S.section}>
         <div style={S.sectionTitle}>同类型的著名人物</div>
         <div style={S.famousGrid}>
-          {content.famous.map((f, i) => (
+          {content.famous.slice(0, 3).map((f, i) => (
             <div key={i} style={S.famousCard}>
               <div style={S.famousName}>{f.name}</div>
               <div style={S.famousRole}>{f.role}</div>
