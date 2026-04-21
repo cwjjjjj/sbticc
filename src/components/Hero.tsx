@@ -111,7 +111,7 @@ export default function Hero({ onStartTest, onRestartFresh, onTrySample, totalTe
   }, [rotateTicker]);
 
   const displayTotal = totalTests > 0 ? totalTests.toLocaleString() : '---';
-  const brand = isGsti ? 'GSTI' : 'SBTI';
+  const brand = config.id.toUpperCase();
   const typeCount = config.normalTypes.length;
   const questionCount = config.questionCountLabel;
 

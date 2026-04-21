@@ -20,8 +20,11 @@ import { drawShareCard, canvasToBlob, type ShareCardRarity } from './utils/share
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { xptiConfig } from './data/xpti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
+import { randomAnswerForQuestion } from './utils/quiz';
 
 type ScreenId = 'home' | 'picker' | 'quiz' | 'interstitial' | 'result' | 'compare';
+
+const isTestDomain = typeof window !== 'undefined' && window.location.hostname.includes('sbticc-test');
 
 function AppInner() {
   const config = useTestConfig();
@@ -40,9 +43,28 @@ function AppInner() {
 
   useEffect(() => { ranking.fetchRanking(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const autoFillAndShowResult = useCallback(() => {
+    const allQs = [...config.questions, ...config.specialQuestions];
+    const answers: Record<string, number | number[]> = {};
+    allQs.forEach((q) => {
+      answers[q.id] = randomAnswerForQuestion(q);
+    });
+    // XPTI is gender-locked; pick a gender so the type-pool filter has something
+    // to narrow to. Reuse the current quiz.gender if already set, otherwise
+    // randomize between 'male' and 'female' (avoid 'unspecified').
+    const gender = quiz.gender === 'unspecified'
+      ? (Math.random() < 0.5 ? 'male' : 'female')
+      : quiz.gender;
+    const res = computeResult(answers, false, config, null, gender);
+    setResult(res);
+    setScreen('result');
+  }, [config, quiz.gender]);
+
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash.startsWith('#compare=')) {
+    if (hash === '#test' || isTestDomain) {
+      autoFillAndShowResult();
+    } else if (hash.startsWith('#compare=')) {
       const b64 = hash.slice('#compare='.length);
       const decoded = decodeCompare(b64, config.dimensionOrder);
       if (decoded) { setCompareData(decoded); setScreen('compare'); }
