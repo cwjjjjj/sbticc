@@ -112,11 +112,12 @@ export default function ProfilesGallery({ rankingData }: ProfilesGalleryProps) {
             >
               {/* Image */}
               {imgSrc && (
-                <div className="w-full aspect-square bg-surface-2 overflow-hidden">
+                <div className="w-full aspect-square bg-surface-2 overflow-hidden flex items-center justify-center">
                   <img
                     src={imgSrc}
                     alt={code}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
+                    style={(config.id === 'dogti' || config.id === 'cati') ? { imageRendering: 'pixelated' } : undefined}
                     loading="lazy"
                   />
                 </div>

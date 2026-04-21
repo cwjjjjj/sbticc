@@ -216,7 +216,15 @@ export async function drawShareCard(
     ctx.quadraticCurveTo(pad, y, pad + radius, y);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(posterImg, pad, y, posterSize, posterSize);
+    // Preserve aspect ratio — sprites (DogTI 624×468 / CaTI 1024×1024) must not be stretched.
+    const srcAR = posterImg.naturalWidth / posterImg.naturalHeight;
+    let drawW = posterSize, drawH = posterSize, dx = pad, dy = y;
+    if (srcAR > 1) { drawH = posterSize / srcAR; dy = y + (posterSize - drawH) / 2; }
+    else if (srcAR < 1) { drawW = posterSize * srcAR; dx = pad + (posterSize - drawW) / 2; }
+    // White-letterbox for pixel-art sprites
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(pad, y, posterSize, posterSize);
+    ctx.drawImage(posterImg, dx, dy, drawW, drawH);
     ctx.restore();
   } else {
     // Placeholder box

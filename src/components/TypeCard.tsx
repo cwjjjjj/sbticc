@@ -32,14 +32,17 @@ export default function TypeCard({ typeCode, size = 'lg' }: TypeCardProps) {
     : 'w-[100px] h-[100px] rounded-2xl';
 
   if (imgSrc) {
+    // DogTI/CaTI use pixel-art sprites that must preserve hard edges when upscaled.
+    const isPixelArt = config.id === 'dogti' || config.id === 'cati';
     return (
       <div
-        className={`${wrapperClass} bg-surface border border-border overflow-hidden flex-shrink-0`}
+        className={`${wrapperClass} bg-surface border border-border overflow-hidden flex-shrink-0 flex items-center justify-center`}
       >
         <img
           src={imgSrc}
           alt={typeCode}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
+          style={isPixelArt ? { imageRendering: 'pixelated' } : undefined}
         />
       </div>
     );
