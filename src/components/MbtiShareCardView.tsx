@@ -23,6 +23,15 @@ const DIM_SPECS: DimSpec[] = [
 
 const MAX_ABS: Record<string, number> = { EI: 45, SN: 45, TF: 45, JP: 45, AT: 36 };
 
+// Map rarity label → accent color. Scarcer = warmer/brighter.
+function rarityAccent(label: string): string {
+  if (label === '稀有') return '#fbbf24';   // gold
+  if (label === '少见') return '#f43f5e';   // rose
+  if (label === '普通') return '#38bdf8';   // sky
+  if (label === '常见') return '#84cc16';   // lime
+  return '#a3a3a3';                          // 很常见 → neutral
+}
+
 function computePcts(rawScores: Record<string, number>): Record<string, number> {
   const pcts: Record<string, number> = {};
   Object.keys(rawScores).forEach((dim) => {
@@ -119,15 +128,48 @@ export default function MbtiShareCardView({
       letterSpacing: '0.02em',
       marginBottom: 4,
     },
-    cn: { fontSize: 20, color: '#aaa', marginBottom: 8 },
-    rarityBadge: {
-      display: 'inline-block',
-      padding: '4px 12px',
-      borderRadius: 6,
-      background: 'rgba(255, 59, 59, 0.1)',
-      color: '#ff3b3b',
-      fontSize: 13,
+    cn: { fontSize: 20, color: '#aaa' },
+    // editorial-style rarity slab (replaces the red pill)
+    raritySlab: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 14,
+      padding: '14px 20px',
+      marginBottom: 20,
+      background:
+        'linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
+      border: '1px solid #1a1a1a',
+      borderRadius: 10,
+    },
+    rarityLabel: {
+      fontFamily: 'ui-monospace, "SF Mono", "Menlo", monospace',
+      fontSize: 11,
       fontWeight: 700,
+      letterSpacing: '0.22em',
+      textTransform: 'uppercase' as const,
+      color: '#666',
+    },
+    rarityDivider: {
+      width: 1,
+      height: 16,
+      background: '#2a2a2a',
+    },
+    rarityGlyph: {
+      fontSize: 14,
+      lineHeight: 1,
+    },
+    rarityTier: {
+      fontSize: 16,
+      fontWeight: 800,
+      letterSpacing: '0.03em',
+    },
+    rarityPct: {
+      marginLeft: 'auto',
+      fontFamily: 'ui-monospace, "SF Mono", "Menlo", monospace',
+      fontSize: 17,
+      fontWeight: 800,
+      color: '#e5e5e5',
+      letterSpacing: '0.02em',
     },
     sectionTitle: {
       fontSize: 20,
@@ -251,25 +293,38 @@ export default function MbtiShareCardView({
       color: '#fff',
       marginBottom: 4,
     },
+    // Editorial pull-quote — line-height = height guarantees vertical center
+    // inside html2canvas (flexbox align-items can drift with Chinese metrics).
     taglineBlock: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: 80,
-      padding: '16px 24px',
-      marginBottom: 28,
-      background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 59, 59, 0.08))',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      borderRadius: 12,
+      position: 'relative' as const,
+      height: 108,
+      padding: '0 60px',
+      marginBottom: 32,
+      background:
+        'linear-gradient(135deg, #130c22 0%, #1d0d26 50%, #130614 100%)',
+      border: '1px solid rgba(212, 175, 55, 0.14)',
+      borderRadius: 14,
       textAlign: 'center' as const,
+      lineHeight: '108px',
+      overflow: 'hidden' as const,
     },
     tagline: {
-      fontSize: 22,
-      fontWeight: 800,
-      color: '#fff',
-      lineHeight: 1.2,
-      letterSpacing: '0.01em',
-      margin: 0,
+      display: 'inline',
+      fontSize: 24,
+      fontWeight: 700,
+      color: '#fafafa',
+      lineHeight: 'inherit' as const,
+      letterSpacing: '0.02em',
+      fontStyle: 'italic' as const,
+    },
+    quoteDecor: {
+      position: 'absolute' as const,
+      fontFamily: 'Georgia, "Noto Serif SC", "Songti SC", serif',
+      fontSize: 80,
+      fontWeight: 900,
+      color: 'rgba(251, 191, 36, 0.14)',
+      lineHeight: 1,
+      pointerEvents: 'none' as const,
     },
   };
 
@@ -285,18 +340,28 @@ export default function MbtiShareCardView({
         <div style={S.typeInfo}>
           <div style={S.code}>{code}</div>
           <div style={S.cn}>{typeDef?.cn}</div>
-          {rarity && (
-            <span style={S.rarityBadge}>
-              {rarity.label} · {rarity.pct.toFixed(1)}% · {'★'.repeat(rarity.stars)}
-            </span>
-          )}
         </div>
       </div>
 
-      {/* Tagline — hero quote */}
+      {/* Rarity slab — editorial scarcity indicator */}
+      {rarity && (
+        <div style={S.raritySlab}>
+          <span style={S.rarityLabel}>稀有度</span>
+          <span style={S.rarityDivider} />
+          <span style={{ ...S.rarityGlyph, color: rarityAccent(rarity.label) }}>◆</span>
+          <span style={{ ...S.rarityTier, color: rarityAccent(rarity.label) }}>
+            {rarity.label}
+          </span>
+          <span style={S.rarityPct}>{rarity.pct.toFixed(1)}%</span>
+        </div>
+      )}
+
+      {/* Tagline — editorial pull-quote */}
       {tagline && (
         <div style={S.taglineBlock}>
-          <div style={S.tagline}>"{tagline}"</div>
+          <span style={{ ...S.quoteDecor, top: 8, left: 20 }}>&ldquo;</span>
+          <span style={S.tagline}>{tagline}</span>
+          <span style={{ ...S.quoteDecor, bottom: -10, right: 20 }}>&rdquo;</span>
         </div>
       )}
 
