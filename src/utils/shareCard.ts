@@ -23,6 +23,35 @@ export function loadImage(src: string): Promise<HTMLImageElement | null> {
 }
 
 /**
+ * Count how many wrapped lines `text` would take up given the font currently
+ * set on ctx and the given maxWidth.
+ */
+export function estimateLineCount(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  _fontSize: number,
+  _lineHeight: number,
+): number {
+  if (!text) return 0;
+  const chars = text.split('');
+  let lines = 0;
+  let line = '';
+  for (let i = 0; i < chars.length; i++) {
+    const testLine = line + chars[i];
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && line.length > 0) {
+      lines += 1;
+      line = chars[i];
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) lines += 1;
+  return lines;
+}
+
+/**
  * Word-wrap text on canvas, returning the Y position after the last line.
  */
 export function wrapText(
@@ -236,6 +265,90 @@ export async function drawShareCard(
       tagX += tw + tagGap;
     }
     y = tagY + tagH + 30;
+  }
+
+  // -- Character desc (first paragraph only) + soulmate compat card
+  // Only shown on 'share' mode (not 'invite' — invite cards stay compact).
+  // Skipped for MBTI since MBTI has its own html2canvas pipeline.
+  if (mode === 'share' && config.id !== 'mbti') {
+    // Desc first paragraph
+    const descFull = type.desc || '';
+    const firstPara = descFull.split(/\n\n+/)[0]?.trim();
+    if (firstPara) {
+      y += 10;
+      ctx.font = 'bold 18px "Noto Sans SC", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('\u89d2\u8272\u63cf\u8ff0', pad, y + 18);
+      y += 34;
+
+      ctx.font = '16px "Noto Sans SC", sans-serif';
+      ctx.fillStyle = '#ccc';
+      y = wrapText(ctx, firstPara, pad, y, contentW, 26);
+      y += 10;
+    }
+
+    // Soulmate compat card
+    const soulmateKey = Object.keys(config.compatibility).find((k) => {
+      if (config.compatibility[k].type !== 'soulmate') return false;
+      const [a, b] = k.split('+');
+      return a === type.code || b === type.code;
+    });
+    if (soulmateKey) {
+      const [a, b] = soulmateKey.split('+');
+      const partnerCode = a === type.code ? b : a;
+      const partnerType = config.typeLibrary[partnerCode];
+      const say = config.compatibility[soulmateKey].say;
+
+      const cardPad = 16;
+      const badgeH = 26;
+      const pairLineH = 26;
+      const sayLineH = 24;
+      const sayLines = estimateLineCount(ctx, say, contentW - cardPad * 2, 14, sayLineH);
+      const cardH = cardPad * 2 + badgeH + 8 + pairLineH + 6 + sayLines * sayLineH;
+
+      ctx.fillStyle = 'rgba(255, 59, 130, 0.08)';
+      roundRect(ctx, pad, y, contentW, cardH, 12);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 107, 157, 0.25)';
+      ctx.lineWidth = 1;
+      roundRect(ctx, pad, y, contentW, cardH, 12);
+      ctx.stroke();
+
+      let cy = y + cardPad;
+
+      // Badge
+      ctx.font = 'bold 13px "Noto Sans SC", sans-serif';
+      const badgeText = '\ud83d\udc95 \u5929\u751f\u4e00\u5bf9';
+      const badgeW = ctx.measureText(badgeText).width + 20;
+      ctx.fillStyle = 'rgba(255, 59, 59, 0.15)';
+      roundRect(ctx, pad + cardPad, cy, badgeW, badgeH, 6);
+      ctx.fill();
+      ctx.fillStyle = '#ff6b9d';
+      ctx.fillText(badgeText, pad + cardPad + 10, cy + 18);
+      cy += badgeH + 8;
+
+      // Pair
+      ctx.font = 'bold 16px "JetBrains Mono", monospace';
+      ctx.fillStyle = '#fff';
+      const pairText = `${type.code} \u00d7 ${partnerCode}`;
+      ctx.fillText(pairText, pad + cardPad, cy + 18);
+      if (partnerType?.cn) {
+        ctx.font = '13px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = '#999';
+        const pairW = ctx.measureText(pairText).width;
+        ctx.font = 'bold 16px "JetBrains Mono", monospace';
+        ctx.font = '13px "Noto Sans SC", sans-serif';
+        ctx.fillText(` \u00b7 ${partnerType.cn}`, pad + cardPad + pairW + 4, cy + 18);
+      }
+      cy += pairLineH + 6;
+
+      // Say
+      ctx.font = '14px "Noto Sans SC", sans-serif';
+      ctx.fillStyle = '#bbb';
+      wrapText(ctx, say, pad + cardPad, cy, contentW - cardPad * 2, sayLineH);
+
+      y += cardH + 20;
+    }
   }
 
   // -- Separator
