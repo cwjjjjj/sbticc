@@ -224,6 +224,9 @@ const TESTS: TestSpec[] = [
   { id: 'fsi',    name: '原生家庭幸存者',         path: '/fsi',    typesModule: '../src/data/fsi/types.ts' },
   { id: 'mpi',    name: '消费人格图鉴',           path: '/mpi',    typesModule: '../src/data/mpi/types.ts' },
   { id: 'xpti',   name: 'XPTI 性别人格画像',       path: '/xpti',   typesModule: '../src/data/xpti/types.ts' },
+  { id: 'mbti',   name: 'MBTI 16 型人格测试',       path: '/mbti',   typesModule: '../src/data/mbti/types.ts' },
+  { id: 'dogti',  name: 'DogTI 狗狗人格测试',       path: '/dogti',  typesModule: '../src/data/dogti/types.ts' },
+  { id: 'cati',   name: 'CaTI 猫猫人格测试',       path: '/cati',   typesModule: '../src/data/cati/types.ts' },
 ];
 
 const ORIGIN = 'https://test.jiligulu.xyz';

@@ -52,6 +52,9 @@ const TESTS: TestSpec[] = [
   { id: 'fsi',    name: '原生家庭幸存者',     typesModule: '../src/data/fsi/types.ts',    bg: '#1f1510', accent: '#fb923c' },
   { id: 'mpi',    name: '消费人格图鉴',       typesModule: '../src/data/mpi/types.ts',    bg: '#1f1810', accent: '#facc15' },
   { id: 'xpti',   name: 'XPTI 性别人格画像',   typesModule: '../src/data/xpti/types.ts',   bg: '#0a0a0a', accent: '#d4af37' },
+  { id: 'mbti',   name: 'MBTI 16 型人格测试',  typesModule: '../src/data/mbti/types.ts',   bg: '#0a0f1f', accent: '#60a5fa' },
+  { id: 'dogti',  name: 'DogTI 狗狗人格测试',  typesModule: '../src/data/dogti/types.ts',  bg: '#1a120a', accent: '#f59e0b' },
+  { id: 'cati',   name: 'CaTI 猫猫人格测试',  typesModule: '../src/data/cati/types.ts',   bg: '#150a1f', accent: '#a855f7' },
 ];
 
 // Sanitize code for filesystem — same rules as typeImages

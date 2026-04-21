@@ -45,6 +45,9 @@ const ROUTES = [
   '/fsi',
   '/mpi',
   '/xpti',
+  '/mbti',
+  '/dogti',
+  '/cati',
 ];
 
 function today() {

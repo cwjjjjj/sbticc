@@ -34,6 +34,9 @@ const TESTS = [
   { slug: 'fsi',  emoji: '🏷️', title: '原生家庭幸存者',       tagline: '你被养成了什么形状',     bg: '#1f1510', accent: '#fb923c' },
   { slug: 'mpi',  emoji: '💸', title: '消费人格图鉴',         tagline: '你怎么把钱输给这个世界', bg: '#1f1810', accent: '#facc15' },
   { slug: 'xpti', emoji: '🎭', title: 'XPTI 性别人格画像',    tagline: '你作为性别化主体是什么气质', bg: '#0a0a0a', accent: '#d4af37' },
+  { slug: 'mbti', emoji: '🧬', title: 'MBTI 16 型人格测试 · 完整版', tagline: '72 题完整版 · 16 种人格 × A/T 亚型', bg: '#0a0f1f', accent: '#60a5fa' },
+  { slug: 'dogti', emoji: '🐕', title: 'DogTI 狗狗人格测试',   tagline: '12 题测出你是什么狗',     bg: '#1a120a', accent: '#f59e0b' },
+  { slug: 'cati',  emoji: '🐈', title: 'CaTI 猫猫人格测试',   tagline: '12 题测出你是什么猫',     bg: '#150a1f', accent: '#a855f7' },
 ];
 
 function jsx(test) {
