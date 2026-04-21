@@ -259,19 +259,18 @@ export async function drawShareCard(
 
   // -- Intro text
   //   invite mode: show a hook line in orange (this text IS the value prop)
-  //   share mode: demote — small, muted grey, no italic (the desc paragraph
-  //   below is the real character reveal, the English intro is just a tagline)
+  //   share mode: demote — small, muted grey, no italic
   if (mode === 'invite') {
-    ctx.font = 'italic 18px "Noto Sans SC", sans-serif';
+    ctx.font = 'italic 20px "Noto Sans SC", sans-serif';
     ctx.fillStyle = '#ffaa00';
     const inviteText = `\u6211\u662f${type.cn}\uff0c\u4f60\u662f\u4ec0\u4e48\uff1f\u6765\u6d4b\u6d4b\u770b\uff01`;
-    y = wrapText(ctx, inviteText, pad, y, contentW, 28);
-    y += 10;
+    y = wrapText(ctx, inviteText, pad, y, contentW, 32);
+    y += 16;
   } else if (type.intro) {
-    ctx.font = '14px "Noto Sans SC", sans-serif';
+    ctx.font = '15px "Noto Sans SC", sans-serif';
     ctx.fillStyle = '#777';
-    y = wrapText(ctx, type.intro, pad, y, contentW, 22);
-    y += 14;
+    y = wrapText(ctx, type.intro, pad, y, contentW, 24);
+    y += 20;
   }
 
   // -- Dimension tags / MBTI bars
@@ -306,27 +305,25 @@ export async function drawShareCard(
       ctx.fillText(label, tagX + 8, tagY + 20);
       tagX += tw + tagGap;
     }
-    y = tagY + tagH + 30;
+    y = tagY + tagH + 40;
   }
 
   // -- Character desc (first paragraph only) + soulmate compat card
-  // Only shown on 'share' mode (not 'invite' — invite cards stay compact).
-  // Skipped for MBTI since MBTI has its own html2canvas pipeline.
+  // Only shown on 'share' mode. Skipped for MBTI (own pipeline).
   if (mode === 'share' && config.id !== 'mbti') {
-    // Desc first paragraph
     const descFull = type.desc || '';
     const firstPara = descFull.split(/\n\n+/)[0]?.trim();
     if (firstPara) {
-      y += 14;
-      ctx.font = 'bold 18px "Noto Sans SC", sans-serif';
+      y += 24;
+      ctx.font = 'bold 22px "Noto Sans SC", sans-serif';
       ctx.fillStyle = '#ffffff';
-      ctx.fillText('\u89d2\u8272\u63cf\u8ff0', pad, y + 18);
-      y += 38;
+      ctx.fillText('\u89d2\u8272\u63cf\u8ff0', pad, y + 22);
+      y += 50;
 
-      ctx.font = '16px "Noto Sans SC", sans-serif';
+      ctx.font = '17px "Noto Sans SC", sans-serif';
       ctx.fillStyle = '#ccc';
-      y = wrapText(ctx, firstPara, pad, y, contentW, 28);
-      y += 28;
+      y = wrapText(ctx, firstPara, pad, y, contentW, 32);
+      y += 36;
     }
 
     // Soulmate compat card
@@ -411,25 +408,25 @@ export async function drawShareCard(
   const ctaTextX = pad;
 
   // Test name
-  ctx.font = 'bold 22px "Noto Sans SC", sans-serif';
+  ctx.font = 'bold 24px "Noto Sans SC", sans-serif';
   ctx.fillStyle = '#ffaa00';
-  ctx.fillText(config.name, ctaTextX, y + 24);
+  ctx.fillText(config.name, ctaTextX, y + 28);
 
   // Call-to-action
   ctx.font = '18px "Noto Sans SC", sans-serif';
   ctx.fillStyle = '#ccc';
-  ctx.fillText('扫码测测你是什么人格 →', ctaTextX, y + 58);
+  ctx.fillText('扫码测测你是什么人格 →', ctaTextX, y + 68);
 
   // URL (prominent)
-  ctx.font = 'bold 16px "JetBrains Mono", monospace';
+  ctx.font = 'bold 17px "JetBrains Mono", monospace';
   ctx.fillStyle = '#ff3b82';
-  ctx.fillText('test.jiligulu.xyz', ctaTextX, y + 90);
+  ctx.fillText('test.jiligulu.xyz', ctaTextX, y + 104);
 
   // Watermark path (only if not paid)
   if (!isPaid) {
     ctx.font = '13px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#444';
-    ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, ctaTextX, y + 115);
+    ctx.fillStyle = '#555';
+    ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, ctaTextX, y + 132);
   }
 
   // QR code
