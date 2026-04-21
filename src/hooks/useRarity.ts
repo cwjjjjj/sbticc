@@ -26,7 +26,8 @@ export function computePercentile(typeCount: number, totalTests: number): number
 
 interface RankingApiResponse {
   total?: number;
-  typeCounts?: Record<string, number>;
+  // API shape: list of { code, count }. There is NO typeCounts map.
+  list?: Array<{ code: string; count: number }>;
 }
 
 export function useRarity(testId: string, code: string): RarityData {
@@ -46,7 +47,8 @@ export function useRarity(testId: string, code: string): RarityData {
       .then((r) => r.json() as Promise<RankingApiResponse>)
       .then((json) => {
         if (cancelled) return;
-        const typeCount = (json.typeCounts ?? {})[code] ?? 0;
+        const listArr = Array.isArray(json.list) ? json.list : [];
+        const typeCount = listArr.find((e) => e.code === code)?.count ?? 0;
         const totalTests = json.total ?? 0;
         const percentile = computePercentile(typeCount, totalTests);
         const tier = computeTier(percentile);
