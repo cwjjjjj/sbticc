@@ -68,6 +68,14 @@ const VALID_TYPES_BY_TEST = {
     'ISTJ-A','ISTJ-T','ISFJ-A','ISFJ-T','ESTJ-A','ESTJ-T','ESFJ-A','ESFJ-T',
     'ISTP-A','ISTP-T','ISFP-A','ISFP-T','ESTP-A','ESTP-T','ESFP-A','ESFP-T',
   ]),
+  'dogti': new Set([
+    'INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP',
+    'ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP',
+  ]),
+  'cati': new Set([
+    'INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP',
+    'ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP',
+  ]),
 };
 
 export default async function handler(req, res) {

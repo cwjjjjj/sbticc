@@ -10,6 +10,20 @@ export interface DimensionInfo {
 export interface QuestionOption {
   label: string;
   value: number;
+  /**
+   * Optional option-level dimension override. When set on every option of a
+   * question and the question's own `dim` is left empty, matching.ts routes
+   * the score to this dim (used by DogTI/CaTI where each option maps to a
+   * different MBTI dimension letter).
+   */
+  dim?: string;
+  /**
+   * Optional option-level score override. When present, matching.ts adds
+   * this value (instead of `value`) into the option's dim bucket. Lets
+   * option.value stay unique-per-option for UI selection while the scoring
+   * direction is captured separately (e.g. value=0/1/2 for UI, score=+1/-1).
+   */
+  score?: number;
 }
 
 export interface Question {

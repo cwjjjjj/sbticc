@@ -22,6 +22,8 @@ export default defineConfig({
         mpi: 'mpi.html',
         xpti: 'xpti.html',
         mbti: 'mbti.html',
+        dogti: 'dogti.html',
+        cati: 'cati.html',
       },
     },
   },

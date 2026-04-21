@@ -96,4 +96,18 @@ export const ALL_TESTS: TestLink[] = [
     path: '/mbti',
     emoji: '🧬',
   },
+  {
+    id: 'dogti',
+    name: 'DogTI 狗狗人格测试',
+    tagline: '12 题测出你是什么狗 · 16 种狗狗人格',
+    path: '/dogti',
+    emoji: '🐕',
+  },
+  {
+    id: 'cati',
+    name: 'CaTI 猫猫人格测试',
+    tagline: '12 题测出你是什么猫 · 16 种猫咪人格',
+    path: '/cati',
+    emoji: '🐈',
+  },
 ];

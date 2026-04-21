@@ -55,8 +55,8 @@ export function computeResult(
   Object.keys(dimensionMeta).forEach(dim => { rawScores[dim] = 0; });
 
   questions.forEach(q => {
+    const ans = answers[q.id];
     if (q.dim) {
-      const ans = answers[q.id];
       if (Array.isArray(ans)) {
         // Multi-select answers store option indexes so duplicate score values
         // can still be selected independently.
@@ -69,6 +69,15 @@ export function computeResult(
         rawScores[q.dim] += Math.round(avg);
       } else {
         rawScores[q.dim] += Number(ans || 0);
+      }
+    } else {
+      // Option-level dim mode (e.g. DogTI/CaTI): look up the picked option's
+      // own `dim` and add its `score` (falling back to `value`).
+      if (ans === undefined || Array.isArray(ans)) return;
+      const picked = q.options.find((o) => o.value === Number(ans));
+      if (picked?.dim) {
+        rawScores[picked.dim] = (rawScores[picked.dim] ?? 0)
+          + (typeof picked.score === 'number' ? picked.score : picked.value);
       }
     }
   });
