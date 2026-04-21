@@ -256,15 +256,21 @@ export async function drawShareCard(
   y += posterSize + 30;
 
   // -- Intro text
-  ctx.font = 'italic 18px "Noto Sans SC", sans-serif';
-  ctx.fillStyle = '#ffaa00';
+  //   invite mode: show a hook line in orange (this text IS the value prop)
+  //   share mode: demote — small, muted grey, no italic (the desc paragraph
+  //   below is the real character reveal, the English intro is just a tagline)
   if (mode === 'invite') {
+    ctx.font = 'italic 18px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#ffaa00';
     const inviteText = `\u6211\u662f${type.cn}\uff0c\u4f60\u662f\u4ec0\u4e48\uff1f\u6765\u6d4b\u6d4b\u770b\uff01`;
     y = wrapText(ctx, inviteText, pad, y, contentW, 28);
-  } else {
-    y = wrapText(ctx, type.intro, pad, y, contentW, 28);
+    y += 10;
+  } else if (type.intro) {
+    ctx.font = '14px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#777';
+    y = wrapText(ctx, type.intro, pad, y, contentW, 22);
+    y += 14;
   }
-  y += 10;
 
   // -- Dimension tags / MBTI bars
   if (config.id === 'mbti') {
@@ -309,16 +315,16 @@ export async function drawShareCard(
     const descFull = type.desc || '';
     const firstPara = descFull.split(/\n\n+/)[0]?.trim();
     if (firstPara) {
-      y += 10;
+      y += 14;
       ctx.font = 'bold 18px "Noto Sans SC", sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.fillText('\u89d2\u8272\u63cf\u8ff0', pad, y + 18);
-      y += 34;
+      y += 38;
 
       ctx.font = '16px "Noto Sans SC", sans-serif';
       ctx.fillStyle = '#ccc';
-      y = wrapText(ctx, firstPara, pad, y, contentW, 26);
-      y += 10;
+      y = wrapText(ctx, firstPara, pad, y, contentW, 28);
+      y += 28;
     }
 
     // Soulmate compat card
