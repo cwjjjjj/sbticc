@@ -88,11 +88,11 @@ export default function ShareModal({
       onClick={onClose}
     >
       <div
-        className="bg-surface border border-border rounded-2xl max-w-[420px] w-full mx-4 overflow-hidden"
+        className="bg-surface border border-border rounded-2xl max-w-[420px] w-full mx-4 flex flex-col max-h-[92vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex justify-between items-center p-5 border-b border-border">
+        <div className="flex-shrink-0 flex justify-between items-center p-5 border-b border-border">
           <h3 className="font-semibold text-white">
             {'\u4f60\u7684\u5206\u4eab\u56fe\u5df2\u751f\u6210'}
           </h3>
@@ -104,13 +104,14 @@ export default function ShareModal({
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-5">
+        {/* Body — scrollable area with image capped to viewport height */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 flex items-start justify-center">
           {previewUrl ? (
             <img
               src={previewUrl}
               alt="Share card"
-              className="w-full rounded-lg"
+              className="max-w-full w-auto rounded-lg object-contain"
+              style={{ maxHeight: '55vh' }}
             />
           ) : (
             <div className="text-center text-muted py-8">
@@ -120,7 +121,7 @@ export default function ShareModal({
         </div>
 
         {/* Actions — on mobile with file-share support, native share becomes the primary CTA */}
-        <div className="p-5 border-t border-border space-y-3">
+        <div className="flex-shrink-0 p-5 border-t border-border space-y-3">
           {canShareFiles && (
             <button
               onClick={handleNativeShare}
