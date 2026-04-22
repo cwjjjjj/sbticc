@@ -27,7 +27,7 @@ cp dist-temp/index.html dist/index.html
 cp -r dist-temp/assets dist/assets
 
 # 5. Copy test builds into /new/<test>/
-for test in sbti love work values cyber desire gsti fpi fsi mpi xpti mbti dogti cati; do
+for test in sbti love work values cyber desire gsti fpi fsi mpi xpti emti mbti dogti cati; do
   mkdir -p dist/new/$test
   cp dist-temp/$test.html dist/new/$test/index.html
 done
@@ -80,4 +80,4 @@ cp public/sitemap.xml dist/sitemap.xml
 # 8. Cleanup
 rm -rf dist-temp
 
-echo "Build complete: old at /, SBTI at /new/, love/work/values/cyber/desire/gsti/fpi/fsi/mpi/xpti/mbti at /new/<test>/, types at /types/"
+echo "Build complete: old at /, tests at /new/<test>/, types at /types/"
