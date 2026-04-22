@@ -117,4 +117,11 @@ export const ALL_TESTS: TestLink[] = [
     path: '/cati',
     emoji: '🐈',
   },
+  {
+    id: 'zhti',
+    name: '你是甄嬛传里的哪个人？',
+    tagline: '18 题宫廷情境 · 16 种人格 · 甄学家必测',
+    path: '/zhti',
+    emoji: '🏯',
+  },
 ];

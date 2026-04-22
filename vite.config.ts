@@ -25,6 +25,7 @@ export default defineConfig({
         mbti: 'mbti.html',
         dogti: 'dogti.html',
         cati: 'cati.html',
+        zhti: 'zhti.html',
       },
     },
   },

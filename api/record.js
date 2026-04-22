@@ -85,6 +85,11 @@ const VALID_TYPES_BY_TEST = {
     'INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP',
     'ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP',
   ]),
+  'zhti': new Set([
+    'ZHENHUAN','HUAFEI','HUANGHOU','EMPEROR','MEIZHUANG','ANLINGRONG',
+    'DUANFEI','JINGFEI','QIPIN','CAOGUI','HUANBI','GUOJUNWANG',
+    'WENSHICHU','SUPEISHENG','JINXI','NIANGENGYAO','TAIHOU',
+  ]),
 };
 
 export default async function handler(req, res) {
