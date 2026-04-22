@@ -82,7 +82,7 @@ export default function MbtiResultPage({
       <div className="max-w-2xl mx-auto px-4 py-8 text-white">
         {/* Header: code + name + image */}
         <div className="flex items-center gap-4 mb-6">
-          {image && <img src={image} alt={code} className="w-20 h-20 rounded-xl" />}
+          {image && <img src={image} alt={code} className="w-20 h-20 rounded-xl object-cover" />}
           <div>
             <h1 className="font-mono font-extrabold text-3xl">{code}</h1>
             <p className="text-lg text-muted">{typeDef?.cn}</p>

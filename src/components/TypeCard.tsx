@@ -42,7 +42,7 @@ export default function TypeCard({ typeCode, size = 'lg' }: TypeCardProps) {
         <img
           src={imgSrc}
           alt={typeCode}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover"
           style={isPixelArt ? { imageRendering: 'pixelated' } : undefined}
         />
       </div>
