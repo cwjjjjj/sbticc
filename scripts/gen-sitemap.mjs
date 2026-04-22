@@ -46,6 +46,7 @@ const ROUTES = [
   '/mpi',
   '/xpti',
   '/emti',
+  '/zhti',
   '/mbti',
   '/dogti',
   '/cati',

@@ -14,6 +14,7 @@
     { "source": "/new/mpi", "destination": "/mpi", "permanent": true },
     { "source": "/new/xpti", "destination": "/xpti", "permanent": true },
     { "source": "/new/emti", "destination": "/emti", "permanent": true },
+    { "source": "/new/zhti", "destination": "/zhti", "permanent": true },
     { "source": "/new/mbti", "destination": "/mbti", "permanent": true },
     { "source": "/new/dogti", "destination": "/dogti", "permanent": true },
     { "source": "/new/cati", "destination": "/cati", "permanent": true }
@@ -43,6 +44,8 @@
     { "source": "/xpti/(.*)", "destination": "/new/xpti/index.html" },
     { "source": "/emti", "destination": "/new/emti/index.html" },
     { "source": "/emti/(.*)", "destination": "/new/emti/index.html" },
+    { "source": "/zhti", "destination": "/new/zhti/index.html" },
+    { "source": "/zhti/(.*)", "destination": "/new/zhti/index.html" },
     { "source": "/mbti", "destination": "/new/mbti/index.html" },
     { "source": "/mbti/(.*)", "destination": "/new/mbti/index.html" },
     { "source": "/dogti", "destination": "/new/dogti/index.html" },
