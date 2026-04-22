@@ -128,6 +128,26 @@ export default function ResultPage({
   const funNote = result.special
     ? '本测试仅供娱乐。隐藏人格和傻乐兜底都属于作者故意埋的损招，别太认真，也别太不认真。'
     : '本测试仅供娱乐，别拿它当诊断、面试、相亲的依据。如果你觉得准，那是巧合；如果不准，那也是巧合。';
+  const shareHook = config.id === 'dogti'
+    ? {
+        title: `我是${typeDef.cn}`,
+        desc: '把结果发给朋友，看看他们是哪种狗狗人格。',
+        primary: '生成狗狗人格图',
+        secondary: '拉朋友一起测',
+      }
+    : config.id === 'cati'
+      ? {
+          title: `我是${typeDef.cn}`,
+          desc: '把结果发给朋友，看看他们是哪种猫猫人格。',
+          primary: '生成猫猫人格图',
+          secondary: '拉朋友一起测',
+        }
+      : {
+          title: `我的结果是 ${typeCode}`,
+          desc: '把结果发出去，让朋友也测一次，看看你们是不是同一种人。',
+          primary: '生成分享图',
+          secondary: '邀请好友对比',
+        };
   const petCrossTest = config.id === 'dogti'
     ? {
         href: '/cati?src=result_pet_cross',
@@ -261,6 +281,37 @@ export default function ResultPage({
             className="flex justify-center sm:justify-start mb-6"
           >
             <RarityBadge rarity={rarity} />
+          </motion.div>
+
+          {/* Share hook */}
+          <motion.div
+            variants={staggerItem}
+            transition={{ duration: 0.4 }}
+            className="bg-accent/[0.08] border border-accent/25 rounded-2xl p-5 mb-5"
+          >
+            <p className="text-xs font-mono text-accent tracking-widest mb-2">
+              SHARE THIS RESULT
+            </p>
+            <h3 className="text-xl font-extrabold text-white mb-2">
+              {shareHook.title}
+            </h3>
+            <p className="text-sm text-muted leading-relaxed mb-4">
+              {shareHook.desc}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleShareClick}
+                className="bg-white text-black font-bold py-3 px-5 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                {shareHook.primary}
+              </button>
+              <button
+                onClick={handleInviteClick}
+                className="bg-surface text-white border border-border py-3 px-5 rounded-xl hover:border-accent/50 transition-colors cursor-pointer"
+              >
+                {shareHook.secondary}
+              </button>
+            </div>
           </motion.div>
 
           {/* 2. Description */}

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { css } from '@emotion/react';
 import { ALL_TESTS } from '../data/allTests';
 import { useTestConfig } from '../data/testConfig';
@@ -47,6 +47,19 @@ const glassmorphism = css`
   -webkit-backdrop-filter: blur(20px);
 `;
 
+function shuffleTests<T>(items: readonly T[]): T[] {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function withSource(path: string, source: string): string {
+  return `${path}${path.includes('?') ? '&' : '?'}src=${source}`;
+}
+
 export default function Nav({
   activeTab,
   onTabChange,
@@ -55,6 +68,7 @@ export default function Nav({
 }: NavProps) {
   const config = useTestConfig();
   const brand: ReactNode = BRAND_MAP[config.id] ?? config.id.toUpperCase();
+  const shuffledTests = useMemo(() => shuffleTests(ALL_TESTS), []);
 
   return (
     <nav
@@ -98,12 +112,12 @@ export default function Nav({
       </div>
       <div className="border-t border-border/70">
         <div className="max-w-6xl mx-auto px-4 h-10 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
-          {ALL_TESTS.map((test) => {
+          {shuffledTests.map((test) => {
             const isActive = test.id === config.id;
             return (
               <a
                 key={test.id}
-                href={test.path}
+                href={withSource(test.path, 'top_nav')}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   isActive
                     ? 'bg-accent/15 text-white border border-accent/30'
