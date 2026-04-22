@@ -124,4 +124,11 @@ export const ALL_TESTS: TestLink[] = [
     path: '/zhti',
     emoji: '🏯',
   },
+  {
+    id: 'manual',
+    name: '我的使用说明书',
+    tagline: '6维度 · 16种类型 · 读懂自己怎么爱',
+    path: '/manual',
+    emoji: '📋',
+  },
 ];

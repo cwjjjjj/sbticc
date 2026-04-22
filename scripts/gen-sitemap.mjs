@@ -50,6 +50,7 @@ const ROUTES = [
   '/mbti',
   '/dogti',
   '/cati',
+  '/manual',
 ];
 
 function today() {

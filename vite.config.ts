@@ -26,6 +26,7 @@ export default defineConfig({
         dogti: 'dogti.html',
         cati: 'cati.html',
         zhti: 'zhti.html',
+        manual: 'manual.html',
       },
     },
   },

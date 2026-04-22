@@ -17,7 +17,8 @@
     { "source": "/new/zhti", "destination": "/zhti", "permanent": true },
     { "source": "/new/mbti", "destination": "/mbti", "permanent": true },
     { "source": "/new/dogti", "destination": "/dogti", "permanent": true },
-    { "source": "/new/cati", "destination": "/cati", "permanent": true }
+    { "source": "/new/cati", "destination": "/cati", "permanent": true },
+    { "source": "/new/manual", "destination": "/manual", "permanent": true }
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
@@ -52,6 +53,8 @@
     { "source": "/dogti/(.*)", "destination": "/new/dogti/index.html" },
     { "source": "/cati", "destination": "/new/cati/index.html" },
     { "source": "/cati/(.*)", "destination": "/new/cati/index.html" },
+    { "source": "/manual", "destination": "/new/manual/index.html" },
+    { "source": "/manual/(.*)", "destination": "/new/manual/index.html" },
     { "source": "/new/((?!assets/).*)", "destination": "/new/sbti/index.html" }
   ]
 }
