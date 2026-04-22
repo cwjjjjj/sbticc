@@ -90,6 +90,13 @@ export const ALL_TESTS: TestLink[] = [
     emoji: '🎭',
   },
   {
+    id: 'emti',
+    name: 'EMTI 东方 MBTI',
+    tagline: '测你是哪种十天干人格',
+    path: '/emti',
+    emoji: '🪷',
+  },
+  {
     id: 'mbti',
     name: 'MBTI 16 型人格测试 · 完整版',
     tagline: '72 题完整版 · 16 种人格 × A/T 亚型',

@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import MbtiDimensionBars from './MbtiDimensionBars';
 import { useTestConfig } from '../data/testConfig';
 import type { ComputeResultOutput } from '../utils/matching';
 import { MBTI_CONTENT, AT_FLAVOR } from '../data/mbti/content';
 import { COMPATIBILITY } from '../data/mbti/compatibility';
+import { trackEvent } from '../hooks/useAnalytics';
 
 interface MbtiResultPageProps {
   result: ComputeResultOutput;
@@ -42,6 +43,13 @@ export default function MbtiResultPage({
   const image = config.typeImages[code];
   const rarity = config.typeRarity[code];
   const pcts = useMemo(() => computePcts(result.rawScores), [result.rawScores]);
+  const resultViewFired = useRef(false);
+
+  useEffect(() => {
+    if (resultViewFired.current) return;
+    resultViewFired.current = true;
+    trackEvent('result_view', { testId: config.id, typeCode: code });
+  }, [config.id, code]);
 
   const compatEntries = useMemo(() => {
     const soul: { pairCode: string; say: string } | null = (() => {

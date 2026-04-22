@@ -3,6 +3,16 @@ import { useTestConfig } from '../data/testConfig';
 
 export default function OtherTests() {
   const config = useTestConfig();
+  const tests = [...ALL_TESTS].sort((a, b) => {
+    const priority = (id: string) => {
+      if (config.id === 'dogti' && id === 'cati') return -2;
+      if (config.id === 'cati' && id === 'dogti') return -2;
+      if (id === 'dogti') return -1;
+      if (id === 'cati') return -1;
+      return 0;
+    };
+    return priority(a.id) - priority(b.id);
+  });
 
   return (
     <div className="bg-surface border border-border rounded-2xl p-7">
@@ -11,12 +21,13 @@ export default function OtherTests() {
         继续探索这些测试
       </h3>
       <div className="grid grid-cols-2 gap-3">
-        {ALL_TESTS.map((test) => {
+        {tests.map((test) => {
           const isActive = test.id === config.id;
+          const href = `${test.path}${test.path.includes('?') ? '&' : '?'}src=result_other_tests`;
           return (
           <a
             key={test.id}
-            href={test.path}
+            href={href}
             className={`bg-surface-2 border rounded-xl p-4 hover:border-[#444] transition-colors block ${
               isActive ? 'border-accent/40' : 'border-border'
             }`}

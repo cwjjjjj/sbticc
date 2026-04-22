@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { trackEvent } from '../hooks/useAnalytics';
+import { useTestConfig } from '../data/testConfig';
 
 interface ShareModalProps {
   imageBlob: Blob | null;
@@ -14,6 +15,7 @@ export default function ShareModal({
   shareUrl,
   onClose,
 }: ShareModalProps) {
+  const config = useTestConfig();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState(false);
 
@@ -48,19 +50,19 @@ export default function ShareModal({
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    trackEvent('share_click', { platform: 'download' });
-  }, [previewUrl, fileName]);
+    trackEvent('share_click', { testId: config.id, platform: 'download' });
+  }, [previewUrl, fileName, config.id]);
 
   const handleCopyLink = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopyFeedback(true);
       setTimeout(() => setCopyFeedback(false), 2000);
-      trackEvent('share_click', { platform: 'copy_link' });
+      trackEvent('share_click', { testId: config.id, platform: 'copy_link' });
     } catch {
       prompt('\u590d\u5236\u4ee5\u4e0b\u94fe\u63a5\uff1a', shareUrl);
     }
-  }, [shareUrl]);
+  }, [shareUrl, config.id]);
 
   const handleNativeShare = useCallback(async () => {
     if (!imageBlob) return;
@@ -72,7 +74,7 @@ export default function ShareModal({
         url: shareUrl,
         files: [file],
       });
-      trackEvent('share_click', { platform: 'native' });
+      trackEvent('share_click', { testId: config.id, platform: 'native' });
       onClose();
     } catch (err) {
       // AbortError = user cancelled — do nothing.
@@ -80,7 +82,7 @@ export default function ShareModal({
       // Any other error: fall back to download so user still gets the image.
       handleDownload();
     }
-  }, [imageBlob, fileName, shareUrl, onClose, handleDownload]);
+  }, [imageBlob, fileName, shareUrl, onClose, handleDownload, config.id]);
 
   return (
     <div

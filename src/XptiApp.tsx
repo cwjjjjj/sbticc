@@ -17,6 +17,7 @@ import { useLocalHistory } from './hooks/useLocalHistory';
 import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compare';
 import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob, type ShareCardRarity } from './utils/shareCard';
+import { trackEvent } from './hooks/useAnalytics';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { xptiConfig } from './data/xpti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
@@ -76,23 +77,26 @@ function AppInner() {
     if (quiz.gender === 'unspecified') {
       setScreen('picker');
     } else {
+      trackEvent('quiz_start', { testId: config.id });
       quiz.startQuiz();
       setScreen('quiz');
     }
-  }, [quiz]);
+  }, [quiz, config.id]);
 
   const handleGenderPick = useCallback((g: typeof quiz.gender) => {
     quiz.setGender(g);
+    trackEvent('quiz_start', { testId: config.id });
     quiz.startQuiz();
     setScreen('quiz');
-  }, [quiz]);
+  }, [quiz, config.id]);
 
   const handleQuizSubmit = useCallback(() => {
+    trackEvent('quiz_complete', { testId: config.id });
     const res = quiz.getResult();
     setResult(res);
     localHistory.saveResult(res.finalType.code);
     setScreen('interstitial');
-  }, [quiz, localHistory]);
+  }, [quiz, localHistory, config.id]);
 
   const handleInterstitialComplete = useCallback(() => {
     if (compareData) setScreen('compare');
@@ -112,6 +116,7 @@ function AppInner() {
 
   const handleShare = useCallback(async (rarity?: ShareCardRarity) => {
     if (!result) return;
+    trackEvent('share_click', { testId: config.id, platform: 'share' });
     const typeCode = result.finalType.code;
     const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     // Phase B virality: QR points to the type page (not test home).
@@ -129,6 +134,7 @@ function AppInner() {
 
   const handleInviteCompare = useCallback(async (rarity?: ShareCardRarity) => {
     if (!result) return;
+    trackEvent('share_click', { testId: config.id, platform: 'invite' });
     const typeCode = result.finalType.code;
     const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     const similarity = 'similarity' in result.finalType

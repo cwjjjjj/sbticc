@@ -6,21 +6,21 @@
   <meta name="theme-color" content="#080808" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/images/icon-192.png" />
-  <title>人格实验室 — 11个测试，N种人格，0个正确答案</title>
-  <meta name="description" content="人格实验室：11款趣味人格测试，从 MBTI 到恋爱脑、从打工人到朋友圈人设，测出你从未认识的自己。" />
+  <title>人格实验室 — 15个测试，N种人格，0个正确答案</title>
+  <meta name="description" content="人格实验室：15款趣味人格测试，从 MBTI 到东方 MBTI、从恋爱脑到朋友圈人设，测出你从未认识的自己。" />
   <link rel="canonical" href="https://test.jiligulu.xyz/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="人格实验室 — 11个测试，N种人格，0个正确答案" />
-  <meta property="og:description" content="人格实验室：11款趣味人格测试，从 MBTI 到恋爱脑、从打工人到朋友圈人设，测出你从未认识的自己。" />
+  <meta property="og:title" content="人格实验室 — 15个测试，N种人格，0个正确答案" />
+  <meta property="og:description" content="人格实验室：15款趣味人格测试，从 MBTI 到东方 MBTI、从恋爱脑到朋友圈人设，测出你从未认识的自己。" />
   <meta property="og:image" content="https://test.jiligulu.xyz/images/og-sbti.png" />
   <meta property="og:url" content="https://test.jiligulu.xyz/" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="人格实验室" />
-  <meta name="twitter:description" content="11款趣味人格测试，测出你从未认识的自己。" />
+  <meta name="twitter:description" content="15款趣味人格测试，测出你从未认识的自己。" />
   <meta name="twitter:image" content="https://test.jiligulu.xyz/images/og-sbti.png" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -162,6 +162,30 @@
       color: var(--text);
       transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
       overflow: hidden;
+    }
+
+    .test-card.featured-pet {
+      grid-column: span 2;
+      min-height: 250px;
+      padding-top: 18px;
+    }
+
+    .card-visual {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      background: #111;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .card-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .test-card::before {
@@ -349,6 +373,7 @@
     .test-card:nth-child(12) { animation-delay: 0.60s; }
     .test-card:nth-child(13) { animation-delay: 0.65s; }
     .test-card:nth-child(14) { animation-delay: 0.70s; }
+    .test-card:nth-child(15) { animation-delay: 0.75s; }
   </style>
 </head>
 <body>
@@ -356,7 +381,7 @@
   <section class="hero">
     <div class="hero-content fade-in-up">
       <h1 class="hero-brand">人格实验室</h1>
-      <p class="hero-subtitle">14 个测试，N 种人格，0 个正确答案</p>
+      <p class="hero-subtitle">15 个测试，N 种人格，0 个正确答案</p>
       <p class="hero-tagline">别太当真，也别不当回事。</p>
       <div class="hero-counter" id="heroCounter">
         已有 <span class="count-number" id="totalCount">0</span> 人参与测试
@@ -444,6 +469,13 @@
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
+      <a class="test-card fade-in-up" href="/emti">
+        <div class="card-emoji">🪷</div>
+        <div class="card-name">EMTI 东方 MBTI</div>
+        <div class="card-tagline">测你是哪种十天干人格</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
       <a class="test-card fade-in-up" href="/mbti">
         <div class="card-emoji">🧬</div>
         <div class="card-name">MBTI 16 型人格测试 · 完整版</div>
@@ -451,14 +483,20 @@
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/dogti">
+      <a class="test-card featured-pet fade-in-up" href="/dogti?src=home_card">
+        <div class="card-visual">
+          <img src="/images/dogti-gptimage2.png" alt="" loading="lazy" />
+        </div>
         <div class="card-emoji">🐕</div>
         <div class="card-name">DogTI 狗狗人格测试</div>
         <div class="card-tagline">12 题测出你是什么狗</div>
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
-      <a class="test-card fade-in-up" href="/cati">
+      <a class="test-card featured-pet fade-in-up" href="/cati?src=home_card">
+        <div class="card-visual">
+          <img src="/images/cati-gptimage2.png" alt="" loading="lazy" />
+        </div>
         <div class="card-emoji">🐈</div>
         <div class="card-name">CaTI 猫猫人格测试</div>
         <div class="card-tagline">12 题测出你是什么猫</div>
@@ -484,23 +522,37 @@
   </footer>
 
   <script>
-    // Shuffle test card order on each visit (Fisher-Yates)
+    // Put the currently strongest viral entries first, then shuffle the rest.
     (function () {
       var grid = document.querySelector('.tests-grid');
       if (!grid) return;
       var cards = Array.prototype.slice.call(grid.children);
-      for (var i = cards.length - 1; i > 0; i--) {
+      var pinnedIds = ['dogti', 'cati'];
+      var pinned = [];
+      var rest = [];
+      cards.forEach(function (card) {
+        var href = card.getAttribute('href') || '';
+        var id = href.replace(/^\//, '').split(/[\/?#]/)[0];
+        if (pinnedIds.indexOf(id) >= 0) pinned.push(card);
+        else rest.push(card);
+      });
+      pinned.sort(function (a, b) {
+        var ah = (a.getAttribute('href') || '').replace(/^\//, '').split(/[\/?#]/)[0];
+        var bh = (b.getAttribute('href') || '').replace(/^\//, '').split(/[\/?#]/)[0];
+        return pinnedIds.indexOf(ah) - pinnedIds.indexOf(bh);
+      });
+      for (var i = rest.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
-        var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+        var tmp = rest[i]; rest[i] = rest[j]; rest[j] = tmp;
       }
-      cards.forEach(function (c) { grid.appendChild(c); });
+      pinned.concat(rest).forEach(function (c) { grid.appendChild(c); });
     })();
   </script>
 
   <script>
     // Fetch total test count across all tests and display social proof
     (function () {
-      var tests = ['', 'love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi', 'mpi', 'mbti'];
+      var tests = ['', 'love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi', 'mpi', 'xpti', 'emti', 'mbti', 'dogti', 'cati'];
       var total = 0;
       var done = 0;
 
@@ -535,9 +587,37 @@
   <script>
     (function () {
       if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+      function safe(v, fallback) {
+        return (v || fallback || '').slice(0, 64);
+      }
+      function refHost() {
+        try { return document.referrer ? new URL(document.referrer).hostname : 'direct'; }
+        catch (e) { return 'unknown'; }
+      }
+      function landingPath() {
+        try {
+          var key = 'analytics_landing_path';
+          var existing = sessionStorage.getItem(key);
+          if (existing) return existing;
+          var value = (location.pathname + location.search).slice(0, 96);
+          sessionStorage.setItem(key, value);
+          return value;
+        } catch (e) {
+          return location.pathname;
+        }
+      }
       function trk(name, props) {
         try {
-          var body = JSON.stringify({ event: name, props: props || undefined });
+          var params = new URLSearchParams(location.search);
+          var ctx = {
+            ref: safe(params.get('ref') || params.get('src') || params.get('s'), 'none'),
+            utm_source: safe(params.get('utm_source'), 'none'),
+            ref_host: safe(refHost(), 'direct'),
+            path: safe(location.pathname, '/'),
+            landing: safe(landingPath(), '/')
+          };
+          Object.keys(props || {}).forEach(function (k) { ctx[k] = props[k]; });
+          var body = JSON.stringify({ event: name, props: ctx });
           var url = '/api/track';
           if (navigator.sendBeacon) {
             navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));

@@ -15,6 +15,7 @@ import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compa
 import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob } from './utils/shareCard';
 import { captureMbtiShareCard } from './utils/mbtiShareCapture';
+import { trackEvent } from './hooks/useAnalytics';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { mbtiConfig } from './data/mbti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
@@ -182,16 +183,18 @@ function MbtiAppInner() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStartTest = useCallback(() => {
+    trackEvent('quiz_start', { testId: config.id });
     quiz.startQuiz();
     setScreen('quiz');
-  }, [quiz]);
+  }, [quiz, config.id]);
 
   const handleQuizSubmit = useCallback(() => {
+    trackEvent('quiz_complete', { testId: config.id });
     const res = quiz.getResult();
     setResult(res);
     localHistory.saveResult(res.finalType.code);
     setScreen('interstitial');
-  }, [quiz, localHistory]);
+  }, [quiz, localHistory, config.id]);
 
   const handleInterstitialComplete = useCallback(() => {
     if (compareData) {
@@ -216,6 +219,7 @@ function MbtiAppInner() {
 
   const handleShare = useCallback(async () => {
     if (!result) return;
+    trackEvent('share_click', { testId: config.id, platform: 'share' });
     const typeCode = result.finalType.code;
     const pageUrl = `${config.prodBaseUrl}${config.basePath}`;
     const qrDataUrl = generateQR(pageUrl);
@@ -238,6 +242,7 @@ function MbtiAppInner() {
 
   const handleInviteCompare = useCallback(async () => {
     if (!result) return;
+    trackEvent('share_click', { testId: config.id, platform: 'invite' });
     const typeCode = result.finalType.code;
     const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     const similarity = 'similarity' in result.finalType

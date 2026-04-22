@@ -11,6 +11,8 @@ const ALL_TESTS = [
   { id: 'fpi',    path: '/fpi',    emoji: '📸', name: '朋友圈人设诊断', tag: '你在朋友圈是什么物种' },
   { id: 'fsi',    path: '/fsi',    emoji: '🏷️', name: '原生家庭幸存者', tag: '你被养成了什么形状' },
   { id: 'mpi',    path: '/mpi',    emoji: '💸', name: '消费人格图鉴',   tag: '你怎么把钱输给这个世界' },
+  { id: 'xpti',   path: '/xpti',   emoji: '🎭', name: 'XPTI 性别人格画像', tag: '你作为性别化主体是什么气质' },
+  { id: 'emti',   path: '/emti',   emoji: '🪷', name: 'EMTI 东方 MBTI', tag: '测你是哪种十天干人格' },
 ];
 
 const RECS: Record<string, [string, string]> = {
@@ -24,6 +26,7 @@ const RECS: Record<string, [string, string]> = {
   fpi:    ['cyber', 'gsti'],
   fsi:    ['values', 'desire'],
   mpi:    ['work', 'values'],
+  emti:   ['xpti', 'values'],
 };
 
 interface RecommendTestsCardProps {
@@ -39,7 +42,7 @@ export default function RecommendTestsCard({ currentTestId }: RecommendTestsCard
   return (
     <div className="bg-surface border border-border rounded-2xl p-6">
       <h3 className="text-lg font-bold text-white mb-1">你可能也想测</h3>
-      <p className="text-sm text-[#888] mb-4">测完这个顺手做下一个。我们做了 10 款。</p>
+      <p className="text-sm text-[#888] mb-4">测完这个顺手做下一个。我们做了 11 款。</p>
       <div className="flex flex-col gap-3">
         {recs.map((t) => (
           <a
