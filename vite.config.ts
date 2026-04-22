@@ -21,6 +21,7 @@ export default defineConfig({
         fsi: 'fsi.html',
         mpi: 'mpi.html',
         xpti: 'xpti.html',
+        emti: 'emti.html',
         mbti: 'mbti.html',
         dogti: 'dogti.html',
         cati: 'cati.html',

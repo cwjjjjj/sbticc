@@ -65,6 +65,7 @@ const heroGlow = css`
 export default function Hero({ onStartTest, onRestartFresh, onTrySample, totalTests }: HeroProps) {
   const config = useTestConfig();
   const isGsti = config.id === 'gsti';
+  const isEmti = config.id === 'emti';
   const typeCodes = useMemo(
     () => config.normalTypes.map((type) => type.code),
     [config.normalTypes],
@@ -166,6 +167,10 @@ export default function Hero({ onStartTest, onRestartFresh, onTrySample, totalTe
           <>
             性转人格测试。<span className="text-accent font-bold">这个会反串你。</span>
           </>
+        ) : isEmti ? (
+          <>
+            东方 MBTI。<span className="text-accent font-bold">这个会把你写成天干。</span>
+          </>
         ) : (
           <>
             MBTI 已经过时。<span className="text-accent font-bold">这个会骂你。</span>
@@ -180,7 +185,7 @@ export default function Hero({ onStartTest, onRestartFresh, onTrySample, totalTe
       >
         {isGsti
           ? `${questionCount} 道题 / 6 个维度 / ${typeCount} 种人格 / 男生进女性池，女生进男性池`
-          : `${questionCount} 道题 / 15 个维度 / ${typeCount} 种人格 / 每一种都不太客气`}
+          : `${questionCount} 道题 / ${config.dimensionOrder.length} 个维度 / ${typeCount} 种人格 / 每一种都不太客气`}
       </motion.p>
 
       {/* Stats row */}

@@ -6,6 +6,7 @@ const TEST_COLORS: Record<string, string> = {
   values: '#3bff82',
   cyber: '#3bffff',
   desire: '#a855f7',
+  emti: '#d8b45f',
   sbti: '#ff3b3b',
 };
 

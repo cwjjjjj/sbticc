@@ -6,21 +6,21 @@
   <meta name="theme-color" content="#080808" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/images/icon-192.png" />
-  <title>人格实验室 — 11个测试，N种人格，0个正确答案</title>
-  <meta name="description" content="人格实验室：11款趣味人格测试，从 MBTI 到恋爱脑、从打工人到朋友圈人设，测出你从未认识的自己。" />
+  <title>人格实验室 — 15个测试，N种人格，0个正确答案</title>
+  <meta name="description" content="人格实验室：15款趣味人格测试，从 MBTI 到东方 MBTI、从恋爱脑到朋友圈人设，测出你从未认识的自己。" />
   <link rel="canonical" href="https://test.jiligulu.xyz/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="人格实验室 — 11个测试，N种人格，0个正确答案" />
-  <meta property="og:description" content="人格实验室：11款趣味人格测试，从 MBTI 到恋爱脑、从打工人到朋友圈人设，测出你从未认识的自己。" />
+  <meta property="og:title" content="人格实验室 — 15个测试，N种人格，0个正确答案" />
+  <meta property="og:description" content="人格实验室：15款趣味人格测试，从 MBTI 到东方 MBTI、从恋爱脑到朋友圈人设，测出你从未认识的自己。" />
   <meta property="og:image" content="https://test.jiligulu.xyz/images/og-sbti.png" />
   <meta property="og:url" content="https://test.jiligulu.xyz/" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="人格实验室" />
-  <meta name="twitter:description" content="11款趣味人格测试，测出你从未认识的自己。" />
+  <meta name="twitter:description" content="15款趣味人格测试，测出你从未认识的自己。" />
   <meta name="twitter:image" content="https://test.jiligulu.xyz/images/og-sbti.png" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -373,6 +373,7 @@
     .test-card:nth-child(12) { animation-delay: 0.60s; }
     .test-card:nth-child(13) { animation-delay: 0.65s; }
     .test-card:nth-child(14) { animation-delay: 0.70s; }
+    .test-card:nth-child(15) { animation-delay: 0.75s; }
   </style>
 </head>
 <body>
@@ -380,7 +381,7 @@
   <section class="hero">
     <div class="hero-content fade-in-up">
       <h1 class="hero-brand">人格实验室</h1>
-      <p class="hero-subtitle">14 个测试，N 种人格，0 个正确答案</p>
+      <p class="hero-subtitle">15 个测试，N 种人格，0 个正确答案</p>
       <p class="hero-tagline">别太当真，也别不当回事。</p>
       <div class="hero-counter" id="heroCounter">
         已有 <span class="count-number" id="totalCount">0</span> 人参与测试
@@ -468,6 +469,13 @@
         <div class="card-cta">开始测试 &rarr;</div>
       </a>
 
+      <a class="test-card fade-in-up" href="/emti">
+        <div class="card-emoji">🪷</div>
+        <div class="card-name">EMTI 东方 MBTI</div>
+        <div class="card-tagline">测你是哪种十天干人格</div>
+        <div class="card-cta">开始测试 &rarr;</div>
+      </a>
+
       <a class="test-card fade-in-up" href="/mbti">
         <div class="card-emoji">🧬</div>
         <div class="card-name">MBTI 16 型人格测试 · 完整版</div>
@@ -544,7 +552,7 @@
   <script>
     // Fetch total test count across all tests and display social proof
     (function () {
-      var tests = ['', 'love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi', 'mpi', 'xpti', 'mbti', 'dogti', 'cati'];
+      var tests = ['', 'love', 'work', 'values', 'cyber', 'desire', 'gsti', 'fpi', 'fsi', 'mpi', 'xpti', 'emti', 'mbti', 'dogti', 'cati'];
       var total = 0;
       var done = 0;
 

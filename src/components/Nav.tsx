@@ -38,6 +38,7 @@ const BRAND_MAP: Record<string, ReactNode> = {
   fsi: (<>FS<span className="text-accent">I</span></>),
   mpi: (<>MP<span className="text-accent">I</span></>),
   xpti: (<>XPT<span className="text-accent">I</span></>),
+  emti: (<>EMT<span className="text-accent">I</span></>),
 };
 
 const glassmorphism = css`

@@ -85,7 +85,7 @@ export default function ResultPage({
     const keys = [
       'sbti_history', 'love_history', 'work_history', 'values_history',
       'cyber_history', 'desire_history', 'gsti_history', 'fpi_history',
-      'fsi_history', 'mpi_history',
+      'fsi_history', 'mpi_history', 'emti_history',
     ];
     let n = 0;
     for (const k of keys) {
