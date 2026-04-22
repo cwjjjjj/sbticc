@@ -46,6 +46,15 @@ const MOCK_TYPES_BY_TEST = {
     'F_ACGR','F_WILD','F_DARK','F_BOSS','F_KBGR','F_DADG','F_PART','F_BRIC',
     'UNDEF','HWDP',
   ],
+  xpti: [
+    'MDOMIN','MBRUTE','MREALT','MCHAOS','MFOGGY','MSILNT','MVISAL','MPUREX',
+    'MSOFTG','MSIMPX','MMOOND','MSCHME','MGRIND','MEMOCR','MBROSK','MNEETX',
+    'MPEACK','MDRIFT','MSTONE','MWHIMS','MSHADOW',
+    'FDREAM','FMOONG','FEMOCR','FVISAG','FPURES','FPOWER','FCHAOS','FREALT',
+    'FSILNT','FDARKL','FGENTL','FICEQN','FBRATY','FWITCH','FTRUTH','FSCHEM',
+    'FSAINT','FANIME','FIRONX','FMESSY','FSHADOW',
+    'XFREAK',
+  ],
   fpi: [
     'FILTR','9PIC!','EMO-R','FLEXR','CKIN!','3DAYS','SUBMR','LIKER',
     'GHOST','COPYR','SELLR','BABY!','FURRY','MUKBG','TRVL9','BLOCK',
@@ -88,6 +97,7 @@ const HIDDEN_TYPE_BY_TEST = {
   cyber: 'BOT',
   desire: 'XXX',
   gsti: 'UNDEF',
+  xpti: 'XFREAK',
   fpi: '0POST',
   fsi: 'BOSSY',
   mpi: 'ZERO$',      // 新增

@@ -128,6 +128,21 @@ export default function ResultPage({
   const funNote = result.special
     ? '本测试仅供娱乐。隐藏人格和傻乐兜底都属于作者故意埋的损招，别太认真，也别太不认真。'
     : '本测试仅供娱乐，别拿它当诊断、面试、相亲的依据。如果你觉得准，那是巧合；如果不准，那也是巧合。';
+  const petCrossTest = config.id === 'dogti'
+    ? {
+        href: '/cati?src=result_pet_cross',
+        emoji: '🐈',
+        title: '再测你的猫猫人格',
+        desc: '狗狗气质看完了，再看看你内心那只猫。',
+      }
+    : config.id === 'cati'
+      ? {
+          href: '/dogti?src=result_pet_cross',
+          emoji: '🐕',
+          title: '再测你的狗狗人格',
+          desc: '猫猫气质看完了，再看看你外放时像哪只狗。',
+        }
+      : null;
 
   return (
     <div className="fixed inset-0 z-[200] bg-bg overflow-y-auto">
@@ -393,6 +408,27 @@ export default function ResultPage({
               />
             </div>
           </motion.div>
+
+          {/* 8. Other tests */}
+          {petCrossTest && (
+            <motion.div
+              variants={staggerItem}
+              transition={{ duration: 0.4 }}
+              className="mb-5"
+            >
+              <a
+                href={petCrossTest.href}
+                className="flex items-center gap-4 bg-surface border border-accent/30 rounded-2xl p-5 hover:border-accent/60 transition-colors"
+              >
+                <span className="text-4xl leading-none">{petCrossTest.emoji}</span>
+                <span className="min-w-0">
+                  <span className="block text-base font-bold text-white">{petCrossTest.title}</span>
+                  <span className="block text-sm text-muted mt-1">{petCrossTest.desc}</span>
+                </span>
+                <span className="ml-auto text-accent font-mono text-sm">GO</span>
+              </a>
+            </motion.div>
+          )}
 
           {/* 8. Other tests */}
           <motion.div

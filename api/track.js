@@ -37,6 +37,19 @@ function todayKey() {
   return `${y}-${m}-${day}`;
 }
 
+function headerValue(req, name) {
+  const raw = req.headers[name];
+  if (Array.isArray(raw)) return raw[0] || '';
+  return raw || '';
+}
+
+function requestContext(req) {
+  const country = headerValue(req, 'x-vercel-ip-country') || headerValue(req, 'cf-ipcountry') || 'unknown';
+  return {
+    country: String(country).slice(0, 16),
+  };
+}
+
 export default async function handler(req, res) {
   // CORS for sendBeacon from the deployed domain (not strictly needed same-origin, but harmless)
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -55,7 +68,7 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  const key = eventKey(event, props);
+  const key = eventKey(event, { ...requestContext(req), ...(props || {}) });
   const day = todayKey();
 
   try {

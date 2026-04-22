@@ -15,6 +15,7 @@ import { useLocalHistory } from './hooks/useLocalHistory';
 import { encodeCompare, decodeCompare, type DecodedCompare } from './utils/compare';
 import { generateQR } from './utils/qr';
 import { drawShareCard, canvasToBlob, type ShareCardRarity } from './utils/shareCard';
+import { trackEvent } from './hooks/useAnalytics';
 import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { catiConfig } from './data/cati/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
@@ -73,6 +74,13 @@ function CatiHero({ onStartTest, totalTests }: { onStartTest: () => void; totalT
           height: 3,
           background: 'linear-gradient(90deg, #a855f7, #ec4899)',
         }}
+      />
+
+      <motion.img
+        {...fadeInUp(0.18)}
+        src="/images/cati-gptimage2.png"
+        alt=""
+        className="w-full max-w-[520px] aspect-[3/2] object-cover rounded-xl border border-border mb-7 shadow-2xl"
       />
 
       {/* Description */}
@@ -177,16 +185,18 @@ function CatiAppInner() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStartTest = useCallback(() => {
+    trackEvent('quiz_start', { testId: config.id });
     quiz.startQuiz();
     setScreen('quiz');
-  }, [quiz]);
+  }, [quiz, config.id]);
 
   const handleQuizSubmit = useCallback(() => {
+    trackEvent('quiz_complete', { testId: config.id });
     const res = quiz.getResult();
     setResult(res);
     localHistory.saveResult(res.finalType.code);
     setScreen('interstitial');
-  }, [quiz, localHistory]);
+  }, [quiz, localHistory, config.id]);
 
   const handleInterstitialComplete = useCallback(() => {
     if (compareData) {
@@ -211,6 +221,7 @@ function CatiAppInner() {
 
   const handleShare = useCallback(async (rarity?: ShareCardRarity) => {
     if (!result) return;
+    trackEvent('share_click', { testId: config.id, platform: 'share' });
     const typeCode = result.finalType.code;
     const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     // Phase B virality: QR points to the type page (not test home).
@@ -230,6 +241,7 @@ function CatiAppInner() {
 
   const handleInviteCompare = useCallback(async (rarity?: ShareCardRarity) => {
     if (!result) return;
+    trackEvent('share_click', { testId: config.id, platform: 'invite' });
     const typeCode = result.finalType.code;
     const typeDef = config.typeLibrary[typeCode] ?? result.finalType;
     const similarity = 'similarity' in result.finalType
