@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProgressBar from './ProgressBar';
 import QuestionCard from './QuestionCard';
+import GoogleAd from './GoogleAd';
 import type { UseQuizReturn } from '../hooks/useQuiz';
 import { useTestConfig } from '../data/testConfig';
 import { trackEvent } from '../hooks/useAnalytics';
@@ -231,6 +232,11 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
             </button>
           </div>
         )}
+
+        {/* Google AdSense — quiz bottom */}
+        <div className="mt-6">
+          <GoogleAd slot="2663671441" />
+        </div>
       </div>
     </div>
   );
