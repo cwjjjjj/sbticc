@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GoogleAd from './GoogleAd';
 
 interface InterstitialProps {
   onComplete: () => void;
@@ -8,17 +9,6 @@ interface InterstitialProps {
 export default function Interstitial({ onComplete }: InterstitialProps) {
   const [countdown, setCountdown] = useState(5);
   const [showButton, setShowButton] = useState(false);
-
-  // Trigger vignette ad on mount (natural transition point)
-  useEffect(() => {
-    try {
-      const s = document.createElement('script');
-      s.dataset.zone = '10876468';
-      s.src = 'https://n6wxm.com/vignette.min.js';
-      document.body.appendChild(s);
-      return () => { try { document.body.removeChild(s); } catch {} };
-    } catch {}
-  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -63,6 +53,10 @@ export default function Interstitial({ onComplete }: InterstitialProps) {
           </motion.span>
         )}
 
+        <div className="w-full max-w-[680px] px-4 mt-6">
+          <GoogleAd slot="5580022552" />
+        </div>
+
         <AnimatePresence>
           {showButton && (
             <motion.button
@@ -70,7 +64,7 @@ export default function Interstitial({ onComplete }: InterstitialProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               onClick={handleClick}
-              className="bg-white text-black font-bold py-3 px-8 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+              className="bg-white text-black font-bold py-3 px-8 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer mt-6"
             >
               查看我的结果
             </motion.button>
