@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ProgressBar from './ProgressBar';
 import QuestionCard from './QuestionCard';
 import GoogleAd from './GoogleAd';
+import TencentAd, { TENCENT_PLACEMENTS } from './TencentAd';
 import type { UseQuizReturn } from '../hooks/useQuiz';
 import { useTestConfig } from '../data/testConfig';
 import { trackEvent } from '../hooks/useAnalytics';
@@ -236,6 +237,7 @@ export default function QuizOverlay({ quiz, onSubmit, onBack }: QuizOverlayProps
         {/* Google AdSense — quiz bottom */}
         <div className="mt-6">
           <GoogleAd slot="2663671441" />
+          <TencentAd placementId={TENCENT_PLACEMENTS.quizBottom} />
         </div>
       </div>
     </div>

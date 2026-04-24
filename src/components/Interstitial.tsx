@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GoogleAd from './GoogleAd';
+import TencentAd, { TENCENT_PLACEMENTS } from './TencentAd';
 
 interface InterstitialProps {
   onComplete: () => void;
@@ -55,6 +56,7 @@ export default function Interstitial({ onComplete }: InterstitialProps) {
 
         <div className="w-full max-w-[680px] px-4 mt-6">
           <GoogleAd slot="5580022552" />
+          <TencentAd placementId={TENCENT_PLACEMENTS.interstitial} />
         </div>
 
         <AnimatePresence>
