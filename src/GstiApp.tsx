@@ -21,6 +21,7 @@ import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { gstiConfig } from './data/gsti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
 import { randomAnswerForQuestion } from './utils/quiz';
+import { hasAiPaidReturn, restorePendingAiResult } from './utils/aiReport';
 
 type ScreenId = 'home' | 'picker' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
@@ -40,6 +41,15 @@ function AppInner() {
   const quiz = useQuiz();
   const ranking = useRanking();
   const localHistory = useLocalHistory();
+
+  useEffect(() => {
+    if (!hasAiPaidReturn()) return;
+    const pending = restorePendingAiResult(config.id);
+    if (pending) {
+      setResult(pending);
+      setScreen('result');
+    }
+  }, [config.id]);
 
   useEffect(() => { ranking.fetchRanking(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

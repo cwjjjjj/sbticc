@@ -5,6 +5,7 @@ import type { ComputeResultOutput } from '../utils/matching';
 import { MBTI_CONTENT, AT_FLAVOR } from '../data/mbti/content';
 import { COMPATIBILITY } from '../data/mbti/compatibility';
 import { trackEvent } from '../hooks/useAnalytics';
+import AiInterpretationCard from './AiInterpretationCard';
 
 interface MbtiResultPageProps {
   result: ComputeResultOutput;
@@ -105,6 +106,8 @@ export default function MbtiResultPage({
           <h2 className="font-bold text-xl mb-3">{config.dimSectionTitle}</h2>
           <MbtiDimensionBars pcts={pcts} />
         </section>
+
+        <AiInterpretationCard result={result} />
 
         {/* Section 3: Strengths */}
         <section className="mb-6">

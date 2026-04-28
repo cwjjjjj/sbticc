@@ -1,9 +1,10 @@
-import { useTestConfig } from '../data/testConfig';
 import { useMemo } from 'react';
+import { useTestConfig } from '../data/testConfig';
 
 interface DimListProps {
   levels: Record<string, string>;
   rawScores: Record<string, number>;
+  showExplanations?: boolean;
 }
 
 const levelWidth: Record<string, string> = {
@@ -12,11 +13,14 @@ const levelWidth: Record<string, string> = {
   H: '100%',
   A: '33%',
   B: '100%',
-  // MBTI dimensions (simplified mapping to show full bar for the dominant side)
-  E: '100%', I: '100%',
-  S: '100%', N: '100%',
-  T: '100%', F: '100%',
-  J: '100%', P: '100%',
+  E: '100%',
+  I: '100%',
+  S: '100%',
+  N: '100%',
+  T: '100%',
+  F: '100%',
+  J: '100%',
+  P: '100%',
 };
 
 const levelColor: Record<string, string> = {
@@ -25,22 +29,31 @@ const levelColor: Record<string, string> = {
   H: '#44ff88',
   A: '#ff3b3b',
   B: '#44ff88',
-  // MBTI colors (using a consistent theme color)
-  E: '#a855f7', I: '#a855f7',
-  S: '#a855f7', N: '#a855f7',
-  T: '#a855f7', F: '#a855f7',
-  J: '#a855f7', P: '#a855f7',
+  E: '#a855f7',
+  I: '#a855f7',
+  S: '#a855f7',
+  N: '#a855f7',
+  T: '#a855f7',
+  F: '#a855f7',
+  J: '#a855f7',
+  P: '#a855f7',
 };
 
 const MBTI_LEVELS = new Set(['E', 'I', 'S', 'N', 'T', 'F', 'J', 'P']);
 
-export default function DimList({ levels, rawScores }: DimListProps) {
+export default function DimList({
+  levels,
+  rawScores,
+  showExplanations = false,
+}: DimListProps) {
   const config = useTestConfig();
   const { dimensionOrder, dimensionMeta, dimExplanations, questions } = config;
 
   const maxAbsByDim = useMemo(() => {
     const out: Record<string, number> = {};
-    dimensionOrder.forEach((dim) => { out[dim] = 0; });
+    dimensionOrder.forEach((dim) => {
+      out[dim] = 0;
+    });
 
     questions.forEach((q) => {
       if (q.dim) {
@@ -79,16 +92,15 @@ export default function DimList({ levels, rawScores }: DimListProps) {
       {dimensionOrder.map((dim, i) => {
         const level = levels[dim] ?? 'M';
         const meta = dimensionMeta[dim];
-        // Strip prefix like "S1 " to get short name
         const shortName = meta.name.replace(/^[A-Za-z]+\d*\s*/, '');
-        const color = levelColor[level];
+        const color = levelColor[level] ?? '#a855f7';
         const explanation = dimExplanations[dim]?.[level];
         const isBipolar = dim.length === 2 && MBTI_LEVELS.has(level);
         const rawScore = rawScores[dim] ?? 0;
         const [leftLabel, rightLabel] = dim.split('');
         const isLeft = level === leftLabel;
         const strength = Math.min(50, Math.round((Math.abs(rawScore) / maxAbsByDim[dim]) * 50));
-        const width = levelWidth[level];
+        const width = levelWidth[level] ?? '66%';
 
         return (
           <div
@@ -102,7 +114,9 @@ export default function DimList({ levels, rawScores }: DimListProps) {
               <div className="grid grid-cols-[88px_1fr_88px] sm:grid-cols-[100px_1fr_100px] items-center gap-3">
                 <div>
                   <span className="block text-xs text-[#888]">{shortName}</span>
-                  <span className="block font-mono text-[10px] text-[#555] mt-0.5">{leftLabel}</span>
+                  <span className="block font-mono text-[10px] text-[#555] mt-0.5">
+                    {leftLabel}
+                  </span>
                 </div>
                 <div className="relative h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
                   <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#333]" />
@@ -119,7 +133,9 @@ export default function DimList({ levels, rawScores }: DimListProps) {
                   <span className="block font-mono text-xs font-bold" style={{ color }}>
                     {level}
                   </span>
-                  <span className="block font-mono text-[10px] text-[#555] mt-0.5">{rightLabel}</span>
+                  <span className="block font-mono text-[10px] text-[#555] mt-0.5">
+                    {rightLabel}
+                  </span>
                 </div>
               </div>
             ) : (
@@ -143,6 +159,11 @@ export default function DimList({ levels, rawScores }: DimListProps) {
                   {level}
                 </span>
               </div>
+            )}
+            {showExplanations && explanation && (
+              <p className="mt-2 pl-[116px] text-xs leading-relaxed text-[#aaa]">
+                {explanation}
+              </p>
             )}
           </div>
         );

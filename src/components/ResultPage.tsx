@@ -16,6 +16,7 @@ import RelatedArticles from './RelatedArticles';
 import { useRarity } from '../hooks/useRarity';
 import type { ShareCardRarity } from '../utils/shareCard';
 import { trackEvent } from '../hooks/useAnalytics';
+import AiInterpretationCard from './AiInterpretationCard';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
 
@@ -26,8 +27,6 @@ interface ResultPageProps {
   onInviteCompare: (rarity?: ShareCardRarity) => void;
   onRestart: () => void;
   onHome: () => void;
-  onStartPayment?: () => void;
-  onAlreadyPaid?: () => void;
   onDebugReroll?: () => void;
   onDebugForceType?: (code: string) => void;
   gender?: Gender;
@@ -44,13 +43,10 @@ const staggerItem = {
 
 export default function ResultPage({
   result,
-  isPaid = true,
   onShare,
   onInviteCompare,
   onRestart,
   onHome,
-  onStartPayment = () => undefined,
-  onAlreadyPaid = () => undefined,
   onDebugReroll,
   onDebugForceType,
   gender,
@@ -337,33 +333,15 @@ export default function ResultPage({
               <span className="w-[3px] h-4 bg-accent rounded-sm" />
               {config.dimSectionTitle}
             </h3>
-            <DimList levels={result.levels} rawScores={result.rawScores} />
+            <DimList
+              levels={result.levels}
+              rawScores={result.rawScores}
+              showExplanations={true}
+            />
+          </motion.div>
 
-            {/* Paywall Overlay */}
-            {!isPaid && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center p-6">
-                <div className="absolute inset-0 bg-bg/40 backdrop-blur-md" />
-                <div className="relative z-20 bg-surface border border-border rounded-2xl p-6 text-center max-w-[280px] shadow-2xl">
-                  <div className="text-3xl mb-3">🔒</div>
-                  <h4 className="text-lg font-bold text-white mb-2">解锁深度报告</h4>
-                  <p className="text-xs text-muted mb-6 leading-relaxed">
-                    维度详细解析 + 去广告 + 无水印高清分享图
-                  </p>
-                  <button
-                    onClick={onStartPayment}
-                    className="w-full bg-accent text-white font-bold py-2.5 rounded-xl text-sm mb-3 hover:bg-accent/90 transition-colors cursor-pointer"
-                  >
-                    ¥1.99 / $0.99 解锁
-                  </button>
-                  <button
-                    onClick={onAlreadyPaid}
-                    className="w-full bg-surface-2 text-muted py-2 rounded-xl text-xs hover:text-white transition-colors cursor-pointer"
-                  >
-                    我已支付
-                  </button>
-                </div>
-              </div>
-            )}
+          <motion.div variants={staggerItem} transition={{ duration: 0.4 }}>
+            <AiInterpretationCard result={result} />
           </motion.div>
 
           {/* 4. Compatibility */}

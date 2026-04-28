@@ -1,6 +1,7 @@
 import { PROD_BASE_URL } from '../theme/tokens';
 import type { Gender, TestConfig, TypeDef } from '../data/testConfig';
 import type { ComputeResultOutput } from './matching';
+import { hasPaidAccess } from '../hooks/useMonetization';
 
 /* ---------- types ---------- */
 
@@ -97,6 +98,7 @@ export async function drawShareCard(
   rarity?: ShareCardRarity,
 ): Promise<HTMLCanvasElement> {
   const { dimensionOrder, dimensionMeta, shareImages } = config;
+  const paid = isPaid || hasPaidAccess(config.id);
   const W = 840;
   const pad = 50;
   const contentW = W - pad * 2;
@@ -437,7 +439,7 @@ export async function drawShareCard(
   ctx.fillText('test.jiligulu.xyz', ctaTextX, y + 104);
 
   // Watermark path (only if not paid)
-  if (!isPaid) {
+  if (!paid) {
     ctx.font = '13px "JetBrains Mono", monospace';
     ctx.fillStyle = '#555';
     ctx.fillText(PROD_BASE_URL.replace('https://', '') + config.basePath, ctaTextX, y + 132);

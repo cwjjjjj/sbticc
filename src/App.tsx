@@ -22,27 +22,11 @@ import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { sbtiConfig } from './data/sbti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
 import { randomAnswerForQuestion } from './utils/quiz';
+import { hasAiPaidReturn, restorePendingAiResult } from './utils/aiReport';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
 const isTestDomain = window.location.hostname.includes('sbticc-test');
-
-/*
- * =========================================================================
- * PAYWALL (DISABLED)
- * =========================================================================
- * The paywall overlay, Stripe checkout integration, and Chinese QR payment
- * (面包多/爱发电) code exists but is currently disabled. The paywall would
- * normally gate full result details behind a $0.99 payment.
- *
- * To re-enable:
- * 1. Set isPaid state based on Stripe session verification (/api/verify)
- * 2. Show PaywallOverlay when result is displayed and !isPaid
- * 3. On successful payment, set isPaid = true and reveal full results
- *
- * Related API routes: /api/create-checkout.js, /api/verify.js
- * =========================================================================
- */
 
 function AppInner() {
   const config = useTestConfig();
@@ -59,6 +43,15 @@ function AppInner() {
   const quiz = useQuiz();
   const ranking = useRanking();
   const localHistory = useLocalHistory();
+
+  useEffect(() => {
+    if (!hasAiPaidReturn()) return;
+    const pending = restorePendingAiResult(config.id);
+    if (pending) {
+      setResult(pending);
+      setScreen('result');
+    }
+  }, [config.id]);
 
   // Fetch ranking data on mount
   useEffect(() => {

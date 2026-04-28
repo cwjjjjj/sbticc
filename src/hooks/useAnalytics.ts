@@ -9,6 +9,12 @@ export type TrackEvent =
   | 'quiz_q'
   | 'quiz_complete'
   | 'result_view'
+  | 'payment_click'
+  | 'payment_unlock'
+  | 'payment_cancel'
+  | 'ai_report_checkout_click'
+  | 'ai_report_paid'
+  | 'ai_report_generate_click'
   | 'share_click'
   | 'article_click';
 

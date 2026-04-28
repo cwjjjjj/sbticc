@@ -20,6 +20,7 @@ import { TestConfigProvider, useTestConfig } from './data/testConfig';
 import { mbtiConfig } from './data/mbti/config';
 import { computeResult, type ComputeResultOutput } from './utils/matching';
 import { randomAnswerForQuestion } from './utils/quiz';
+import { hasAiPaidReturn, restorePendingAiResult } from './utils/aiReport';
 
 type ScreenId = 'home' | 'quiz' | 'interstitial' | 'result' | 'compare';
 
@@ -146,6 +147,15 @@ function MbtiAppInner() {
   const quiz = useQuiz();
   const ranking = useRanking();
   const localHistory = useLocalHistory();
+
+  useEffect(() => {
+    if (!hasAiPaidReturn()) return;
+    const pending = restorePendingAiResult(config.id);
+    if (pending) {
+      setResult(pending);
+      setScreen('result');
+    }
+  }, [config.id]);
 
   // Fetch ranking data on mount
   useEffect(() => {
